@@ -96,6 +96,7 @@ body {
 body {
   color: var(--color-primary);
   background: var(--background-color-1);
+  font-family: var(--font-primary)
 }
 
 a {

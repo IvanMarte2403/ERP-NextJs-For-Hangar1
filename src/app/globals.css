@@ -11,8 +11,8 @@
   --font-secondary: 'Rubik';
 
 
-  --color-primary: #fff;
-  --color-secondary: #000;
+  --color-primary: #000;
+  --color-secondary: #fff;
   --color-third: #6A5AE0;
   --color-blue: #00A8DB;  
   --color-crema: #F8FBE8;
@@ -82,7 +82,7 @@
   box-sizing: border-box;
   padding: 0;
   margin: 0;
-  color: #fff;
+  color: #000;
 }
 
 html,

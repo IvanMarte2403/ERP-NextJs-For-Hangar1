@@ -1,6 +1,8 @@
+"use client";  // Indica que este es un Client Component
+
 import { useState } from "react";
-import { auth, signInWithEmailAndPassword } from "./firebase";
-import "./styles/styles.css";
+import { auth, signInWithEmailAndPassword } from "../../lib/firebase";
+import "./style/style.css";
 
 export default function Home() {
   const [email, setEmail] = useState("");
@@ -22,9 +24,16 @@ export default function Home() {
   };
 
   return (
-    <main>
+    <main className="main-container">
       <div className="login-container">
-        <h2>Login</h2>
+        <div className="container-logo">
+          <img
+          className="container-img"
+          src="img/logo-hangar-1.png"
+          >
+
+          </img>
+        </div>
         <form onSubmit={handleLogin}>
           <div className="input-group">
             <label htmlFor="email">Email:</label>
@@ -47,7 +56,7 @@ export default function Home() {
             />
           </div>
           {error && <p className="error">{error}</p>}
-          <button type="submit">Login</button>
+          <button className="button-30" type="submit">Login</button>
         </form>
       </div>
     </main>

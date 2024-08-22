@@ -104,7 +104,14 @@ export default function Ordenes() {
       </div>     
 
       <div className="ordenes-container">
-        <h2>Órdenes</h2>
+        <div className="reload">
+
+          <div>
+          <h2>Órdenes</h2>
+          <img src="icons/reload.png" />
+
+          </div>
+        </div>
         {loading ? (
           <p>Cargando órdenes...</p>  
         ) : (

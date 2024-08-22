@@ -14,42 +14,49 @@ export default function Ordenes() {
   const totalPages = 40; // Total de páginas (ajusta según tus datos)
 
   useEffect(() => {
-    async function loadOrders() {
-      setLoading(true); // Indica que se están cargando nuevos datos
-      setOrders([]); // Limpia las órdenes actuales para mostrar un estado limpio durante la carga
-
-      let ordersQuery = query(
-        collection(db, "orders"),
-        orderBy("uploadTime", "desc"),
-        limit(ordersPerPage)
-      );
-
-      if (lastVisible && currentPage > 1) {
-        ordersQuery = query(
-          collection(db, "orders"),
-          orderBy("uploadTime", "desc"),
-          startAfter(lastVisible),
-          limit(ordersPerPage)
-        );
-      }
-
-      const querySnapshot = await getDocs(ordersQuery);
-      const fetchedOrders = [];
-      querySnapshot.forEach(doc => {
-        fetchedOrders.push(doc.data());
-      });
-
-      setOrders(fetchedOrders);
-      setLastVisible(querySnapshot.docs[querySnapshot.docs.length - 1]);
-      setLoading(false); // Finaliza el estado de carga
-    }
-
     loadOrders();
   }, [currentPage]);
+
+  const loadOrders = async () => {
+    setLoading(true); // Indica que se están cargando nuevos datos
+    setOrders([]); // Limpia las órdenes actuales para mostrar un estado limpio durante la carga
+
+    let ordersQuery = query(
+      collection(db, "orders"),
+      orderBy("uploadTime", "desc"),
+      limit(ordersPerPage)
+    );
+
+    if (lastVisible && currentPage > 1) {
+      ordersQuery = query(
+        collection(db, "orders"),
+        orderBy("uploadTime", "desc"),
+        startAfter(lastVisible),
+        limit(ordersPerPage)
+      );
+    }
+
+    const querySnapshot = await getDocs(ordersQuery);
+    const fetchedOrders = [];
+    querySnapshot.forEach(doc => {
+      fetchedOrders.push(doc.data());
+    });
+
+    setOrders(fetchedOrders);
+    setLastVisible(querySnapshot.docs[querySnapshot.docs.length - 1]);
+    setLoading(false); // Finaliza el estado de carga
+  };
 
   const handlePageChange = (page) => {
     setCurrentPage(page);
     setLastVisible(null);  // Resetea para cargar la nueva página
+  };
+
+  const handleReload = async () => {
+    setLoading(true); // Mostrar loading mientras se realiza la recarga
+    await fetchAndStoreOrders(); // Llama a la API para consultar y almacenar las órdenes en Firebase
+    loadOrders(); // Vuelve a cargar las órdenes desde Firebase después de la actualización
+    setLoading(false); // Finaliza el estado de carga
   };
 
   const renderPagination = () => {
@@ -105,11 +112,9 @@ export default function Ordenes() {
 
       <div className="ordenes-container">
         <div className="reload">
-
           <div>
-          <h2>Órdenes</h2>
-          <img src="icons/reload.png" />
-
+            <h2>Órdenes</h2>
+            <img src="icons/reload.png" onClick={handleReload} style={{ cursor: 'pointer' }} alt="Recargar" />
           </div>
         </div>
         {loading ? (

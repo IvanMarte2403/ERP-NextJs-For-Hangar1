@@ -218,6 +218,7 @@
 }
 .ordenes-container .reload div img {
   width: 20%;
+  cursor: pointer;
 }
 .ordenes-container .reload div h2 {
   margin-right: var(--spacing-md);

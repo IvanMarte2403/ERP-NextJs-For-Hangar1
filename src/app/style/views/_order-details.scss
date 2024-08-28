@@ -1,0 +1,121 @@
+.order-title{
+
+    width: 100%;
+    margin-bottom: var(--spacing-lg);
+    h2{
+        font-size: var(--font-size-xxl);
+        color: var(--color-primary);
+        span{
+            font-weight: 400;
+        }
+    }
+
+
+}
+
+.subtitle{
+    margin-bottom: var(--spacing-xl);
+    width: 100%;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+
+    h3{
+        color: var(--color-primary);
+        font-size: var(--font-size-xl);
+    }
+
+    .container-print{
+        width: 15%;
+    }
+
+    img{
+        width: 25%;
+    }
+}
+
+
+// Container-orden
+
+
+.container-orden{
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    color: var(--color-primary);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2), 0 6px 20px rgba(0, 0, 0, 0.19);
+    padding: var(--spacing-lg);
+
+    .presupuesto-container{
+        width: 100%;
+        display: flex;
+        flex-direction: row;
+        justify-content: end;
+        align-items: center;
+    
+        div{
+            p{
+                color: var(--color-primary);
+                padding: var(--spacing-sm);
+            }
+        }
+    }
+
+    .row-client{
+        width: 50%;
+        display: flex;
+        flex-direction: row;
+        justify-content: space-between;
+        p{
+            margin-right: var(--spacing-xl);
+            margin-bottom: var(--spacing-md);
+        }
+
+        .nombre-cliente{
+            font-weight: 600;
+        }
+    }
+
+
+    .precio-container{
+        display: flex;
+        flex-direction: row;
+        justify-content: end;
+        align-items: end;
+    }
+
+}
+
+.container-productos{
+    margin-top: var(--spacing-xl);
+}
+
+
+table{
+    width: 100%;
+    td{
+        margin-top: var(--spacing-lg);
+        display: flex;
+        flex-direction: row;
+        justify-content: space-between;
+    }
+}
+
+.producto-boton{
+    margin-top: var(--spacing-xxl);
+    padding: 2rem 1rem 2rem 1rem;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2), 0 6px 20px rgba(0, 0, 0, 0.19);
+    border-radius: 1rem;
+}
+
+
+.producto-abonar{
+    width: 100%;
+    display: flex;
+    flex-direction: row;
+    justify-content: end;
+    margin-top: var(--spacing-lg);
+        p{
+            font-weight: 700;
+        }
+}

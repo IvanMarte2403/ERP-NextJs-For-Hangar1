@@ -1,22 +1,29 @@
-"use client";  // Indica que este es un Client Component
+"use client";
 
 import { useState } from "react";
 import Ordenes from "./views/Ordenes";
 import Dashboard from "./views/Dashboard";
 import Notificaciones from "./views/Notificaciones";
+import OrderDetails from "./views/OrderDetails";
 
 export default function DashboardPage() {
   const [view, setView] = useState("ordenes"); // Estado para manejar la vista actual
+  const [selectedOrderId, setSelectedOrderId] = useState(null); // Estado para manejar la ID de la orden seleccionada
 
   // Función para renderizar la vista seleccionada
   const renderView = () => {
     switch (view) {
       case "ordenes":
-        return <Ordenes />;
+        return <Ordenes onOrderClick={(orderId) => {
+          setSelectedOrderId(orderId);
+          setView("orderDetails");
+        }} />;
       case "dashboard":
         return <Dashboard />;
       case "notificaciones":
         return <Notificaciones />;
+      case "orderDetails":
+        return <OrderDetails orderId={selectedOrderId} />;
       default:
         return <Ordenes />;
     }

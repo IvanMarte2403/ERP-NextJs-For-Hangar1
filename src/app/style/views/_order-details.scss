@@ -27,6 +27,10 @@
 
     .container-print{
         width: 15%;
+        display: flex;
+        flex-direction: row;
+        justify-content: end;
+        align-items: center;
     }
 
     img{
@@ -91,9 +95,9 @@
 }
 
 
-table{
+.table-order{
     width: 100%;
-    td{
+    tr{
         margin-top: var(--spacing-lg);
         display: flex;
         flex-direction: row;

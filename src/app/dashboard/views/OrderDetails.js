@@ -1,165 +1,150 @@
-"use client";
+  "use client";
 
-import { useEffect, useState } from "react";
-import { doc, getDoc } from "firebase/firestore";
-import { db } from "../../../../lib/firebase";
+  import { useEffect, useState } from "react";
+  import { doc, getDoc } from "firebase/firestore";
+  import { db } from "../../../../lib/firebase";
 
-export default function OrderDetails({ orderId }) {
-  const [order, setOrder] = useState(null);
+  export default function OrderDetails({ orderId }) {
+    const [order, setOrder] = useState(null);
 
-  useEffect(() => {
-    const fetchOrder = async () => {
-      try {
-        const docRef = doc(db, "orders", orderId.toString()); // Asegúrate de que el orderId sea un string
-        const docSnap = await getDoc(docRef);
+    useEffect(() => {
+      const fetchOrder = async () => {
+        try {
+          const docRef = doc(db, "orders", orderId.toString()); // Asegúrate de que el orderId sea un string
+          const docSnap = await getDoc(docRef);
 
-        if (docSnap.exists()) {
-          setOrder(docSnap.data());
-        } else {
-          console.log("No such document!");
+          if (docSnap.exists()) {
+            setOrder(docSnap.data());
+          } else {
+            console.log("No such document!");
+          }
+        } catch (error) {
+          console.error("Error fetching order details:", error);
         }
-      } catch (error) {
-        console.error("Error fetching order details:", error);
-      }
-    };
+      };
 
-    fetchOrder();
-  }, [orderId]);
+      fetchOrder();
+    }, [orderId]);
 
-  if (!order) {
-    return <p>Cargando detalles de la orden...</p>;
-  }
+    if (!order) {
+      return <p>Cargando detalles de la orden...</p>;
+    }
 
-  return (
-    <div className="order-details">
-      <div className="order-title">
-          <h2>Detalles de la Orden /  <span>{order.orderNumber}</span></h2>
-      </div>
-
-      <div className="subtitle">
-        <h3>Fecha: {new Date(order.uploadTime).toLocaleDateString()} </h3>
-        <div className="container-print">
-          <img
-          src="icons/print.svg"
-          />
-          
+    return (
+      <div className="order-details">
+        <div className="order-title">
+            <h2>Detalles de la Orden /  <span>{order.orderNumber}</span></h2>
         </div>
-      </div>
-     
-      {/* Container Orden */}
-      <div className="container-orden">
-        {/* Presupuesto Containerl */}
-        <div className="presupuesto-container">
-          <div>
+
+        <div className="subtitle">
+          <h3>Fecha: {new Date(order.uploadTime).toLocaleDateString()} </h3>
+          <div className="container-print">
+            <img
+            src="icons/print.svg"
+            alt="Imprimir"
+            />
+          </div>
+        </div>
+      
+        {/* Container Orden */}
+        <div className="container-orden">
+          {/* Estado de la Orden */}
+          <div className={`presupuesto-container ${order.estado_orden?.toLowerCase()}`}>
+            <div>
+              <p>
+                {order.estado_orden || "Presupuesto"}
+              </p>
+            </div>
+          </div>
+          
+          {/* Nombre del cliente */}
+          <div className="row-client">
             <p>
-              Presupuesto
+              Nombre del cliente:
             </p>
+
+            <p className="nombre-cliente">
+              {`${order.firstName || ''} ${order.lastName || ''}`}
+            </p>
+          </div> 
+
+          {/* Asesor */}
+          <div className="row-client">
+            <p>
+              Asesor:
+            </p>
+
+            <p className="nombre-cliente">
+              {order.inCharge}
+            </p>
+          </div>
+
+          {/* Teléfono */}
+          <div className="row-client">
+            <p>
+              Teléfono:
+            </p>
+
+            <p className="nombre-cliente">
+              {order.mobile || 'N/A'}
+            </p>
+          </div>
+          
+          {/* Auto */}
+          <div className="row-client">
+            <p>
+              Auto: 
+            </p>
+
+            <p className="nombre-cliente">
+              {`${order.brand || ''} ${order.model || ''}`}
+            </p>
+          </div>
+
+          {/* Método de Pago */}
+          <div className="row-client">
+            <p>
+              Método de Pago: 
+            </p>
+
+            <p className="nombre-cliente">
+              {order.paymentMethod || 'N/A'}
+            </p>
+          </div>
+
+          <div className="precio-container">
+            <h2> Total: 12,500</h2>
           </div>
         </div>
         
-        {/* Nombre del cliente */}
-        <div className="row-client">
-          <p>
-            Nombre del cliente:
-          </p>
-
-          <p className="nombre-cliente">
-          {`${order.firstName || ''} ${order.lastName || ''}`}
-          </p>
-        </div> 
-
-        {/* Asesor */}
-        <div className="row-client">
-          <p>
-            Asesor:
-          </p>
-
-          <p className="nombre-cliente">
-          {order.inCharge}
-          </p>
+        {/* Productos & Servicios */}
+        <div className="container-productos">
+          <h2>Productos & Servicios</h2>      
         </div>
 
-        {/* Telefono */}
-        <div className="row-client">
-          <p>
-            Telefono
-          </p>
+        <table className="table-order">
+          <thead>
+            <tr>
+              <th>Producto</th>
+              <th>Marca</th>
+              <th>Descripción</th>
+              <th>Cantidad</th>
+              <th>Impuestos</th>
+              <th>Descuentos</th>
+            </tr>
+          </thead>
+          <tbody>
+          </tbody>
+        </table>
 
-          <p className="nombre-cliente">
-
-          </p>
+        <div className="producto-abonar">
+          <p>Abonar</p>
         </div>
-        {/* Coche */}
-        <div className="row-client">
-          <p>
-            Auto: 
-          </p>
-
-          <p className="nombre-cliente">
-          {`${order.brand || ''} ${order.model || ''}`}
-          </p>
-        </div>
-
-        {/* Metodo de pago */}
-
-        <div className="row-client">
-          <p>
-            Método de Pago: 
-          </p>
-
-          <p className="nombre-cliente">
-          
-          </p>
+        <div className="producto-boton">
+          Agregar un producto
         </div>
 
-        <div className="precio-container">
-          <h2> Total: 12,500</h2>
-        </div>
-
+        <div className="abonar"></div>
       </div>
-      
-      {/* Productos & Servicios */}
-
-      <div className="container-productos">
-        <h2>Productos & Servicios</h2>      
-      </div>
-
-      <table>
-        <td>
-          <tr>
-            Producto
-          </tr>
-
-          <tr>
-            Marca
-          </tr>
-
-          <tr>
-            Descripción
-          </tr>
-
-          <tr>
-            Cantidad 
-          </tr>
-
-          <tr>
-            Impuestos
-          </tr>
-
-          <tr>
-            Descuentos
-          </tr>
-        </td>
-      </table>
-
-      <div className="producto-abonar">
-        <p>Abonar</p>
-      </div>
-      <div className="producto-boton">
-        Agregar un producto
-      </div>
-
-      <div className="abonar"></div>
-    </div>
-  );
-}
+    );
+  }

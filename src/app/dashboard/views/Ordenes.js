@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { fetchAndStoreOrders } from "../../../../lib/apiService";
-import { collection, query, orderBy, limit, startAfter, getDocs } from "firebase/firestore";
+import { collection, query, orderBy, limit, startAfter, getDocs, doc, updateDoc } from "firebase/firestore";
 import { db } from "../../../../lib/firebase";
 
 export default function Ordenes() {
@@ -10,16 +10,17 @@ export default function Ordenes() {
   const [currentPage, setCurrentPage] = useState(1);
   const [lastVisible, setLastVisible] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [activeDropdown, setActiveDropdown] = useState(null);
   const ordersPerPage = 15;
-  const totalPages = 40; // Total de páginas (ajusta según tus datos)
+  const totalPages = 40;
 
   useEffect(() => {
     loadOrders();
   }, [currentPage]);
 
   const loadOrders = async () => {
-    setLoading(true); // Indica que se están cargando nuevos datos
-    setOrders([]); // Limpia las órdenes actuales para mostrar un estado limpio durante la carga
+    setLoading(true);
+    setOrders([]);
 
     let ordersQuery = query(
       collection(db, "orders"),
@@ -38,25 +39,59 @@ export default function Ordenes() {
 
     const querySnapshot = await getDocs(ordersQuery);
     const fetchedOrders = [];
-    querySnapshot.forEach(doc => {
-      fetchedOrders.push(doc.data());
-    });
+
+    for (const docSnap of querySnapshot.docs) {
+      const order = docSnap.data();
+
+      if (!order.estado_orden || typeof order.estado_orden !== "string") {
+        const orderRef = doc(db, "orders", docSnap.id);
+        await updateDoc(orderRef, { estado_orden: "Presupuesto" });
+        order.estado_orden = "Presupuesto";
+      }
+
+      fetchedOrders.push(order);
+    }
 
     setOrders(fetchedOrders);
     setLastVisible(querySnapshot.docs[querySnapshot.docs.length - 1]);
-    setLoading(false); // Finaliza el estado de carga
+    setLoading(false);
   };
 
   const handlePageChange = (page) => {
     setCurrentPage(page);
-    setLastVisible(null);  // Resetea para cargar la nueva página
+    setLastVisible(null);
   };
 
   const handleReload = async () => {
-    setLoading(true); // Mostrar loading mientras se realiza la recarga
-    await fetchAndStoreOrders(); // Llama a la API para consultar y almacenar las órdenes en Firebase
-    loadOrders(); // Vuelve a cargar las órdenes desde Firebase después de la actualización
-    setLoading(false); // Finaliza el estado de carga
+    setLoading(true);
+    await fetchAndStoreOrders();
+    loadOrders();
+    setLoading(false);
+  };
+
+  const toggleDropdown = (orderId) => {
+    if (activeDropdown === orderId) {
+      setActiveDropdown(null);
+    } else {
+      setActiveDropdown(orderId);
+    }
+  };
+
+  const changeOrderStatus = async (orderId, newStatus) => {
+    console.log("Order ID:", orderId);
+    console.log("New Status:", newStatus);
+
+    // Convertir orderId a string
+    const orderRef = doc(db, "orders", orderId.toString());
+    await updateDoc(orderRef, { estado_orden: newStatus });
+
+    setOrders((prevOrders) =>
+      prevOrders.map((order) =>
+        order.orderID === orderId ? { ...order, estado_orden: newStatus } : order
+      )
+    );
+
+    setActiveDropdown(null);
   };
 
   const renderPagination = () => {
@@ -141,14 +176,22 @@ export default function Ordenes() {
                   <td>{`${order.brand || ''} ${order.model || ''}`}</td>
                   <td>{order.inCharge}</td>
                   <td>{/* Aquí puedes calcular el total si tienes esa información */}</td>
-                  <td className="presupuesto">Presupuesto</td>
+                  <div className="tb-padding" onClick={() => toggleDropdown(order.orderID)}>
+                    <td className={order.estado_orden.toLowerCase()}>{order.estado_orden}</td>
+                    {activeDropdown === order.orderID && (
+                      <div className="dropdown">
+                        {order.estado_orden !== "Presupuesto" && <p onClick={() => changeOrderStatus(order.orderID, "Presupuesto")} className="presupuesto">Presupuesto</p>}
+                        {order.estado_orden !== "Vendido" && <p onClick={() => changeOrderStatus(order.orderID, "Vendido")} className="vendido">Vendido</p>}
+                        {order.estado_orden !== "Negociación" && <p onClick={() => changeOrderStatus(order.orderID, "Negociación")} className="negociación">negociación</p>}
+                      </div>
+                    )}
+                  </div>
                 </tr>
               ))}
             </tbody>
           </table>
         )}
 
-        {/* Paginación */}
         <div className="pagination">
           {renderPagination()}
         </div>

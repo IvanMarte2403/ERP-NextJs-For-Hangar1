@@ -32,15 +32,15 @@ export default function DashboardPage() {
         <div className="container-nav">
           <ul>
             <li onClick={() => setView("ordenes")}>
-              <img src="icons/car-solid.png" alt="Órdenes Icono" />ORDENES
+              <img src="icons/car-solid.png" alt="Órdenes Icono" />Ordenes
             </li>
 
             <li onClick={() => setView("dashboard")}>
-              <img src="icons/dashboard.png" alt="Dashboard Icono" />DASHBOARD
+              <img src="icons/dashboard.png" alt="Dashboard Icono" />Dashboard
             </li>
 
             <li onClick={() => setView("notificaciones")}>
-              <img src="icons/notificaciones.png" alt="Notificaciones Icono" />NOTIFICACIONES
+              <img src="icons/notificaciones.png" alt="Notificaciones Icono" />Notificaciones
             </li>
           </ul>
         </div>

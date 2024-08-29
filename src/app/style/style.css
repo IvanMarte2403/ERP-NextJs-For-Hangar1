@@ -271,11 +271,11 @@ tr:hover {
   width: 15%;
   display: flex;
   flex-direction: row;
-  justify-content: end;
+  justify-content: flex-end;
   align-items: center;
 }
 .subtitle img {
-  width: 25%;
+  width: 100%;
 }
 
 .container-orden {
@@ -290,7 +290,6 @@ tr:hover {
   width: 100%;
   display: flex;
   flex-direction: row;
-  justify-content: end;
   align-items: center;
 }
 .container-orden .presupuesto-container div p {
@@ -313,8 +312,8 @@ tr:hover {
 .container-orden .precio-container {
   display: flex;
   flex-direction: row;
-  justify-content: end;
-  align-items: end;
+  justify-content: flex-end;
+  align-items: flex-end;
 }
 
 .container-productos {
@@ -342,7 +341,7 @@ tr:hover {
   width: 100%;
   display: flex;
   flex-direction: row;
-  justify-content: end;
+  justify-content: flex-end;
   margin-top: var(--spacing-lg);
 }
 .producto-abonar p {

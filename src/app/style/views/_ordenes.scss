@@ -1,6 +1,8 @@
 .containerOrdenes{
     width: 100%;
     height: 100%;
+    padding: 2rem 4rem 2rem 4rem;
+    background-color: rgba(5, 5, 5, 0.052);
 
     .header-ordenes{
         width: 100%;
@@ -28,6 +30,7 @@
     .ordenes-table{
         width: 100%;
         padding: var(--spacing-md);
+        background-color: var(--background-color-1);
         box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2), 0 6px 20px rgba(0, 0, 0, 0.19);
 
         th{
@@ -92,19 +95,16 @@
         align-items: center;
         margin-bottom: var(--spacing-xl);
         div{
-            width: 10%;
+            width: 15%;
             display: flex;
             flex-direction: row;
-            justify-content: center;
+            justify-content: space-between;
             align-items: center;
             img{
-                width: 20%;
+                width: 15%;
                 cursor: pointer;
             }
 
-            h2{
-                margin-right: var(--spacing-md);
-            }
         }
     }
 }

@@ -137,12 +137,7 @@ export default function Ordenes({ onOrderClick }) {
 
   return (
     <div className="containerOrdenes">
-      <div className="header-ordenes">
-        <h1>¡Bienvenida Ariel Moreno</h1>
-        <div className="search-container">
-          <img src="icons/search.png" />
-        </div>
-      </div>     
+   
 
       <div className="ordenes-container">
         <div className="reload">

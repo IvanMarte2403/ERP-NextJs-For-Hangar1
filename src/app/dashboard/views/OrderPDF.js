@@ -32,22 +32,17 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     flexDirection: 'row',
     marginTop: 40,
-
   },
   headerColumn:{
-    width: '55%'
+    width: '55%',
   },
   headerColumn2:{
-    width: '30%'
-  },
-  informationHeader:{
-    
+    width: '30%',
   },
   textInfo: {
     fontSize: 12,
     textAlign: 'right',
     fontWeight: 'bold',
-
   },
   imagenSc: {
     width: '100%',
@@ -56,42 +51,51 @@ const styles = StyleSheet.create({
 });
 
 // Componente que genera el PDF
-const OrderPDF = ({ order }) => (
-  <Document>
-    <Page style={styles.page}>
+const OrderPDF = ({ order }) => {
+  if (!order || !order.orderNumber) {
+    return (
+      <Document>
+        <Page style={styles.page}>
+          <Text>Cargando datos de la orden...</Text>
+        </Page>
+      </Document>
+    );
+  }
 
-      <View style={styles.headerContainer}>
+  return (
+    <Document>
+      <Page style={styles.page}>
+        <View style={styles.headerContainer}>
           <View style={styles.headerColumn2}>
-            <Image  
-            style={styles.imagenSc}
-            src="img/speedCenter.png"
-            
+            <Image
+              style={styles.imagenSc}
+              src="img/speedCenter.png"
             />
           </View>
 
           <View style={styles.headerColumn}>
             <Text style={styles.textInfo}>
-            Hangar 1 Centro Automotor de Alto Rendimiento {"\n"}
-            Avenida Cuauhtémoc 740-742, CP 03020 Narvarte {"\n"} Poniente, Benito Juárez, {"\n"} CDMX, México
-
-            </Text>  
-
+              Hangar 1 Centro Automotor de Alto Rendimiento {"\n"}
+              Avenida Cuauhtémoc 740-742, CP 03020 Narvarte {"\n"} Poniente, Benito Juárez, {"\n"} CDMX, México
+            </Text>
           </View>  
-        
-      </View>      
-      <View style={styles.section}>
-        <Text style={styles.text}>Orden N°: {order.orderNumber}</Text>
-        <Text style={styles.text}>Cliente: {`${order.firstName || ''} ${order.lastName || ''}`}</Text>
-        <Text style={styles.text}>Asesor: {order.inCharge}</Text>
-        <Text style={styles.text}>Teléfono: {order.mobile || 'N/A'}</Text>
-        <Text style={styles.text}>Auto: {`${order.brand || ''} ${order.model || ''}`}</Text>
-        <Text style={styles.text}>Método de Pago: {order.paymentMethod || 'N/A'}</Text>
-        <Text style={styles.text}>Estado: {order.estado_orden || 'Presupuesto'}</Text>
-      </View>
+        </View>      
 
-      <Text style={styles.footer}>Gracias por confiar en nosotros</Text>
-    </Page>
-  </Document>
-);
+        <View style={styles.section}>
+          <Text style={styles.text}>Orden N°: {order.orderNumber}</Text>
+          <Text style={styles.text}>Cliente: {`${order.firstName || ''} ${order.lastName || ''}`}</Text>
+          <Text style={styles.text}>Asesor: {order.inCharge}</Text>
+          <Text style={styles.text}>Teléfono: {order.mobile || 'N/A'}</Text>
+          <Text style={styles.text}>Auto: {`${order.brand || ''} ${order.model || ''}`}</Text>
+          <Text style={styles.text}>Método de Pago: {order.paymentMethod || 'N/A'}</Text>
+          <Text style={styles.text}>Estado: {order.estado_orden || 'Presupuesto'}</Text>
+        </View>
+
+        {/* Aquí puedes agregar más detalles sobre los productos o servicios si es necesario */}
+        <Text style={styles.footer}>Gracias por confiar en nosotros</Text>
+      </Page>
+    </Document>
+  );
+};
 
 export default OrderPDF;

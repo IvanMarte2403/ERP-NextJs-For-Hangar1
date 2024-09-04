@@ -3,7 +3,8 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation"; // Importa useRouter
 import { auth, signInWithEmailAndPassword } from "../../lib/firebase";
-  
+
+
 export default function Home() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -26,13 +27,28 @@ export default function Home() {
 
   return (
     <main className="main-container">
+
+      {/* Login Container */}
       <div className="login-container">
+        {/* Container Logo */}
+
+        <div className="container-icon">
+        <img 
+            src="icons/home.svg"
+          />
+        </div>
         <div className="container-logo">
           <img
             className="container-img"
             src="img/logo-hangar-1.png"
           />
         </div>
+
+        <div className="title-forms">
+     
+          <h3>Inicio de sesión</h3>
+        </div>
+        
         <form onSubmit={handleLogin}>
           <div className="input-group">
             <label htmlFor="email">Email:</label>
@@ -55,8 +71,11 @@ export default function Home() {
             />
           </div>
           {error && <p className="error">{error}</p>}
-          <button className="button-30" type="submit">Login</button>
+          <button className="button-30 button-login" type="submit">Login</button>
         </form>
+      </div>
+
+      <div className="background-login">
       </div>
     </main>
   );

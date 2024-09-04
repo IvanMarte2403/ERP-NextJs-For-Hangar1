@@ -31,6 +31,7 @@ export default function DashboardPage() {
 
   return (
     <main className="container-home">
+      {/* Menu Nav */}
       <div className="nav-bar-home">
         <div className="container-image">
           <img src="img/logo-hangar-1.png" alt="Logo" />
@@ -54,6 +55,12 @@ export default function DashboardPage() {
       </div>
 
       <div className="home-container">
+        <div className="header-profile">
+          <h1>¡Bienvenida Ariel Moreno! 🏎️</h1>
+          <div className="search-container">
+            <img src="icons/search.png" />
+          </div>
+        </div>
         {renderView()} {/* Renderiza la vista seleccionada */}
       </div>
     </main>

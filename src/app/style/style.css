@@ -359,6 +359,7 @@ tr:hover {
   display: flex;
   flex-direction: row;
   align-items: center;
+  justify-content: flex-end;
 }
 .container-orden .presupuesto-container div p {
   color: var(--color-primary);
@@ -414,4 +415,14 @@ tr:hover {
 }
 .producto-abonar p {
   font-weight: 700;
+}
+
+.table-order td {
+  word-wrap: break-word !important;
+  overflow-wrap: break-word;
+  width: 15%;
+}
+.table-order th {
+  width: 15%;
+  text-align: left;
 }/*# sourceMappingURL=style.css.map */

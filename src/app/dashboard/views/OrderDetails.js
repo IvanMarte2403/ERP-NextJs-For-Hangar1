@@ -10,6 +10,8 @@ import { fetchAndStoreOrderDetails } from "../../../../lib/apiService"; // Impor
 export default function OrderDetails({ orderId }) {
   const [order, setOrder] = useState(null);
   const [orderNumber, setOrderNumber] = useState(null);
+  const taxRate = 0.16; // Impuesto del 16%
+  const discount = 0; // Descuento inicial en 0
 
   useEffect(() => {
     const fetchOrderFromFirebase = async () => {
@@ -55,6 +57,14 @@ export default function OrderDetails({ orderId }) {
 
   // Verifica si 'inspectionItems' está dentro de `order.data` si viene de la API o de Firebase.
   const inspectionItems = order.inspectionItems || [];
+
+  const calculateSubtotal = (item) => {
+    const cost = item.partUnitPrice || 0;
+    const quantity = item.quantity || 0;
+    const taxAmount = cost * quantity * taxRate;
+    const subtotal = (cost * quantity) + taxAmount - discount;
+    return subtotal.toFixed(2);
+  };
 
   return (
     <div className="order-details">
@@ -135,14 +145,15 @@ export default function OrderDetails({ orderId }) {
       </div>
 
       <table className="table-order">
-        <thead>
-          <tr>
+        <thead className="no-hover">
+          <tr className="no-hover">
             <th>Producto</th>
             <th>Marca</th>
             <th>Costo</th>
             <th>Cantidad</th>
             <th>Impuestos</th>
             <th>Descuentos</th>
+            <th>SubTotal</th>
           </tr>
         </thead>
         <tbody>
@@ -154,13 +165,14 @@ export default function OrderDetails({ orderId }) {
                 <td>{item.brand || 'N/A'}</td>
                 <td>{item.partUnitPrice}</td>
                 <td>{item.quantity}</td>
-                <td>{item.impuestos || 'N/A'}</td>
-                <td>{item.discounts || 'N/A'}</td>
+                <td>{(item.partUnitPrice * taxRate).toFixed(2)}</td>
+                <td>{discount}</td>
+                <td>{calculateSubtotal(item)}</td>
               </tr>
             ))
           ) : (
             <tr>
-              <td colSpan="6">No hay productos o servicios asociados</td>
+              <td colSpan="7">No hay productos o servicios asociados</td>
             </tr>
           )}
         </tbody>

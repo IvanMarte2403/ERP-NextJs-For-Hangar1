@@ -33,14 +33,23 @@
         width: 15%;
         display: flex;
         flex-direction: row;
-        justify-content: flex-end;
+        justify-content: space-around;
         align-items: center;
+
     }
 
     img{
         width: 100%;
     }
+
+    .save-container{
+        width: 15%;
+    }
+    
+
+   
 }
+
 
 
 // Container-orden
@@ -73,14 +82,19 @@
         width: 50%;
         display: flex;
         flex-direction: row;
+        align-items: center;
+        margin-bottom: var(--spacing-md);
         justify-content: space-between;
-        p{
-            margin-right: var(--spacing-xl);
-            margin-bottom: var(--spacing-md);
-        }
-
         .nombre-cliente{
             font-weight: 600;
+        }
+
+        input{
+            all: unset;
+            background: none;
+            border: none;
+            font-family: var(--font-primary);
+            font-family: var(--font-size-xl);
         }
     }
 

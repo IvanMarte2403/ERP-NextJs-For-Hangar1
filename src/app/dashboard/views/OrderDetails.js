@@ -6,10 +6,23 @@ import { db } from "../../../../lib/firebase";
 import { PDFDownloadLink } from '@react-pdf/renderer';
 import OrderPDF from "./OrderPDF"; // Importa el componente para generar el PDF
 import { fetchAndStoreOrderDetails } from "../../../../lib/apiService"; // Importa la función de apiService
+import { updateOrder } from "../../../../lib/apiService";
 
 export default function OrderDetails({ orderId }) {
   const [order, setOrder] = useState(null);
   const [orderNumber, setOrderNumber] = useState(null);
+  const [totalAmount, setTotalAmount] = useState(0); // Estado para almacenar el total
+  const [isEdited, setIsEdited] = useState(false); // Estado para habilitar el botón de guardar
+  const [formData, setFormData] = useState({
+    firstName: '',
+    lastName: '',
+    mobile: '',
+    inCharge: '',
+    brand: '',
+    model: '',
+    paymentMethod: ''
+  });
+
   const taxRate = 0.16; // Impuesto del 16%
   const discount = 0; // Descuento inicial en 0
 
@@ -40,6 +53,27 @@ export default function OrderDetails({ orderId }) {
           }
 
           setOrder(orderData);
+          setFormData({
+            firstName: orderData.firstName,
+            lastName: orderData.lastName,
+            mobile: orderData.mobile,
+            inCharge: orderData.inCharge,
+            brand: orderData.brand,
+            model: orderData.model,
+            paymentMethod: orderData.paymentMethod,
+          });
+
+          // Calcular el total cuando se obtenga la orden
+          const inspectionItems = orderData.inspectionItems || [];
+          const totalSubtotal = inspectionItems.reduce((acc, item) => {
+            const cost = item.partUnitPrice || 0;
+            const quantity = item.quantity || 0;
+            const taxAmount = cost * quantity * taxRate;
+            const subtotal = (cost * quantity) + taxAmount - discount;
+            return acc + subtotal;
+          }, 0);
+
+          setTotalAmount(totalSubtotal); // Establecer el total
         } else {
           console.log("No se encontró el documento en Firebase!");
         }
@@ -51,11 +85,43 @@ export default function OrderDetails({ orderId }) {
     fetchOrderFromFirebase(); // Ejecutar la consulta al cargar el componente
   }, [orderId]);
 
+  // Habilita el Botón de Guardar
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setFormData((prevData) => ({
+      ...prevData,
+      [name]: value,
+    }));
+    setIsEdited(true); // Habilita el botón de guardar cuando hay cambios
+  };
+
+  const handleSave = async () => {
+    try {
+      const repairShopId = 3080; // ID del taller de reparación
+
+      // Actualizar la orden con la información editada
+      const updatedOrderData = {
+        firstName: formData.firstName,
+        lastName: formData.lastName,
+        mobile: formData.mobile,
+        inCharge: formData.inCharge,
+        brand: formData.brand,
+        model: formData.model,
+        paymentMethod: formData.paymentMethod,
+      };
+
+      await updateOrder(accessToken, orderNumber, repairShopId, updatedOrderData);
+      console.log("Orden actualizada con éxito");
+      setIsEdited(false); // Deshabilitar el botón de guardar después de guardar
+    } catch (error) {
+      console.error("Error actualizando la orden:", error);
+    }
+  };
+
   if (!order) {
     return <p>Cargando detalles de la orden...</p>;
   }
 
-  // Verifica si 'inspectionItems' está dentro de `order.data` si viene de la API o de Firebase.
   const inspectionItems = order.inspectionItems || [];
 
   const calculateSubtotal = (item) => {
@@ -69,7 +135,7 @@ export default function OrderDetails({ orderId }) {
   return (
     <div className="order-details">
       <div className="order-title">
-          <h2>Detalles de la Orden /  <span>{order.orderNumber}</span></h2>
+        <h2>Detalles de la Orden /  <span>{order.orderNumber}</span></h2>
       </div>
 
       <div className="subtitle">
@@ -80,68 +146,88 @@ export default function OrderDetails({ orderId }) {
               loading ? <p>Cargando PDF...</p> : <img src="icons/print.svg" alt="Imprimir" />
             )}
           </PDFDownloadLink>
+
+          {isEdited && (
+            <div className="save-container" onClick={handleSave}>
+              <img src="icons/save.svg" alt="Guardar" />
+            </div>
+          )}
         </div>
       </div>
-     
+
       {/* Container Orden */}
       <div className="container-orden">
         {/* Estado de la Orden */}
         <div className={`presupuesto-container ${order.estado_orden?.toLowerCase()}`}>
           <div>
-            <p>
-              {order.estado_orden || "Presupuesto"}
-            </p>
+            <p>{order.estado_orden || "Presupuesto"}</p>
           </div>
         </div>
-        
-        {/* Nombre del cliente */}
+
+        {/* Campos Editables */}
         <div className="row-client">
           <p>Nombre del cliente:</p>
-          <p className="nombre-cliente">
-            {`${order.firstName || ''} ${order.lastName || ''}`}
-          </p>
-        </div> 
+          <input
+            name="firstName"
+            value={formData.firstName}
+            onChange={handleInputChange}
+          />
+          <input
+            name="lastName"
+            value={formData.lastName}
+            onChange={handleInputChange}
+          />
+        </div>
 
-        {/* Asesor */}
         <div className="row-client">
           <p>Asesor:</p>
-          <p className="nombre-cliente">
-            {order.inCharge}
-          </p>
+          <input
+            name="inCharge"
+            value={formData.inCharge}
+            onChange={handleInputChange}
+          />
         </div>
 
-        {/* Teléfono */}
         <div className="row-client">
           <p>Teléfono:</p>
-          <p className="nombre-cliente">
-            {order.mobile || 'N/A'}
-          </p>
-        </div>
-        
-        {/* Auto */}
-        <div className="row-client">
-          <p>Auto:</p>
-          <p className="nombre-cliente">
-            {`${order.brand || ''} ${order.model || ''}`}
-          </p>
+          <input
+            name="mobile"
+            value={formData.mobile}
+            onChange={handleInputChange}
+          />
         </div>
 
-        {/* Método de Pago */}
+        <div className="row-client">
+          <p>Auto:</p>
+          <input
+            name="brand"
+            value={formData.brand}
+            onChange={handleInputChange}
+          />
+          <input
+            name="model"
+            value={formData.model}
+            onChange={handleInputChange}
+          />
+        </div>
+
         <div className="row-client">
           <p>Método de Pago:</p>
-          <p className="nombre-cliente">
-            {order.paymentMethod || 'N/A'}
-          </p>
+          <input
+            name="paymentMethod"
+            value={formData.paymentMethod}
+            onChange={handleInputChange}
+          />
         </div>
 
         <div className="precio-container">
-          <h2>Total: 12,500</h2>
+          <h2>Total: ${totalAmount.toFixed(2)}</h2> {/* Mostrar el total calculado */}
         </div>
       </div>
-      
+
       {/* Productos & Servicios */}
       <div className="container-productos">
-        <h2>Productos & Servicios</h2>      
+        <h2>Productos & Servicios</h2>
       </div>
 
       <table className="table-order">
@@ -157,17 +243,16 @@ export default function OrderDetails({ orderId }) {
           </tr>
         </thead>
         <tbody>
-          {/* Itera sobre los inspectionItems */}
           {inspectionItems.length > 0 ? (
             inspectionItems.map((item, index) => (
               <tr key={index}>
                 <td>{item.inspectionItemName}</td>
                 <td>{item.brand || 'N/A'}</td>
-                <td>{item.partUnitPrice}</td>
-                <td>{item.quantity}</td>
-                <td>{(item.partUnitPrice * taxRate).toFixed(2)}</td>
-                <td>{discount}</td>
-                <td>{calculateSubtotal(item)}</td>
+                <td>${(item.partUnitPrice || 0).toFixed(2)}</td>
+                <td>{item.quantity || 0}</td>
+                <td>${((item.partUnitPrice || 0) * taxRate).toFixed(2)}</td>
+                <td>${discount.toFixed(2)}</td>
+                <td>${calculateSubtotal(item)}</td>
               </tr>
             ))
           ) : (

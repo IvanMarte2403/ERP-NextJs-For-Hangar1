@@ -27,6 +27,11 @@ export default function OrderDetails({ orderId }) {
   const discount = 0; // Descuento inicial en 0
 
   useEffect(() => {
+
+
+    // Consulta en Firebase para obtener el orderNumber usando orderId
+    //Calcula el precio final dentro de la consulta
+
     const fetchOrderFromFirebase = async () => {
       try {
         console.log("Iniciando consulta en Firebase para obtener el orderNumber usando orderID:", orderId);
@@ -94,7 +99,7 @@ export default function OrderDetails({ orderId }) {
     }));
     setIsEdited(true); // Habilita el botón de guardar cuando hay cambios
   };
-
+  //
   const handleSave = async () => {
     try {
       const repairShopId = 3080; // ID del taller de reparación
@@ -104,13 +109,12 @@ export default function OrderDetails({ orderId }) {
         firstName: formData.firstName,
         lastName: formData.lastName,
         mobile: formData.mobile,
-        inCharge: formData.inCharge,
         brand: formData.brand,
         model: formData.model,
         paymentMethod: formData.paymentMethod,
       };
-
-      await updateOrder(accessToken, orderNumber, repairShopId, updatedOrderData);
+      // Actualiza la orden si se hicieron los cambios
+      await updateOrder(orderNumber, repairShopId, updatedOrderData);
       console.log("Orden actualizada con éxito");
       setIsEdited(false); // Deshabilitar el botón de guardar después de guardar
     } catch (error) {
@@ -124,6 +128,7 @@ export default function OrderDetails({ orderId }) {
 
   const inspectionItems = order.inspectionItems || [];
 
+  //Calculo del total con el subtotal 
   const calculateSubtotal = (item) => {
     const cost = item.partUnitPrice || 0;
     const quantity = item.quantity || 0;
@@ -229,7 +234,7 @@ export default function OrderDetails({ orderId }) {
       <div className="container-productos">
         <h2>Productos & Servicios</h2>
       </div>
-
+      {/* Productos & Servicios */}
       <table className="table-order">
         <thead className="no-hover">
           <tr className="no-hover">
@@ -262,10 +267,12 @@ export default function OrderDetails({ orderId }) {
           )}
         </tbody>
       </table>
-
+      
+      {/* Abonar */}
       <div className="producto-abonar">
         <p>Abonar</p>
       </div>
+
       <div className="producto-boton">
         Agregar un producto
       </div>

@@ -4,9 +4,8 @@ import { useEffect, useState } from "react";
 import { doc, getDoc } from "firebase/firestore";
 import { db } from "../../../../lib/firebase";
 import { PDFDownloadLink } from '@react-pdf/renderer';
-import OrderPDF from "./OrderPDF"; // Importa el componente para generar el PDF
-import { fetchAndStoreOrderDetails } from "../../../../lib/apiService"; // Importa la función de apiService
-import { updateOrder } from "../../../../lib/apiService";
+import OrderPDF from "./OrderPDF"; 
+import { fetchAndStoreOrderDetails, updatedFirebaseOrder, updateOrder} from "../../../../lib/apiService"; // Importa la función de apiService
 
 export default function OrderDetails({ orderId }) {
   const [order, setOrder] = useState(null);
@@ -31,7 +30,7 @@ export default function OrderDetails({ orderId }) {
 
     // Consulta en Firebase para obtener el orderNumber usando orderId
     //Calcula el precio final dentro de la consulta
-
+    
     const fetchOrderFromFirebase = async () => {
       try {
         console.log("Iniciando consulta en Firebase para obtener el orderNumber usando orderID:", orderId);
@@ -68,7 +67,7 @@ export default function OrderDetails({ orderId }) {
             paymentMethod: orderData.paymentMethod,
           });
 
-          // Calcular el total cuando se obtenga la orden
+          // Calcular los inspectionItems
           const inspectionItems = orderData.inspectionItems || [];
           const totalSubtotal = inspectionItems.reduce((acc, item) => {
             const cost = item.partUnitPrice || 0;
@@ -99,7 +98,9 @@ export default function OrderDetails({ orderId }) {
     }));
     setIsEdited(true); // Habilita el botón de guardar cuando hay cambios
   };
-  //
+  
+  //Actualzia los detalles en la orden de Firebase al darle guardar si existen cambios
+  //Put a clear Mechanic para actualización de los cambios 
   const handleSave = async () => {
     try {
       const repairShopId = 3080; // ID del taller de reparación
@@ -115,7 +116,12 @@ export default function OrderDetails({ orderId }) {
       };
       // Actualiza la orden si se hicieron los cambios
       await updateOrder(orderNumber, repairShopId, updatedOrderData);
-      console.log("Orden actualizada con éxito");
+      console.log("==Orden actualizada con éxito==");
+
+      //Actualización de los cambios en Firebase
+
+      await updatedFirebaseOrder(orderId, updatedOrderData);
+
       setIsEdited(false); // Deshabilitar el botón de guardar después de guardar
     } catch (error) {
       console.error("Error actualizando la orden:", error);

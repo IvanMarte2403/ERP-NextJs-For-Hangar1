@@ -156,59 +156,98 @@ export default function OrderDetails({ orderId }) {
 
         {/* Campos Editables */}
         <div className="row-client">
-          <p>Nombre del cliente:</p>
-          <input
-            name="firstName"
-            value={formData.firstName}
-            onChange={handleInputChange}
-          />
-          <input
-            name="lastName"
-            value={formData.lastName}
-            onChange={handleInputChange}
-          />
+            <div className="column-client">
+              <p className="span-client">Nombre del cliente:</p>
+            </div>
+            
+            <div className="column-client">
+              <input 
+                className="input-two"
+                name="firstName"
+                value={formData.firstName}
+                onChange={handleInputChange}
+              />
+              <input
+                className="input-two"
+                name="lastName"
+                value={formData.lastName}
+                onChange={handleInputChange}
+              />
+            </div>
         </div>
 
         <div className="row-client">
-          <p>Asesor:</p>
-          <input
-            name="inCharge"
-            value={formData.inCharge}
-            onChange={handleInputChange}
-          />
+
+          <div className="column-client">
+            <p className="span-client">Asesor:</p>
+          </div>
+          <div className="column-client">
+            <input
+              name="inCharge"
+              value={formData.inCharge}
+              onChange={handleInputChange}
+            />
+          </div>
+        </div>
+        
+
+        <div className="row-client">
+
+          <div className="column-client">
+             <p className="span-client">Teléfono:</p>
+          </div>
+          <div className="column-client">
+            <input
+              name="mobile"
+              value={formData.mobile}
+              onChange={handleInputChange}
+            />
+          </div>
+       
         </div>
 
         <div className="row-client">
-          <p>Teléfono:</p>
-          <input
-            name="mobile"
-            value={formData.mobile}
-            onChange={handleInputChange}
-          />
+
+          <div className="column-client">
+             <p className="span-client">Auto:</p>
+          </div>
+          <div className="column-client">
+              <input
+                className="input-two"
+                name="brand"
+                value={formData.brand}
+                onChange={handleInputChange}
+              />
+              <input
+                className="input-two"
+                name="model"
+                value={formData.model}
+                onChange={handleInputChange}
+              />
+          </div>
+      
         </div>
 
         <div className="row-client">
-          <p>Auto:</p>
-          <input
-            name="brand"
-            value={formData.brand}
-            onChange={handleInputChange}
-          />
-          <input
-            name="model"
-            value={formData.model}
-            onChange={handleInputChange}
-          />
-        </div>
 
-        <div className="row-client">
-          <p>Método de Pago:</p>
-          <input
-            name="paymentMethod"
-            value={formData.paymentMethod}
-            onChange={handleInputChange}
-          />
-        </div>
+              <div className="column-client">
+                <p className="span-client">Método de Pago:</p>
+              </div>
+
+              <div className="column-client">
+                <select
+                  name="paymentMethod"
+                  value={formData.paymentMethod}
+                  onChange={handleInputChange}
+                >
+                  <option value="Tarjeta de Crédito">Tarjeta de Crédito</option>
+                  <option value="Tarjeta de Débito">Tarjeta de Débito</option>
+                  <option value="Depósito">Depósito</option>
+                  <option value="Efectivo">Efectivo</option>
+                </select>
+              </div>
+          
+          </div>
 
         <div className="precio-container">
           <h2>Total: ${totalAmount.toFixed(2)}</h2> {/* Mostrar el total calculado */}

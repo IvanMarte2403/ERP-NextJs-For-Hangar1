@@ -1,15 +1,13 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { doc, getDoc } from "firebase/firestore";
+import { doc, getDoc, updateDoc } from "firebase/firestore";
 import { db } from "../../../../lib/firebase";
 import { PDFDownloadLink } from '@react-pdf/renderer';
 import OrderPDF from "./OrderPDF"; 
-import { fetchAndStoreOrderDetails, updatedFirebaseOrder, updateOrder} from "../../../../lib/apiService"; // Importa la función de apiService
 
 export default function OrderDetails({ orderId }) {
   const [order, setOrder] = useState(null);
-  const [orderNumber, setOrderNumber] = useState(null);
   const [totalAmount, setTotalAmount] = useState(0); // Estado para almacenar el total
   const [isEdited, setIsEdited] = useState(false); // Estado para habilitar el botón de guardar
   const [formData, setFormData] = useState({
@@ -26,14 +24,10 @@ export default function OrderDetails({ orderId }) {
   const discount = 0; // Descuento inicial en 0
 
   useEffect(() => {
-
-
-    // Consulta en Firebase para obtener el orderNumber usando orderId
-    //Calcula el precio final dentro de la consulta
-    
+    // Consulta en Firebase para obtener los detalles de la orden
     const fetchOrderFromFirebase = async () => {
       try {
-        console.log("Iniciando consulta en Firebase para obtener el orderNumber usando orderID:", orderId);
+        console.log("Iniciando consulta en Firebase para obtener la orden usando orderID:", orderId);
 
         // Consulta Firebase usando el orderID
         const docRef = doc(db, "orders", orderId.toString());
@@ -42,19 +36,6 @@ export default function OrderDetails({ orderId }) {
         if (docSnap.exists()) {
           const orderData = docSnap.data();
           console.log("Detalles de la orden obtenidos de Firebase:", orderData);
-
-          // Obtener el orderNumber
-          const fetchedOrderNumber = orderData.orderNumber;
-          setOrderNumber(fetchedOrderNumber);
-
-          // Si obtenemos el orderNumber, hacemos la consulta a la API
-          if (fetchedOrderNumber) {
-            console.log("Iniciando consulta de detalles de la orden a la API con orderNumber:", fetchedOrderNumber);
-            await fetchAndStoreOrderDetails(fetchedOrderNumber); // Consulta y almacena los detalles
-            console.log("Consulta de detalles de la orden finalizada.");
-          } else {
-            console.log("No se encontró el orderNumber en Firebase.");
-          }
 
           setOrder(orderData);
           setFormData({
@@ -98,33 +79,31 @@ export default function OrderDetails({ orderId }) {
     }));
     setIsEdited(true); // Habilita el botón de guardar cuando hay cambios
   };
-  
-  //Actualzia los detalles en la orden de Firebase al darle guardar si existen cambios
-  //Put a clear Mechanic para actualización de los cambios 
+
+  // Actualizar los detalles en Firebase al darle guardar si existen cambios
   const handleSave = async () => {
     try {
-      const repairShopId = 3080; // ID del taller de reparación
+      // Referencia al documento en Firebase
+      const orderDocRef = doc(db, "orders", orderId.toString());
 
-      // Actualizar la orden con la información editada
+      // Datos actualizados que vamos a guardar
       const updatedOrderData = {
         firstName: formData.firstName,
         lastName: formData.lastName,
         mobile: formData.mobile,
+        inCharge: formData.inCharge,
         brand: formData.brand,
         model: formData.model,
         paymentMethod: formData.paymentMethod,
       };
-      // Actualiza la orden si se hicieron los cambios
-      await updateOrder(orderNumber, repairShopId, updatedOrderData);
-      console.log("==Orden actualizada con éxito==");
 
-      //Actualización de los cambios en Firebase
+      // Actualizar el documento en Firebase
+      await updateDoc(orderDocRef, updatedOrderData);
 
-      await updatedFirebaseOrder(orderId, updatedOrderData);
-
+      console.log("== Orden actualizada en Firebase con éxito ==");
       setIsEdited(false); // Deshabilitar el botón de guardar después de guardar
     } catch (error) {
-      console.error("Error actualizando la orden:", error);
+      console.error("Error actualizando la orden en Firebase:", error);
     }
   };
 
@@ -134,7 +113,7 @@ export default function OrderDetails({ orderId }) {
 
   const inspectionItems = order.inspectionItems || [];
 
-  //Calculo del total con el subtotal 
+  // Calculo del total con el subtotal 
   const calculateSubtotal = (item) => {
     const cost = item.partUnitPrice || 0;
     const quantity = item.quantity || 0;

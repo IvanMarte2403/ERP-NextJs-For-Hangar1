@@ -21,7 +21,8 @@ export default function Ordenes({ onOrderClick }) {
   const loadOrders = async () => {
     setLoading(true);
     setOrders([]);
-
+    
+    // Obtención de la información de Clear Mechanics
     let ordersQuery = query(
       collection(db, "orders"),
       orderBy("uploadTime", "desc"),
@@ -140,12 +141,7 @@ export default function Ordenes({ onOrderClick }) {
    
 
       <div className="ordenes-container">
-        <div className="reload">
-          <div>
-            <h2>Órdenes</h2>
-            <img src="icons/reload.png" onClick={handleReload} style={{ cursor: 'pointer' }} alt="Recargar" />
-          </div>
-        </div>
+  
         {loading ? (
           <p>Cargando órdenes...</p>  
         ) : (

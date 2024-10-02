@@ -58,8 +58,21 @@
 }
 
 .header-profile{
-    padding: 2rem 4rem 0rem 4rem;
+    padding: 2rem 4rem 2rem 4rem;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
     h1{
         font-size: var(--font-size-md);
     }
+
+    .botton-nuevaOrden{
+        all: unset;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Sombra en la parte inferior */
+        background-color: var(--background-color-2);
+        color: var(--color-secondary);
+        padding: var(--spacing-sm);
+        border-radius: 0.4rem;
+    }
 }
+

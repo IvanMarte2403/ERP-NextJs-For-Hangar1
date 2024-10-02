@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState} from "react";
 import Ordenes from "./views/Ordenes";
 import Dashboard from "./views/Dashboard";
 import Notificaciones from "./views/Notificaciones";
@@ -10,6 +10,8 @@ import NavBar from "../../components/NavBar"
 export default function DashboardPage() {
   const [view, setView] = useState("ordenes"); // Estado para manejar la vista actual
   const [selectedOrderId, setSelectedOrderId] = useState(null); // Estado para manejar la ID de la orden seleccionada
+  //Estado para controlar si es una nueva orden
+  const [isNewOrder, setIsNewOrder] = useState(false);
 
   // Función para renderizar la vista seleccionada
   const renderView = () => {
@@ -18,17 +20,25 @@ export default function DashboardPage() {
         return <Ordenes onOrderClick={(orderId) => {
           setSelectedOrderId(orderId);
           setView("orderDetails");
+          setIsNewOrder(false); // No es una nueva orden
+
         }} />;
       case "dashboard":
         return <Dashboard />;
       case "notificaciones":
         return <Notificaciones />;
       case "orderDetails":
-        return <OrderDetails orderId={selectedOrderId} />;
+        return <OrderDetails orderId={selectedOrderId} isNewOrder={isNewOrder} />;
+        
       default:
         return <Ordenes />;
     }
   };
+
+    // Función para generar un ID de orden aleatorio de 8 dígitos
+  const generateRandomOrderId = () => {
+      return Math.floor(10000000 + Math.random() * 90000000).toString();
+    };
 
   return (
     <main className="container-home">
@@ -47,6 +57,18 @@ export default function DashboardPage() {
           <h1>¡Bienvenida Ariel Moreno! 🏎️</h1>
           <div className="search-container">
             <img src="icons/search.png" />
+          </div>
+
+          <div className="container-nueva-order">
+            <button className="botton-nuevaOrden"
+            onClick={() => {
+              setSelectedOrderId(generateRandomOrderId()); // Generar un ID de orden aleatorio
+              setIsNewOrder(true); // Es una nueva orden
+              setView("orderDetails"); // Cambiar la vista a OrderDetails
+            }}
+            >
+              Nueva Orden
+            </button>
           </div>
         </div>
         {renderView()} {/* Renderiza la vista seleccionada */}

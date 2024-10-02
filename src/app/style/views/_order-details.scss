@@ -27,6 +27,37 @@
     h3{
         color: var(--color-primary);
         font-size: var(--font-size-xl);
+        margin-right: var(--spacing-md);
+        display: flex;
+        flex-direction: row;
+        justify-content: space-between;
+        width:30%;
+        align-items: center;
+    }
+
+     input {
+        background-color: #ffffff; /* Fondo blanco */
+        color: #000000; /* Texto en negro */
+        border: 1px solid #000000; /* Borde en negro */
+        padding: 0.5rem; /* Espaciado interno */
+        border-radius: 0.25rem; /* Bordes redondeados */
+        font-family: Arial, sans-serif; /* Fuente */
+        font-size: 1rem; /* Tamaño de fuente */
+        
+        /* Estilos para los elementos del calendario */
+        &::-webkit-calendar-picker-indicator {
+            filter: invert(1); /* Icono del calendario en negro */
+        }
+        
+        &::-webkit-inner-spin-button,
+        &::-webkit-clear-button {
+            display: none; /* Ocultar botones de limpieza y spin */
+        }
+        
+        &:focus {
+            outline: none; /* Quitar el borde de enfoque */
+            box-shadow: 0 0 0 2px rgba(0, 0, 0, 0.2); /* Sombra en el enfoque */
+        }
     }
 
     .container-print{

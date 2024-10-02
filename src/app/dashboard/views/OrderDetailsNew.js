@@ -1,14 +1,13 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { doc, getDoc, updateDoc, setDoc } from "firebase/firestore";
+import { doc, getDoc, updateDoc } from "firebase/firestore";
 import { db } from "../../../../lib/firebase";
 import { PDFDownloadLink } from '@react-pdf/renderer';
 import OrderPDF from "./OrderPDF"; 
 import Link from 'next/link'; // Importa el componente Link de Next.js
 
-export default function OrderDetails({ orderId }) {
-  console.log("OrderDetails");
+export default function OrderDetailsNew({ orderId }) {
   const [order, setOrder] = useState(null);
   const [totalAmount, setTotalAmount] = useState(0); // Estado para almacenar el total
   const [isEdited, setIsEdited] = useState(false); // Estado para habilitar el botón de guardar
@@ -24,21 +23,20 @@ export default function OrderDetails({ orderId }) {
 
   const taxRate = 0.16; // Impuesto del 16%
   const discount = 0; // Descuento inicial en 0
-
+  
   useEffect(() => {
-    // Consulta en Firebase para obtener los detalles de la orden
+    console.log('Orden Nueva');
     const fetchOrderFromFirebase = async () => {
       try {
         console.log("Iniciando consulta en Firebase para obtener la orden usando orderID:", orderId);
-
-        // Consulta Firebase usando el orderID
+  
         const docRef = doc(db, "orders", orderId.toString());
         const docSnap = await getDoc(docRef);
-
+  
         if (docSnap.exists()) {
           const orderData = docSnap.data();
           console.log("Detalles de la orden obtenidos de Firebase:", orderData);
-
+  
           setOrder(orderData);
           setFormData({
             firstName: orderData.firstName,
@@ -49,8 +47,7 @@ export default function OrderDetails({ orderId }) {
             model: orderData.model,
             paymentMethod: orderData.paymentMethod,
           });
-
-          // Calcular los inspectionItems
+  
           const inspectionItems = orderData.inspectionItems || [];
           const totalSubtotal = inspectionItems.reduce((acc, item) => {
             const cost = item.partUnitPrice || 0;
@@ -59,38 +56,19 @@ export default function OrderDetails({ orderId }) {
             const subtotal = (cost * quantity) + taxAmount - discount;
             return acc + subtotal;
           }, 0);
-
-          setTotalAmount(totalSubtotal); // Establecer el total
+  
+          setTotalAmount(totalSubtotal);
         } else {
           console.log("No se encontró el documento en Firebase!");
-          const newOrderData = {
-            firstName: '',
-            lastName: '',
-            mobile: '',
-            inCharge: '',
-            brand: '',
-            model: '',
-            paymentMethod: '',
-            orderNumber: orderId,  // Utiliza orderId como el número de orden
-            inspectionItems: [],  // Inicializa una lista vacía de productos o servicios
-            uploadTime: new Date().toISOString() // Agregar el tiempo actual
-
-          };
-           // Crear el nuevo documento en Firebase
-          await setDoc(docRef, newOrderData);
-
-            // Establecer los datos de la nueva orden
-          setOrder(newOrderData);
-          setFormData(newOrderData);
-          setTotalAmount(0);
         }
       } catch (error) {
         console.error("Error obteniendo la orden de Firebase:", error);
       }
     };
-
-    fetchOrderFromFirebase(); // Ejecutar la consulta al cargar el componente
+  
+    fetchOrderFromFirebase();
   }, [orderId]);
+  
 
   // Habilita el Botón de Guardar
   const handleInputChange = (e) => {
@@ -102,14 +80,11 @@ export default function OrderDetails({ orderId }) {
     setIsEdited(true); // Habilita el botón de guardar cuando hay cambios
   };
 
-  // Actualizar los detalles en Firebase al darle guardar si existen cambios
   const handleSave = async () => {
     try {
-      // Referencia al documento en Firebase
-      const orderDocRef = doc(db, "orders", orderId.toString());
-
-      // Datos actualizados que vamos a guardar
-      const updatedOrderData = {
+      const orderDocRef = doc(db, "orders", orderId.toString()); // Usa el orderId generado anteriormente
+    
+      const newOrderData = {
         firstName: formData.firstName,
         lastName: formData.lastName,
         mobile: formData.mobile,
@@ -117,20 +92,43 @@ export default function OrderDetails({ orderId }) {
         brand: formData.brand,
         model: formData.model,
         paymentMethod: formData.paymentMethod,
-        uploadTime: new Date(formData.uploadTime).toISOString() // Guardar la fecha y hora modificada
-
-
+        // Rellena los campos adicionales en blanco
+        assignedTo: formData.assignedTo || '',
+        assignedToUserID: formData.assignedToUserID || '',
+        businessName: formData.businessName || '',
+        documentType: formData.documentType || '',
+        email: formData.email || '',
+        identificationNumber: formData.identificationNumber || '',
+        lastUpdatedTime: formData.lastUpdatedTime || '',
+        licensePlate: formData.licensePlate || '',
+        mainPhone: formData.mainPhone || '',
+        notes: formData.notes || '',
+        orderID: formData.orderID || '',
+        inspectionFormStatus: formData.inspectionFormStatus || '',
+        kilometers: formData.kilometers || '',
+        orderNumber: formData.orderNumber || '',
+        orderType: formData.orderType || '',
+        phase: formData.phase || '',
+        promisedDate: formData.promisedDate || '',
+        repairOrderKey: formData.repairOrderKey || '',
+        repairShopID: formData.repairShopID || '',
+        tower: formData.tower || '',
+        uploadTime: formData.uploadTime || '',
+        uploadedByUserID: formData.uploadedByUserID || '',
+        vin: formData.vin || '',
+        year: formData.year || '',
       };
-
-      // Actualizar el documento en Firebase
-      await updateDoc(orderDocRef, updatedOrderData);
-
-      console.log("== Orden actualizada en Firebase con éxito ==");
+    
+      await setDoc(orderDocRef, newOrderData); // Crear el documento en Firebase
+      console.log("== Nueva Orden creada en Firebase con éxito ==");
+    
       setIsEdited(false); // Deshabilitar el botón de guardar después de guardar
     } catch (error) {
-      console.error("Error actualizando la orden en Firebase:", error);
+      console.error("Error creando la nueva orden en Firebase:", error);
     }
   };
+  
+  
 
   if (!order) {
     return <p>Cargando detalles de la orden...</p>;
@@ -154,16 +152,7 @@ export default function OrderDetails({ orderId }) {
       </div>
 
       <div className="subtitle">
-          <h3>
-            <p>Fecha</p>
-            <input
-            type="datetime-local"
-            name="uploadTime"
-            value={formData.uploadTime ? new Date(formData.uploadTime).toISOString().slice(0, 16) : ''} 
-
-            onChange={handleInputChange}
-            />
-        </h3>        
+        <h3>Fecha: {new Date(order.uploadTime).toLocaleDateString()} </h3>
         <div className="container-print">
           <PDFDownloadLink document={<OrderPDF order={order} />} fileName={`Orden_${order.orderNumber}.pdf`}>
             {({ loading }) => (

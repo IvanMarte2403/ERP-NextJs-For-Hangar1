@@ -195,10 +195,21 @@
 }
 
 .header-profile {
-  padding: 2rem 4rem 0rem 4rem;
+  padding: 2rem 4rem 2rem 4rem;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
 }
 .header-profile h1 {
   font-size: var(--font-size-md);
+}
+.header-profile .botton-nuevaOrden {
+  all: unset;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Sombra en la parte inferior */
+  background-color: var(--background-color-2);
+  color: var(--color-secondary);
+  padding: var(--spacing-sm);
+  border-radius: 0.4rem;
 }
 
 .containerOrdenes {
@@ -334,6 +345,32 @@ tr:hover {
 .subtitle h3 {
   color: var(--color-primary);
   font-size: var(--font-size-xl);
+  margin-right: var(--spacing-md);
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  width: 30%;
+  align-items: center;
+}
+.subtitle input {
+  background-color: #ffffff; /* Fondo blanco */
+  color: #000000; /* Texto en negro */
+  border: 1px solid #000000; /* Borde en negro */
+  padding: 0.5rem; /* Espaciado interno */
+  border-radius: 0.25rem; /* Bordes redondeados */
+  font-family: Arial, sans-serif; /* Fuente */
+  font-size: 1rem; /* Tamaño de fuente */
+  /* Estilos para los elementos del calendario */
+}
+.subtitle input::-webkit-calendar-picker-indicator {
+  filter: invert(1); /* Icono del calendario en negro */
+}
+.subtitle input::-webkit-inner-spin-button, .subtitle input::-webkit-clear-button {
+  display: none; /* Ocultar botones de limpieza y spin */
+}
+.subtitle input:focus {
+  outline: none; /* Quitar el borde de enfoque */
+  box-shadow: 0 0 0 2px rgba(0, 0, 0, 0.2); /* Sombra en el enfoque */
 }
 .subtitle .container-print {
   width: 15%;

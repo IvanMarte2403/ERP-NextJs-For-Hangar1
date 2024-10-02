@@ -167,27 +167,33 @@ const OrderPDF = ({ order }) => {
                   </View>
 
                 {/* Filas de productos */}
-                {order.inspectionItems.map((item, index) => (
-                    <View key={index} style={{ flexDirection: 'row', marginBottom: 10, marginTop: 5 }}>
-                      <Text style={{ width: '30%' }}>{item.inspectionItemName}</Text>
-                      <Text style={{ width: '15%' }}>{item.brand || 'N/A'}</Text>
-                      <Text style={{ width: '15%' }}>${(item.partUnitPrice || 0).toFixed(2)}</Text>
-                      <Text style={{ width: '10%' }}>{item.quantity || 0}</Text>
-                      <Text style={{ width: '15%' }}>
-                        ${((item.partUnitPrice || 0) * (item.quantity || 0) * 0.16).toFixed(2)} {/* Impuestos */}
-                      </Text>
-                      <Text style={{ width: '15%' }}>${((item.partUnitPrice || 0) * (item.quantity || 0)).toFixed(2)}</Text>
-                    </View>
-                  ))}
+                {order.inspectionItems && order.inspectionItems.length > 0 ? (
+  order.inspectionItems.map((item, index) => (
+    <View key={index} style={{ flexDirection: 'row', marginBottom: 10, marginTop: 5 }}>
+      <Text style={{ width: '30%' }}>{item.inspectionItemName}</Text>
+      <Text style={{ width: '15%' }}>{item.brand || 'N/A'}</Text>
+      <Text style={{ width: '15%' }}>${(item.partUnitPrice || 0).toFixed(2)}</Text>
+      <Text style={{ width: '10%' }}>{item.quantity || 0}</Text>
+      <Text style={{ width: '15%' }}>${((item.partUnitPrice || 0) * (item.quantity || 0) * 0.16).toFixed(2)}</Text>
+      <Text style={{ width: '15%' }}>${((item.partUnitPrice || 0) * (item.quantity || 0)).toFixed(2)}</Text>
+    </View>
+  ))
+) : (
+  <Text>No hay productos o servicios asociados</Text>
+)}
+
               </View>
               
                 {/* Total al final de la tabla */}
                 <View style={{ flexDirection: 'row', borderTop: '1 solid black', paddingTop: 5 }}>
                   <Text style={{ width: '100%', fontWeight: '700', textAlign: 'right' }}>Total:</Text>
                   <Text style={{ width: '25%', fontWeight: 'bold', textAlign: 'left' }}>
-                    ${order.inspectionItems.reduce((acc, item) => acc + ((item.partUnitPrice || 0) * (item.quantity || 0)), 0).toFixed(2)}
+                    ${order.inspectionItems && order.inspectionItems.length > 0
+                      ? order.inspectionItems.reduce((acc, item) => acc + ((item.partUnitPrice || 0) * (item.quantity || 0)), 0).toFixed(2)
+                      : '0.00'}
                   </Text>
                 </View>
+
 
           <View style={styles.asesorContainer}>
             <Text style={styles.text}>Asesor: {order.inCharge}</Text>

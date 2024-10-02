@@ -6,6 +6,7 @@ import { db } from "../../../../lib/firebase";
 import { PDFDownloadLink } from '@react-pdf/renderer';
 import OrderPDF from "./OrderPDF"; 
 import Link from 'next/link'; // Importa el componente Link de Next.js
+import ModalProduct from './Modal/ModalProduct'
 
 export default function OrderDetails({ orderId }) {
   console.log("OrderDetails");
@@ -21,6 +22,40 @@ export default function OrderDetails({ orderId }) {
     model: '',
     paymentMethod: ''
   });
+
+  //Modal 
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  // Función para abrir el modal
+  const openModal = () => {
+    setIsModalOpen(true);
+    document.querySelector('.content').classList.add('main-blur'); // Agregar la clase cuando el modal está abierto
+
+  };
+  // Función para cerrar el modal
+  const closeModal = () => {
+    setIsModalOpen(false);
+    document.querySelector('.content').classList.remove('main-blur'); // Quitar la clase cuando el modal se cierra
+
+  };
+
+
+  // Función para guardar el nuevo producto en Firebase
+  const saveProductToFirebase = async (orderId, newProduct) => {
+    try {
+      const orderDocRef = doc(db, "orders", orderId.toString());
+      const orderSnap = await getDoc(orderDocRef);
+
+      if (orderSnap.exists()) {
+        const existingOrder = orderSnap.data();
+        const updatedInspectionItems = [...existingOrder.inspectionItems, newProduct];
+
+        await updateDoc(orderDocRef, { inspectionItems: updatedInspectionItems });
+        console.log("Producto agregado exitosamente");
+      }
+    } catch (error) {
+      console.error("Error al guardar el producto:", error);
+    }
+  };
 
   const taxRate = 0.16; // Impuesto del 16%
   const discount = 0; // Descuento inicial en 0
@@ -149,6 +184,7 @@ export default function OrderDetails({ orderId }) {
 
   return (
     <div className="order-details">
+      <div className="content">
       <div className="order-title">
         <h2>Detalles de la Orden /  <span>{order.orderNumber}</span></h2>
       </div>
@@ -341,12 +377,27 @@ export default function OrderDetails({ orderId }) {
       <div className="producto-abonar">
         <p>Abonar</p>
       </div>
-
-      <div className="producto-boton">
+      
+      Agregar un Producto
+      <div 
+      onClick={openModal}
+      className="producto-boton">
         Agregar un producto
       </div>
 
+     
+
       <div className="abonar"></div>
+      </div>
+
+          {/* Mostrar el modal */}
+          <ModalProduct
+        isOpen={isModalOpen}
+        onClose={closeModal}
+        orderId={orderId}
+        onSaveProduct={saveProductToFirebase}
+        className= "modalProduct"
+      />
     </div>
   );
 }

@@ -5,6 +5,7 @@ import { doc, getDoc, updateDoc } from "firebase/firestore";
 import { db } from "../../../../lib/firebase";
 import { PDFDownloadLink } from '@react-pdf/renderer';
 import OrderPDF from "./OrderPDF"; 
+import Link from 'next/link'; // Importa el componente Link de Next.js
 
 export default function OrderDetails({ orderId }) {
   const [order, setOrder] = useState(null);
@@ -144,7 +145,18 @@ export default function OrderDetails({ orderId }) {
           )}
         </div>
       </div>
-
+                 {/* Checks Container  */}
+      <div className="checks-container">
+          <Link
+            className="link"
+            href = '/CheckIn'
+          >
+            <p>
+              Check-in
+            </p>
+          </Link>
+      </div>
+  
       {/* Container Orden */}
       <div className="container-orden">
         {/* Estado de la Orden */}
@@ -253,7 +265,6 @@ export default function OrderDetails({ orderId }) {
           <h2>Total: ${totalAmount.toFixed(2)}</h2> {/* Mostrar el total calculado */}
         </div>
       </div>
-
       {/* Productos & Servicios */}
       <div className="container-productos">
         <h2>Productos & Servicios</h2>
@@ -290,7 +301,8 @@ export default function OrderDetails({ orderId }) {
             </tr>
           )}
         </tbody>
-      </table>
+      </table>  
+
       
       {/* Abonar */}
       <div className="producto-abonar">

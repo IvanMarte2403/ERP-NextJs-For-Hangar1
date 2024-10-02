@@ -18,7 +18,7 @@
 }
 
 .subtitle{
-    margin-bottom: var(--spacing-xl);
+    margin-bottom: var(--spacing-sm);
     width: 100%;
     display: flex;
     flex-direction: row;
@@ -123,6 +123,24 @@
         align-items: flex-end;
     }
 
+}
+
+// Container Check In 
+
+.checks-container{
+    display: flex;
+    flex-direction: row;
+    width: 100%;
+    .link{
+        cursor: pointer;
+        padding: var(--spacing-sm);
+        border-radius: 0.5rem;
+        margin-top: var(--spacing-md);
+        p{
+            color: #000;
+            font-weight: 600;
+        }
+    }
 }
 
 .container-productos{

@@ -1,0 +1,49 @@
+.recomendaciones-container{
+    width: 100%;
+
+    .container-table{
+        width: 65%;
+        padding: var(--spacing-lg);
+        margin-top: var(--spacing-lg);
+        display: flex;
+        border-radius: 0.5rem;
+        flex-direction: column;
+        justify-content: space-between;
+        background-color: rgba(0, 0, 0, 0.07);
+        
+        .title-table{
+            p{
+                font-weight: 700;
+                font-size: var(--font-size-xl);
+            }
+        }
+        .row{
+            margin-top: var(--font-size-sm);
+            width: 100%;
+            display: flex;
+            flex-direction: row;
+            justify-content: space-between;
+
+            .r-1{
+                width: 36%;
+            }
+
+            .r-2{
+                width: 15%;
+            }
+
+            .r-3{
+                @extend .r-2;
+            }
+
+            .r-4{
+                @extend .r-2;
+            }
+
+            .r-5{
+                width: 15%;
+            }
+        }
+    }
+
+}

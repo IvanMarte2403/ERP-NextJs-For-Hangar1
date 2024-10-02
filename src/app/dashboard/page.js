@@ -5,6 +5,7 @@ import Ordenes from "./views/Ordenes";
 import Dashboard from "./views/Dashboard";
 import Notificaciones from "./views/Notificaciones";
 import OrderDetails from "./views/OrderDetails";
+import NavBar from "../../components/NavBar"
 
 export default function DashboardPage() {
   const [view, setView] = useState("ordenes"); // Estado para manejar la vista actual
@@ -31,27 +32,14 @@ export default function DashboardPage() {
 
   return (
     <main className="container-home">
-      {/* Menu Nav */}
+      {/* Menu Nav */} 
       <div className="nav-bar-home">
         <div className="container-image">
           <img src="img/logo-hangar-1.png" alt="Logo" />
         </div>
 
-        <div className="container-nav">
-          <ul>
-            <li onClick={() => setView("ordenes")}>
-              <img src="icons/car-solid.png" alt="Órdenes Icono" />Ordenes
-            </li>
+        <NavBar setView={setView} /> {/* Pasamos la función setView como prop */}
 
-            <li onClick={() => setView("dashboard")}>
-              <img src="icons/dashboard.png" alt="Dashboard Icono" />Dashboard
-            </li>
-
-            <li onClick={() => setView("notificaciones")}>
-              <img src="icons/notificaciones.png" alt="Notificaciones Icono" />Notificaciones
-            </li>
-          </ul>
-        </div>
       </div>
 
       <div className="home-container">

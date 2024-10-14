@@ -28,7 +28,7 @@ export default function OrderDetailsNew({ orderId }) {
     console.log('Orden Nueva');
     const fetchOrderFromFirebase = async () => {
       try {
-        console.log("Iniciando consulta en Firebase para obtener la orden usando orderID:", orderId);
+        console.log("Iniciando consulta en Firebas~e para obtener la orden usando orderID:", orderId);
   
         const docRef = doc(db, "orders", orderId.toString());
         const docSnap = await getDoc(docRef);
@@ -36,6 +36,13 @@ export default function OrderDetailsNew({ orderId }) {
         if (docSnap.exists()) {
           const orderData = docSnap.data();
           console.log("Detalles de la orden obtenidos de Firebase:", orderData);
+
+           // Verificar si el campo orderID existe, y si no, agregarlo
+           if (!orderData.orderID) {
+            await updateDoc(docRef, { orderID: orderId.toString() });
+            console.log("Campo orderID agregado a la orden.");
+            orderData.orderID = orderId.toString(); // Actualizar localmente
+          }
   
           setOrder(orderData);
           setFormData({
@@ -46,6 +53,8 @@ export default function OrderDetailsNew({ orderId }) {
             brand: orderData.brand,
             model: orderData.model,
             paymentMethod: orderData.paymentMethod,
+            orderID: orderId.toString(), // Usar orderId como el valor de orderID
+
           });
   
           const inspectionItems = orderData.inspectionItems || [];
@@ -103,7 +112,7 @@ export default function OrderDetailsNew({ orderId }) {
         licensePlate: formData.licensePlate || '',
         mainPhone: formData.mainPhone || '',
         notes: formData.notes || '',
-        orderID: formData.orderID || '',
+        orderID: formData.orderNumber || '', // Asigna el mismo valor que orderNumber
         inspectionFormStatus: formData.inspectionFormStatus || '',
         kilometers: formData.kilometers || '',
         orderNumber: formData.orderNumber || '',
@@ -127,6 +136,7 @@ export default function OrderDetailsNew({ orderId }) {
       console.error("Error creando la nueva orden en Firebase:", error);
     }
   };
+
   
   
 

@@ -612,7 +612,7 @@ tr:hover {
 
 .modalProduct {
   position: fixed;
-  width: 40%;
+  width: 60%;
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
@@ -683,6 +683,66 @@ tr:hover {
   color: #fff;
 }
 
+.modalAbonar {
+  position: fixed;
+  width: 90%;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background-color: white;
+  padding: 20px;
+  z-index: 1000;
+  border-radius: 8px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  border-radius: 0.4rem;
+}
+.modalAbonar label {
+  width: 45%;
+}
+.modalAbonar input {
+  all: unset;
+  border-bottom: 1px #000 solid;
+}
+.modalAbonar button {
+  all: unset;
+  background-color: #000;
+  border-radius: 0.4rem;
+  padding: 1rem 2rem 1rem 2rem;
+  color: #fff;
+}
+.modalAbonar .modal-actions {
+  width: 100%;
+  flex-direction: row;
+  justify-content: space-evenly;
+  align-items: center;
+  display: flex;
+  margin-top: var(--spacing-xxl);
+}
+.modalAbonar .product-item {
+  display: flex;
+  flex-direction: row;
+  margin-top: var(--spacing-lg);
+  align-items: center;
+  justify-content: space-between;
+}
+.modalAbonar .nuevo-abono {
+  display: flex;
+  flex-direction: column;
+  width: 30%;
+  justify-content: space-between;
+  margin-top: var(--spacing-xl);
+}
+.modalAbonar .nuevo-abono input {
+  margin-bottom: var(--spacing-md);
+}
+.modalAbonar .abonos-list {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-evenly;
+  margin-top: var(--spacing-lg);
+  margin-bottom: var(--spacing-lg);
+}
+
 .content {
   display: block;
 }
@@ -690,4 +750,34 @@ tr:hover {
 .main-blur {
   filter: blur(5px);
   transition: filter 0.3s ease;
+}
+
+.suggestions-list {
+  list-style-type: none;
+  padding: 0;
+  margin: 5px 0 0 0;
+  border: 1px solid #ccc;
+  max-height: 400px;
+  overflow-y: auto;
+  background-color: #fff;
+  position: absolute;
+  z-index: 1000;
+  right: 0; /* Mover a la derecha */
+  left: auto; /* Asegurar que no esté alineado a la izquierda */
+  right: -30%;
+  top: 100%;
+  width: 70%;
+}
+
+.suggestions-list li {
+  padding: 8px;
+  cursor: pointer;
+}
+
+.suggestions-list li:hover {
+  background-color: #f0f0f0;
+}
+
+.name-product {
+  position: relative;
 }/*# sourceMappingURL=style.css.map */

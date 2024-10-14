@@ -7,6 +7,9 @@ import { PDFDownloadLink } from '@react-pdf/renderer';
 import OrderPDF from "./OrderPDF"; 
 import Link from 'next/link'; // Importa el componente Link de Next.js
 import ModalProduct from './Modal/ModalProduct'
+import ModalAbonar from './Modal/ModalAbonar';
+
+
 
 export default function OrderDetails({ orderId }) {
   console.log("OrderDetails");
@@ -31,14 +34,42 @@ export default function OrderDetails({ orderId }) {
     document.querySelector('.content').classList.add('main-blur'); // Agregar la clase cuando el modal está abierto
 
   };
+
+  const [isAbonarModalOpen, setIsAbonarModalOpen] = useState(false);
+
   // Función para cerrar el modal
   const closeModal = () => {
     setIsModalOpen(false);
     document.querySelector('.content').classList.remove('main-blur'); // Quitar la clase cuando el modal se cierra
 
   };
+// Función para abrir el modal de abonar
+const openAbonarModal = () => {
+  setIsAbonarModalOpen(true);
+  document.querySelector('.content').classList.add('main-blur');
+};
 
+// Función para cerrar el modal de abonar
+const closeAbonarModal = () => {
+  setIsAbonarModalOpen(false);
+  document.querySelector('.content').classList.remove('main-blur');
+};
 
+// Función para actualizar los abonos en Firebase
+const updateAbonosInFirebase = async (orderId, updatedAbonos) => {
+  try {
+    const orderDocRef = doc(db, "orders", orderId.toString());
+    await updateDoc(orderDocRef, { abonos: updatedAbonos });
+    console.log("Abonos actualizados exitosamente");
+    // Actualizar el estado local para reflejar los cambios
+    setOrder((prevOrder) => ({
+      ...prevOrder,
+      abonos: updatedAbonos,
+    }));
+  } catch (error) {
+    console.error("Error al actualizar los abonos:", error);
+  }
+};
   // Función para guardar el nuevo producto en Firebase
   const saveProductToFirebase = async (orderId, newProduct) => {
     try {
@@ -65,10 +96,20 @@ export default function OrderDetails({ orderId }) {
     const fetchOrderFromFirebase = async () => {
       try {
         console.log("Iniciando consulta en Firebase para obtener la orden usando orderID:", orderId);
-
+        
+         // Verificar si orderId está definido
+      if (!orderId) {
+        console.error("Error: orderId es undefined o null");
+        return;
+      }
+      
         // Consulta Firebase usando el orderID
         const docRef = doc(db, "orders", orderId.toString());
+        console.log("Referencia del documento creada:", docRef);
+
         const docSnap = await getDoc(docRef);
+        console.log("Resultado de la consulta:", docSnap.exists());
+
 
         if (docSnap.exists()) {
           const orderData = docSnap.data();
@@ -331,7 +372,10 @@ export default function OrderDetails({ orderId }) {
           </div>
 
         <div className="precio-container">
+          <div>
           <h2>Total: ${totalAmount.toFixed(2)}</h2> {/* Mostrar el total calculado */}
+          </div>
+       
         </div>
       </div>
       {/* Productos & Servicios */}
@@ -375,11 +419,11 @@ export default function OrderDetails({ orderId }) {
       
       {/* Abonar */}
       <div className="producto-abonar">
-        <p>Abonar</p>
+        <p
+          onClick={openAbonarModal}
+        >Anticipo</p>
       </div>
-      
-      Agregar un Producto
-      <div 
+          <div 
       onClick={openModal}
       className="producto-boton">
         Agregar un producto
@@ -391,13 +435,22 @@ export default function OrderDetails({ orderId }) {
       </div>
 
           {/* Mostrar el modal */}
-          <ModalProduct
+        <ModalProduct
         isOpen={isModalOpen}
         onClose={closeModal}
         orderId={orderId}
         onSaveProduct={saveProductToFirebase}
         className= "modalProduct"
       />
+
+            {/* Mostrar el modal de abonar */}
+            <ModalAbonar
+            isOpen={isAbonarModalOpen}
+            onClose={closeAbonarModal}
+            orderId={orderId}
+            existingAbonos={order?.abonos || []} // Pasar los abonos actuales si existen
+            onUpdateAbonos={updateAbonosInFirebase} // Pasar la función de actualización
+          />
     </div>
   );
 }

@@ -59,7 +59,7 @@ export default function DashboardPage() {
 
       <div className="home-container">
         <div className="header-profile">
-          <h1>¡Bienvenida Ariel Moreno! 🏎️</h1>
+          <h1>¡Bienvenidos a Hangar1 System! 🏎️</h1>
           <div className="search-container">
             <img src="icons/search.png" />
           </div>

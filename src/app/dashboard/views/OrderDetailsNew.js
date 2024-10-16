@@ -1,351 +1,279 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { doc, getDoc, updateDoc } from "firebase/firestore";
-import { db } from "../../../../lib/firebase";
-import { PDFDownloadLink } from '@react-pdf/renderer';
-import OrderPDF from "./OrderPDF"; 
-import Link from 'next/link'; // Importa el componente Link de Next.js
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'; // Importa el componente FontAwesomeIcon
+import { faPhone, faEnvelope, faTimes} from '@fortawesome/free-solid-svg-icons'; // Importa el icono específico
+// --Modales--
+import ModalClient from './Modal/ModalClient'; // Importa el modal
 
-export default function OrderDetailsNew({ orderId }) {
-  const [order, setOrder] = useState(null);
-  const [totalAmount, setTotalAmount] = useState(0); // Estado para almacenar el total
-  const [isEdited, setIsEdited] = useState(false); // Estado para habilitar el botón de guardar
-  const [formData, setFormData] = useState({
-    firstName: '',
-    lastName: '',
-    mobile: '',
-    inCharge: '',
-    brand: '',
-    model: '',
-    paymentMethod: ''
-  });
+//--Services--
 
-  const taxRate = 0.16; // Impuesto del 16%
-  const discount = 0; // Descuento inicial en 0
-  
-  useEffect(() => {
-    console.log('Orden Nueva');
-    const fetchOrderFromFirebase = async () => {
-      try {
-        console.log("Iniciando consulta en Firebas~e para obtener la orden usando orderID:", orderId);
-  
-        const docRef = doc(db, "orders", orderId.toString());
-        const docSnap = await getDoc(docRef);
-  
-        if (docSnap.exists()) {
-          const orderData = docSnap.data();
-          console.log("Detalles de la orden obtenidos de Firebase:", orderData);
+import { getClientInformation } from '../../../../services/ClientInformation'; // Importamos la consulta
+import { getAllClients } from '../../../../services/ClientsDatabase'; // Importamos la consulta
 
-           // Verificar si el campo orderID existe, y si no, agregarlo
-           if (!orderData.orderID) {
-            await updateDoc(docRef, { orderID: orderId.toString() });
-            console.log("Campo orderID agregado a la orden.");
-            orderData.orderID = orderId.toString(); // Actualizar localmente
-          }
-  
-          setOrder(orderData);
-          setFormData({
-            firstName: orderData.firstName,
-            lastName: orderData.lastName,
-            mobile: orderData.mobile,
-            inCharge: orderData.inCharge,
-            brand: orderData.brand,
-            model: orderData.model,
-            paymentMethod: orderData.paymentMethod,
-            orderID: orderId.toString(), // Usar orderId como el valor de orderID
 
-          });
-  
-          const inspectionItems = orderData.inspectionItems || [];
-          const totalSubtotal = inspectionItems.reduce((acc, item) => {
-            const cost = item.partUnitPrice || 0;
-            const quantity = item.quantity || 0;
-            const taxAmount = cost * quantity * taxRate;
-            const subtotal = (cost * quantity) + taxAmount - discount;
-            return acc + subtotal;
-          }, 0);
-  
-          setTotalAmount(totalSubtotal);
-        } else {
-          console.log("No se encontró el documento en Firebase!");
-        }
-      } catch (error) {
-        console.error("Error obteniendo la orden de Firebase:", error);
-      }
-    };
-  
-    fetchOrderFromFirebase();
-  }, [orderId]);
-  
 
-  // Habilita el Botón de Guardar
-  const handleInputChange = (e) => {
-    const { name, value } = e.target;
-    setFormData((prevData) => ({
-      ...prevData,
-      [name]: value,
-    }));
-    setIsEdited(true); // Habilita el botón de guardar cuando hay cambios
-  };
+export default function OrderDetailsNew() {
 
-  const handleSave = async () => {
-    try {
-      const orderDocRef = doc(db, "orders", orderId.toString()); // Usa el orderId generado anteriormente
-    
-      const newOrderData = {
-        firstName: formData.firstName,
-        lastName: formData.lastName,
-        mobile: formData.mobile,
-        inCharge: formData.inCharge,
-        brand: formData.brand,
-        model: formData.model,
-        paymentMethod: formData.paymentMethod,
-        // Rellena los campos adicionales en blanco
-        assignedTo: formData.assignedTo || '',
-        assignedToUserID: formData.assignedToUserID || '',
-        businessName: formData.businessName || '',
-        documentType: formData.documentType || '',
-        email: formData.email || '',
-        identificationNumber: formData.identificationNumber || '',
-        lastUpdatedTime: formData.lastUpdatedTime || '',
-        licensePlate: formData.licensePlate || '',
-        mainPhone: formData.mainPhone || '',
-        notes: formData.notes || '',
-        orderID: formData.orderNumber || '', // Asigna el mismo valor que orderNumber
-        inspectionFormStatus: formData.inspectionFormStatus || '',
-        kilometers: formData.kilometers || '',
-        orderNumber: formData.orderNumber || '',
-        orderType: formData.orderType || '',
-        phase: formData.phase || '',
-        promisedDate: formData.promisedDate || '',
-        repairOrderKey: formData.repairOrderKey || '',
-        repairShopID: formData.repairShopID || '',
-        tower: formData.tower || '',
-        uploadTime: formData.uploadTime || '',
-        uploadedByUserID: formData.uploadedByUserID || '',
-        vin: formData.vin || '',
-        year: formData.year || '',
-      };
-    
-      await setDoc(orderDocRef, newOrderData); // Crear el documento en Firebase
-      console.log("== Nueva Orden creada en Firebase con éxito ==");
-    
-      setIsEdited(false); // Deshabilitar el botón de guardar después de guardar
-    } catch (error) {
-      console.error("Error creando la nueva orden en Firebase:", error);
+const [isUserAssigned, setIsUserAssigned] = useState(false); // Estado para manejar si el usuario está asignado
+const [clientInfo, setClientInfo] = useState(null); // Estado para la información del cliente
+
+// Estado para el número de orden aleatorio
+const [orderNumber, setOrderNumber] = useState('');
+
+// --- Modal --- 
+const [isModalOpen, setIsModalOpen] = useState(false); // Estado para manejar si el modal está abierto
+
+// Función para abrir el modal
+const openModal = () => {
+    setIsModalOpen(true);
+    document.querySelector('.container-crud').classList.add('main-blur'); // Agregar la clase .main-blur
+};
+
+// Función para cerrar el modal
+const closeModal = () => {
+    setIsModalOpen(false);
+    document.querySelector('.container-crud').classList.remove('main-blur'); // Quitar la clase .main-blur
+};
+
+//--- Generar un número aleatorio----
+// Generar número aleatorio de 8 dígitos al montar el componente
+useEffect(() => {
+  const randomOrderNumber = Math.floor(10000000 + Math.random() * 90000000).toString();
+  setOrderNumber(randomOrderNumber);
+}, []);
+
+
+
+// ---- Client Information ---- 
+  // Función para manejar cuando el cliente es guardado
+  const handleClientSaved = async (clientId) => {
+    closeModal(); // Cerrar el modal
+    const clientData = await getClientInformation(clientId); // Consultar la información del cliente
+    if (clientData) {
+      setClientInfo(clientData); // Guardar la información del cliente en el estado
+      setIsUserAssigned(true); // Marcar como asignado
     }
   };
 
-  
-  
 
-  if (!order) {
-    return <p>Cargando detalles de la orden...</p>;
-  }
 
-  const inspectionItems = order.inspectionItems || [];
+  // --- All Clients --- 
 
-  // Calculo del total con el subtotal 
-  const calculateSubtotal = (item) => {
-    const cost = item.partUnitPrice || 0;
-    const quantity = item.quantity || 0;
-    const taxAmount = cost * quantity * taxRate;
-    const subtotal = (cost * quantity) + taxAmount - discount;
-    return subtotal.toFixed(2);
-  };
+  const [allClients, setAllClients] = useState([]); // Almacenar todos los clientes en caché
+  const [filteredClients, setFilteredClients] = useState([]); // Clientes filtrados
+  const [searchTerm, setSearchTerm] = useState(""); // Término de búsqueda
+
+    // Cargar todos los clientes al montar el componente y almacenarlos en caché
+    useEffect(() => {
+      const fetchClients = async () => {
+        const clients = await getAllClients();
+        setAllClients(clients); // Guardar en caché
+      };
+      fetchClients();
+    }, []);
+
+    useEffect(() => {
+      if (searchTerm) {
+        const results = allClients.filter(client => {
+          const clientName = client.nombre ? client.nombre.toLowerCase() : '';
+          const clientEmail = client.correo ? client.correo.toLowerCase() : '';
+          
+          return clientName.includes(searchTerm.toLowerCase()) || 
+                 clientEmail.includes(searchTerm.toLowerCase());
+        });
+        setFilteredClients(results); // Actualizar lista filtrada
+      } else {
+        setFilteredClients([]); // Limpiar resultados cuando no hay búsqueda
+      }
+    }, [searchTerm, allClients]);
+    
+
+    // --- Selector de All Clientes --- 
+
+    const handleClientSelect = async (clientId) => {
+      const clientData = await getClientInformation(clientId); // Consultar la información del cliente
+      if (clientData) {
+        setClientInfo(clientData); // Guardar la información del cliente en el estado
+        setIsUserAssigned(true); // Marcar como asignado
+      }
+    };
 
   return (
-    <div className="order-details">
-      <div className="order-title">
-        <h2>Detalles de la Orden /  <span>{order.orderNumber}</span></h2>
-      </div>
+    <div className="order-details-new">
+        <div className="title-order">
+          <h3>New Order / {orderNumber}</h3>
+        </div >
 
-      <div className="subtitle">
-        <h3>Fecha: {new Date(order.uploadTime).toLocaleDateString()} </h3>
-        <div className="container-print">
-          <PDFDownloadLink document={<OrderPDF order={order} />} fileName={`Orden_${order.orderNumber}.pdf`}>
-            {({ loading }) => (
-              loading ? <p>Cargando PDF...</p> : <img src="icons/print.svg" alt="Imprimir" />
-            )}
-          </PDFDownloadLink>
+        {/* -- Container CRUD --  */}
 
-          {isEdited && (
-            <div className="save-container" onClick={handleSave}>
-              <img src="icons/save.svg" alt="Guardar" />
-            </div>
-          )}
-        </div>
-      </div>
-                 {/* Checks Container  */}
-      <div className="checks-container">
-          <Link
-            className="link"
-            href = '/CheckIn'
-          >
-            <p>
-              Check-in
-            </p>
-          </Link>
-      </div>
-  
-      {/* Container Orden */}
-      <div className="container-orden">
-        {/* Estado de la Orden */}
-        <div className={`presupuesto-container ${order.estado_orden?.toLowerCase()}`}>
-          <div>
-            <p>{order.estado_orden || "Presupuesto"}</p>
-          </div>
-        </div>
+        <div className="container-crud">
+          {/* Renderizar condicionalmente según el estado */}
+            {isUserAssigned ? (
+              <div className="user-asignado">
+                {/* Sección de usuario asignado */}
+                <div className="title-new">
+                  <p>Cliente</p>
+                  <FontAwesomeIcon icon={faTimes}
+                  onClick={() => setIsUserAssigned(false)}
+                  />
+                </div>
 
-        {/* Campos Editables */}
-        <div className="row-client">
-            <div className="column-client">
-              <p className="span-client">Nombre del cliente:</p>
-            </div>
+                <div className="container-usuario-info">
+                  <img src="perfil-photos/default.svg" />
+                  <h3>{clientInfo?.nombre || "Sin nombre"}</h3> {/* Mostrar nombre del cliente */}
+                  </div>
+
+                <div className="data-cliente">
+                  <div className="row-cellphone">
+                    <FontAwesomeIcon icon={faPhone} />
+                    <p>{clientInfo?.telefono || "Sin teléfono"}</p> {/* Mostrar teléfono del cliente */}
+                    </div>
+
+                  <div className="row-email">
+                    <FontAwesomeIcon icon={faEnvelope} />
+                    <p>{clientInfo?.correo || "Sin correo"}</p> {/* Mostrar correo del cliente */}
+                    </div>
+                </div>
+              </div>
+            ) : (
+          <div className="user-no-asignado">
+                {/* Nueva sección de usuario no asignado */}
             
-            <div className="column-client">
-              <input 
-                className="input-two"
-                name="firstName"
-                value={formData.firstName}
-                onChange={handleInputChange}
-              />
-              <input
-                className="input-two"
-                name="lastName"
-                value={formData.lastName}
-                onChange={handleInputChange}
-              />
-            </div>
-        </div>
+                <div className="input-client">
+                  <p>Cliente</p>
+                  <input type="text"
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)} // Actualizar el término de búsqueda
+                  placeholder="Buscar por nombre o correo"
 
-        <div className="row-client">
+                  />
 
-          <div className="column-client">
-            <p className="span-client">Asesor:</p>
-          </div>
-          <div className="column-client">
-            <input
-              name="inCharge"
-              value={formData.inCharge}
-              onChange={handleInputChange}
-            />
-          </div>
-        </div>
-        
+                  {/* Mostrar resultados de búsqueda */}
+                  {filteredClients.length > 0 && (
+                  <ul className="client-results">
+                    {filteredClients.map(client => (
+                      <li key={client.id} onClick={() => handleClientSelect(client.id)}>
+                        {client.nombre} - {client.correo}
+                      </li>
+                    ))}
+                   </ul>
+                  )}
+                </div>
 
-        <div className="row-client">
-
-          <div className="column-client">
-             <p className="span-client">Teléfono:</p>
-          </div>
-          <div className="column-client">
-            <input
-              name="mobile"
-              value={formData.mobile}
-              onChange={handleInputChange}
-            />
-          </div>
-       
-        </div>
-
-        <div className="row-client">
-
-          <div className="column-client">
-             <p className="span-client">Auto:</p>
-          </div>
-          <div className="column-client">
-              <input
-                className="input-two"
-                name="brand"
-                value={formData.brand}
-                onChange={handleInputChange}
-              />
-              <input
-                className="input-two"
-                name="model"
-                value={formData.model}
-                onChange={handleInputChange}
-              />
-          </div>
-      
-        </div>
-
-        <div className="row-client">
-
-              <div className="column-client">
-                <p className="span-client">Método de Pago:</p>
-              </div>
-
-              <div className="column-client">
-                <select
-                  name="paymentMethod"
-                  value={formData.paymentMethod}
-                  onChange={handleInputChange}
-                >
-                  <option value="Tarjeta de Crédito">Tarjeta de Crédito</option>
-                  <option value="Tarjeta de Débito">Tarjeta de Débito</option>
-                  <option value="Depósito">Depósito</option>
-                  <option value="Efectivo">Efectivo</option>
-                </select>
-              </div>
           
-          </div>
 
-        <div className="precio-container">
-          <h2>Total: ${totalAmount.toFixed(2)}</h2> {/* Mostrar el total calculado */}
+                <div className="button-container">
+                  <button 
+                  onClick={openModal}
+                  className="nuevo-cliente">
+                      Nuevo Cliente
+                  </button>
+                </div>
+
+               
+              </div>
+            )}
+            
+              {/* ----- Container Information -----  */}
+              <div className="car-container-new">
+                <div className="title-new">
+                    <p>Campos del Auto</p>
+                </div>
+                  
+                {/* Row Forms */}
+                <div className="row-forms">
+                    {/* Input */}
+                    <div className="input">
+                      <p>Módelo</p>
+                      <input
+                      type="text"
+                      
+                      />
+                    </div>
+                    {/* Input */}
+                    <div className="input">
+                      <p>Año</p>
+                      <input
+                      type="text"
+                      
+                      />
+                    </div>
+
+
+                </div>
+                  
+                {/* Row Forms */}
+                <div className="row-forms">
+                    {/* Input */}
+                    <div className="input">
+                      <p>Taller</p>
+                      <input
+                      type="text"
+                      
+                      />
+                    </div>
+                    {/* Input */}
+                    <div className="input">
+                      <p>Asesor</p>
+                      <input
+                      type="text"
+                      
+                      />
+                    </div>
+
+
+                </div>
+                {/* Row Forms */}
+                <div className="row-forms">
+                    {/* Input */}
+                    <div className="input">
+                      <p>Categoría</p>
+                      <input
+                      type="text"
+                      
+                      />
+                    </div>
+                    {/* Input */}
+                    <div className="input">
+                      <p>Fecha</p>
+                      <input
+                      type="text"
+                      
+                      />
+                    </div>
+
+
+                </div>
+                  {/* Placa */}
+                <div className="container-placa">
+                  <div className="placa">
+                    <p>Placa</p>
+                    <input
+                      type="text"
+                    />
+                  </div>
+                </div>
+
+                {/* Bottoms */}
+
+                  <div className="container-button">
+                    <button className="new-order">
+                      Crear Order
+                    </button>
+                  </div>
+                  
+              </div>
+
+                 
+          
         </div>
-      </div>
-      {/* Productos & Servicios */}
-      <div className="container-productos">
-        <h2>Productos & Servicios</h2>
-      </div>
-      {/* Productos & Servicios */}
-      <table className="table-order">
-        <thead className="no-hover">
-          <tr className="no-hover">
-            <th>Producto</th>
-            <th>Marca</th>
-            <th>Costo</th>
-            <th>Cantidad</th>
-            <th>Impuestos</th>
-            <th>Descuentos</th>
-            <th>SubTotal</th>
-          </tr>
-        </thead>
-        <tbody>
-          {inspectionItems.length > 0 ? (
-            inspectionItems.map((item, index) => (
-              <tr key={index}>
-                <td>{item.inspectionItemName}</td>
-                <td>{item.brand || 'N/A'}</td>
-                <td>${(item.partUnitPrice || 0).toFixed(2)}</td>
-                <td>{item.quantity || 0}</td>
-                <td>${((item.partUnitPrice || 0) * taxRate).toFixed(2)}</td>
-                <td>${discount.toFixed(2)}</td>
-                <td>${calculateSubtotal(item)}</td>
-              </tr>
-            ))
-          ) : (
-            <tr>
-              <td colSpan="7">No hay productos o servicios asociados</td>
-            </tr>
-          )}
-        </tbody>
-      </table>  
 
-      
-      {/* Abonar */}
-      <div className="producto-abonar">
-        <p>Abonar</p>
-      </div>
 
-      <div className="producto-boton">
-        Agregar un producto
-      </div>
+      {/* Modal para seleccionar cliente */}
+      <ModalClient isOpen={isModalOpen} onClose={closeModal} onClientSaved={handleClientSaved} />
 
-      <div className="abonar"></div>
+
     </div>
   );
 }

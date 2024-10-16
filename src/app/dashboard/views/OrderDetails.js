@@ -26,7 +26,7 @@ export default function OrderDetails({ orderId }) {
     paymentMethod: ''
   });
 
-  //Modal 
+  //--Modal-- 
   const [isModalOpen, setIsModalOpen] = useState(false);
   // Función para abrir el modal
   const openModal = () => {
@@ -55,10 +55,14 @@ const closeAbonarModal = () => {
   document.querySelector('.content').classList.remove('main-blur');
 };
 
+//--- Abonos ---
+
 // Función para actualizar los abonos en Firebase
 const updateAbonosInFirebase = async (orderId, updatedAbonos) => {
   try {
     const orderDocRef = doc(db, "orders", orderId.toString());
+    console.log("Referencia del documento creada usando el nombre del documento (orderId):", orderId);
+
     await updateDoc(orderDocRef, { abonos: updatedAbonos });
     console.log("Abonos actualizados exitosamente");
     // Actualizar el estado local para reflejar los cambios
@@ -70,6 +74,8 @@ const updateAbonosInFirebase = async (orderId, updatedAbonos) => {
     console.error("Error al actualizar los abonos:", error);
   }
 };
+
+// --- Productos --- 
   // Función para guardar el nuevo producto en Firebase
   const saveProductToFirebase = async (orderId, newProduct) => {
     try {
@@ -91,7 +97,10 @@ const updateAbonosInFirebase = async (orderId, updatedAbonos) => {
   const taxRate = 0.16; // Impuesto del 16%
   const discount = 0; // Descuento inicial en 0
 
-  useEffect(() => {
+
+//--- Consulta de Datos ---
+
+  useEffect(() => {''
     // Consulta en Firebase para obtener los detalles de la orden
     const fetchOrderFromFirebase = async () => {
       try {

@@ -11,4 +11,9 @@
 //Components
 
 @import 'components/estados';
-@import 'components/modal'
+@import 'components/modal';
+@import 'components/modalClient';
+
+// --- Views ---- 
+
+@import 'views/orderNew';

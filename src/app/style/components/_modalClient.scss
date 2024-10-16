@@ -1,0 +1,95 @@
+.order-details-new{
+/* Estilo para la superposición del modal (fondo oscuro) */
+.modal-client-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background-color: rgba(0, 0, 0, 0.5); /* Fondo semitransparente */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000; /* Asegurar que el modal esté por encima de otros elementos */
+  }
+  
+  /* Contenedor principal del modal */
+  .modal-client {
+    background-color: #fff;
+    width: 60%;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    z-index: 1001;
+    position: relative;
+  }
+  
+  /* Header del modal (parte superior con título y botón de cerrar) */
+  .modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+  }
+  
+  .modal-header h3 {
+    font-size: 18px;
+    margin: 0;
+  }
+  
+  .modal-header svg {
+    cursor: pointer;
+    color: #555;
+    font-size: 18px;
+  }
+  
+  /* Cuerpo del modal (contenido principal) */
+  .modal-body {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    margin-bottom: 20px;
+    color: #333;
+     input{
+        all: unset;
+        border: 2px solid #000;
+        margin-top: var(--spacing-sm);
+        border-radius: 0.4rem;
+        margin-bottom: var(--spacing-lg);
+        padding: var(--spacing-sm);
+     }
+  }
+  
+  /* Footer del modal (botones de acción) */
+  .modal-footer {
+    text-align: right;
+  }
+  
+  .modal-footer button {
+    background-color: var(--background-color-2);
+    color: white;
+    border: none;
+    padding: 10px 15px;
+    font-size: 14px;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+  }
+  
+  .modal-footer button:hover {
+    background-color: #0056b3;
+  }
+  
+  /* Clase para el desenfoque de la sección de fondo */
+  .main-blur {
+    filter: blur(5px); /* Efecto de desenfoque */
+    pointer-events: none; /* Desactivar la interacción mientras el modal esté abierto */
+  }
+  
+  /* Opcional: estilos para cuando el modal se cierra */
+  .modal-close {
+    display: none;
+  }
+  
+    
+}

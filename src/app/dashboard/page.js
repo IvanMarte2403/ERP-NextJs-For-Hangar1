@@ -7,6 +7,10 @@ import Notificaciones from "./views/Notificaciones";
 import OrderDetails from "./views/OrderDetails";
 import NavBar from "../../components/NavBar"
 
+//--- Views --- 
+
+import OrderDetailsNew from "./views/OrderDetailsNew";
+
 export default function DashboardPage() {
   const [view, setView] = useState("ordenes"); // Estado para manejar la vista actual
   const [selectedOrderId, setSelectedOrderId] = useState(null); // Estado para manejar la ID de la orden seleccionada
@@ -21,7 +25,6 @@ export default function DashboardPage() {
           setSelectedOrderId(orderId);
           setView("orderDetails");
           setIsNewOrder(false); // No es una nueva orden
-
         }} />;
       case "dashboard":
         return <Dashboard />;
@@ -29,11 +32,13 @@ export default function DashboardPage() {
         return <Notificaciones />;
       case "orderDetails":
         return <OrderDetails orderId={selectedOrderId} isNewOrder={isNewOrder} />;
-        
+      case "orderDetailsNew":
+        return <OrderDetailsNew />;  // Renderizar el nuevo componente para órdenes nuevas
       default:
         return <Ordenes />;
     }
   };
+  
 
     // Función para generar un ID de orden aleatorio de 8 dígitos
   const generateRandomOrderId = () => {
@@ -62,9 +67,8 @@ export default function DashboardPage() {
           <div className="container-nueva-order">
             <button className="botton-nuevaOrden"
             onClick={() => {
-              setSelectedOrderId(generateRandomOrderId()); // Generar un ID de orden aleatorio
               setIsNewOrder(true); // Es una nueva orden
-              setView("orderDetails"); // Cambiar la vista a OrderDetails
+              setView("orderDetailsNew"); // Cambiar la vista a OrderDetailsNew
             }}
             >
               Nueva Orden

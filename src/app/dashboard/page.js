@@ -33,7 +33,7 @@ export default function DashboardPage() {
       case "orderDetails":
         return <OrderDetails orderId={selectedOrderId} isNewOrder={isNewOrder} />;
       case "orderDetailsNew":
-        return <OrderDetailsNew />;  // Renderizar el nuevo componente para órdenes nuevas
+        return <OrderDetailsNew setSelectedOrderId={setSelectedOrderId} setView={setView} />;
       default:
         return <Ordenes />;
     }

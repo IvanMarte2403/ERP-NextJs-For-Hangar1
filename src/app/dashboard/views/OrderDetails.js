@@ -38,42 +38,63 @@ export default function OrderDetails({ orderId }) {
   const [isAbonarModalOpen, setIsAbonarModalOpen] = useState(false);
 
   // Función para cerrar el modal
-  const closeModal = () => {
+  const closeModal = async () => {
     setIsModalOpen(false);
     document.querySelector('.content').classList.remove('main-blur'); // Quitar la clase cuando el modal se cierra
-
+      // Recargar la información de la orden para actualizar los productos
+      const orderDocRef = doc(db, "orders", orderId.toString());
+      const docSnap = await getDoc(orderDocRef);
+  
+      if (docSnap.exists()) {
+          const orderData = docSnap.data();
+          setOrder(orderData); // Actualizar el estado de la orden con los nuevos productos
+          const inspectionItems = orderData.inspectionItems || [];
+  
+          // Calcular el total después de agregar los productos
+          const totalSubtotal = inspectionItems.reduce((acc, item) => {
+              const cost = item.partUnitPrice || 0;
+              const quantity = item.quantity || 0;
+              const taxAmount = cost * quantity * taxRate;
+              const subtotal = (cost * quantity) + taxAmount - discount;
+              return acc + subtotal;
+          }, 0);
+  
+          setTotalAmount(totalSubtotal); // Actualizar el total con los productos nuevos
+      } else {
+          console.error("Error: No se encontró el documento después de cerrar el modal");
+      }
   };
-// Función para abrir el modal de abonar
-const openAbonarModal = () => {
-  setIsAbonarModalOpen(true);
-  document.querySelector('.content').classList.add('main-blur');
-};
+  // Función para abrir el modal de abonar
+  const openAbonarModal = () => {
+    setIsAbonarModalOpen(true);
+    document.querySelector('.content').classList.add('main-blur');
+  };
 
-// Función para cerrar el modal de abonar
-const closeAbonarModal = () => {
-  setIsAbonarModalOpen(false);
-  document.querySelector('.content').classList.remove('main-blur');
-};
+  // Función para cerrar el modal de abonar
+  const closeAbonarModal = () => {
+    setIsAbonarModalOpen(false);
+    document.querySelector('.content').classList.remove('main-blur');
+  };
 
 //--- Abonos ---
 
-// Función para actualizar los abonos en Firebase
-const updateAbonosInFirebase = async (orderId, updatedAbonos) => {
-  try {
-    const orderDocRef = doc(db, "orders", orderId.toString());
-    console.log("Referencia del documento creada usando el nombre del documento (orderId):", orderId);
+  // Función para actualizar los abonos en Firebase
+  const updateAbonosInFirebase = async (orderId, updatedAbonos) => {
+    try {
+      const orderDocRef = doc(db, "orders", orderId.toString());
+      console.log("Referencia del documento creada usando el nombre del documento (orderId):", orderId);
 
-    await updateDoc(orderDocRef, { abonos: updatedAbonos });
-    console.log("Abonos actualizados exitosamente");
-    // Actualizar el estado local para reflejar los cambios
-    setOrder((prevOrder) => ({
-      ...prevOrder,
-      abonos: updatedAbonos,
-    }));
-  } catch (error) {
-    console.error("Error al actualizar los abonos:", error);
-  }
-};
+      await updateDoc(orderDocRef, { abonos: updatedAbonos });
+      console.log("Abonos actualizados exitosamente");
+      // Actualizar el estado local para reflejar los cambios
+      setOrder((prevOrder) => ({
+        ...prevOrder,
+        abonos: updatedAbonos,
+      }));
+    } catch (error) {
+      console.error("Error al actualizar los abonos:", error);
+    }
+  };
 
 // --- Productos --- 
   // Función para guardar el nuevo producto en Firebase
@@ -88,6 +109,10 @@ const updateAbonosInFirebase = async (orderId, updatedAbonos) => {
 
         await updateDoc(orderDocRef, { inspectionItems: updatedInspectionItems });
         console.log("Producto agregado exitosamente");
+
+
+        // Después de guardar el producto, recargar la lista de productos
+        await closeModal(); // Recargar la lista de productos en tiempo real
       }
     } catch (error) {
       console.error("Error al guardar el producto:", error);
@@ -432,7 +457,8 @@ const updateAbonosInFirebase = async (orderId, updatedAbonos) => {
           onClick={openAbonarModal}
         >Anticipo</p>
       </div>
-          <div 
+
+      <div 
       onClick={openModal}
       className="producto-boton">
         Agregar un producto

@@ -10,10 +10,10 @@ import ModalClient from './Modal/ModalClient'; // Importa el modal
 
 import { getClientInformation } from '../../../../services/ClientInformation'; // Importamos la consulta
 import { getAllClients } from '../../../../services/ClientsDatabase'; // Importamos la consulta
+import {createOrder} from '../../../../services/CreateOrder'
 
 
-
-export default function OrderDetailsNew() {
+export default function OrderDetailsNew({ setSelectedOrderId, setView}) {
 
 const [isUserAssigned, setIsUserAssigned] = useState(false); // Estado para manejar si el usuario está asignado
 const [clientInfo, setClientInfo] = useState(null); // Estado para la información del cliente
@@ -98,6 +98,67 @@ useEffect(() => {
         setIsUserAssigned(true); // Marcar como asignado
       }
     };
+
+
+
+    // --- Formulario de Crear Order---
+
+    const [model, setModel] = useState(''); 
+    const [year, setYear] = useState(''); 
+    const [taller, setTaller] = useState(''); 
+    const [inCharge, setInCharge] = useState(''); 
+    const [categoria, setCategoria] = useState(''); 
+    const [fecha, setFecha] = useState(''); 
+    const [placa, setPlaca] = useState(''); 
+
+    const handleCreateOrder = async () => {
+      if (!model || !year || !taller || !inCharge || !categoria || !fecha || !placa) {
+        alert("Por favor, completa todos los campos del formulario");
+        return;
+      }
+
+          
+      // Depurar para verificar los datos del cliente
+      console.log("Datos del cliente asignado:", clientInfo);
+
+    
+      if (!isUserAssigned || !clientInfo) {
+        alert("Por favor, asigna un cliente antes de crear la orden");
+        return;
+      }
+    
+      // Si todo está completo, crear la orden
+      const orderData = {
+        firstName: clientInfo.nombre,
+        brand: model,
+        email: clientInfo.correo,
+        estado_orden: "Presupuesto",
+        inCharge,
+        inspectionItems: [],
+        mobile: clientInfo.telefono,
+        orderID: orderNumber,
+        orderNumber: orderNumber,
+        paymentMethod: "Deposito",
+        uploadTime: fecha,
+        year,
+        categoria,
+        taller,
+        placa_coche: placa,
+      };
+    
+      const success = await createOrder(orderData);
+      if (success) {
+        alert("Orden creada con éxito");
+      // Redirigir a la vista de detalles de la orden y pasar el orderId generado
+      setSelectedOrderId(orderNumber);
+      setView("orderDetails"); // Cambiar la vista a OrderDetails
+      } else {
+        alert("Hubo un error al crear la orden");
+      }
+    };
+
+    
+
 
   return (
     <div className="order-details-new">
@@ -188,7 +249,8 @@ useEffect(() => {
                       <p>Módelo</p>
                       <input
                       type="text"
-                      
+                      onChange={(e) => setModel(e.target.value)}
+
                       />
                     </div>
                     {/* Input */}
@@ -196,7 +258,8 @@ useEffect(() => {
                       <p>Año</p>
                       <input
                       type="text"
-                      
+                      onChange={(e) => setYear(e.target.value)}
+
                       />
                     </div>
 
@@ -210,7 +273,8 @@ useEffect(() => {
                       <p>Taller</p>
                       <input
                       type="text"
-                      
+                      onChange={(e) => setTaller(e.target.value)}
+
                       />
                     </div>
                     {/* Input */}
@@ -218,7 +282,8 @@ useEffect(() => {
                       <p>Asesor</p>
                       <input
                       type="text"
-                      
+                      onChange={(e) => setInCharge(e.target.value)}
+
                       />
                     </div>
 
@@ -231,7 +296,8 @@ useEffect(() => {
                       <p>Categoría</p>
                       <input
                       type="text"
-                      
+                      onChange={(e) => setCategoria(e.target.value)}
+
                       />
                     </div>
                     {/* Input */}
@@ -239,6 +305,8 @@ useEffect(() => {
                       <p>Fecha</p>
                       <input
                       type="text"
+                      onChange={(e) => setFecha(e.target.value)}
+ 
                       
                       />
                     </div>
@@ -251,6 +319,8 @@ useEffect(() => {
                     <p>Placa</p>
                     <input
                       type="text"
+                      onChange={(e) => setPlaca(e.target.value)}
+
                     />
                   </div>
                 </div>
@@ -258,7 +328,9 @@ useEffect(() => {
                 {/* Bottoms */}
 
                   <div className="container-button">
-                    <button className="new-order">
+                    <button className="new-order"
+                     onClick={handleCreateOrder}
+                    >
                       Crear Order
                     </button>
                   </div>

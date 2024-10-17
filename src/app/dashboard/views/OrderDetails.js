@@ -24,7 +24,11 @@ export default function OrderDetails({ orderId }) {
     brand: '',
     model: '',
     paymentMethod: ''
-  });
+  });{}
+
+  const [abonos, setAbonos] = useState([]); // Estado para los abonos
+  const [abonosSum, setAbonosSum] = useState(0); // Estado para la suma de los abonos
+
 
   //--Modal-- 
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -70,31 +74,36 @@ export default function OrderDetails({ orderId }) {
     document.querySelector('.content').classList.add('main-blur');
   };
 
-  // Función para cerrar el modal de abonar
-  const closeAbonarModal = () => {
-    setIsAbonarModalOpen(false);
-    document.querySelector('.content').classList.remove('main-blur');
-  };
 
 //--- Abonos ---
 
   // Función para actualizar los abonos en Firebase
-  const updateAbonosInFirebase = async (orderId, updatedAbonos) => {
-    try {
-      const orderDocRef = doc(db, "orders", orderId.toString());
-      console.log("Referencia del documento creada usando el nombre del documento (orderId):", orderId);
+// Función para actualizar los abonos en Firebase y recalcular el total
+const updateAbonosInFirebase = (updatedAbonos) => {
+  setAbonos(updatedAbonos); // Actualizar los abonos en el estado local
 
-      await updateDoc(orderDocRef, { abonos: updatedAbonos });
-      console.log("Abonos actualizados exitosamente");
-      // Actualizar el estado local para reflejar los cambios
-      setOrder((prevOrder) => ({
-        ...prevOrder,
-        abonos: updatedAbonos,
-      }));
-    } catch (error) {
-      console.error("Error al actualizar los abonos:", error);
-    }
-  };
+  // Recalcular la suma de abonos
+  const abonosTotal = updatedAbonos.reduce((acc, abono) => acc + parseFloat(abono.cantidad_abono || 0), 0);
+  setAbonosSum(abonosTotal);
+
+  // Recalcular el total de la orden restando los abonos
+  const totalSubtotal = order.inspectionItems.reduce((acc, item) => {
+    const cost = item.partUnitPrice || 0;
+    const quantity = item.quantity || 0;
+    const taxAmount = cost * quantity * taxRate;
+    const subtotal = (cost * quantity) + taxAmount - discount;
+    return acc + subtotal;
+  }, 0);
+
+  setTotalAmount(totalSubtotal - abonosTotal); // Actualizar el total con los abonos
+};
+ // Función para cerrar el modal de abonar
+ const closeAbonarModal = async () => {
+  setIsAbonarModalOpen(false);
+  document.querySelector('.content').classList.remove('main-blur');
+
+
+};
 
 // --- Productos --- 
   // Función para guardar el nuevo producto en Firebase
@@ -150,6 +159,16 @@ export default function OrderDetails({ orderId }) {
           console.log("Detalles de la orden obtenidos de Firebase:", orderData);
 
           setOrder(orderData);
+
+                // Obtener abonos[] si existen
+          const abonosList = orderData.abonos || [];
+          setAbonos(abonosList);
+
+              // Calcular la suma de los abonos
+          const abonosTotal = abonosList.reduce((acc, abono) => acc + parseFloat(abono.cantidad_abono || 0), 0);
+          setAbonosSum(abonosTotal);
+
+
           setFormData({
             firstName: orderData.firstName,
             lastName: orderData.lastName,
@@ -170,7 +189,7 @@ export default function OrderDetails({ orderId }) {
             return acc + subtotal;
           }, 0);
 
-          setTotalAmount(totalSubtotal); // Establecer el total
+          setTotalAmount(totalSubtotal - abonosTotal); // Establecer el total
         } else {
           console.log("No se encontró el documento en Firebase!");
           const newOrderData = {
@@ -415,6 +434,12 @@ export default function OrderDetails({ orderId }) {
       {/* Productos & Servicios */}
       <div className="container-productos">
         <h2>Productos & Servicios</h2>
+
+        <button
+          onClick={openModal}
+          >
+          Agregar Producto
+        </button>
       </div>
       {/* Productos & Servicios */}
       <table className="table-order">
@@ -450,19 +475,52 @@ export default function OrderDetails({ orderId }) {
         </tbody>
       </table>  
 
+      <div className="container-subtotal">
+          <h3>Subtotal Productos: ${inspectionItems.reduce((acc, item) => acc + parseFloat(calculateSubtotal(item)), 0).toFixed(2)}
+          </h3>
+      </div>
       
-      {/* Abonar */}
+      {/* Anticipo */}
       <div className="producto-abonar">
         <p
           onClick={openAbonarModal}
         >Anticipo</p>
       </div>
 
-      <div 
-      onClick={openModal}
-      className="producto-boton">
-        Agregar un producto
-      </div>
+      <div className="container-historial-de-pagos">
+          {abonos.length > 0 && (
+            <>
+              <h3>Historial de Pagos</h3>
+              <table>
+                <thead>
+                  <tr>
+                    <th>Cantidad</th>
+                    <th>Método de Pago</th>
+                    <th>Fecha</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {abonos.map((abono, index) => (
+                    <tr key={index}>
+                      <td>${abono.cantidad_abono}</td>
+                      <td>{abono.metodo_pago}</td>
+                      <td>{new Date(abono.fecha_abono).toLocaleDateString()}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+              
+              <div className="containerAbonosTotal">
+                <h3>
+                Subtotal Abonos: ${abonosSum.toFixed(2)} {/* Muestra la suma de los abonos */}
+                </h3>
+              </div>
+            </>
+          )}
+        </div>
+
+
+
 
      
 

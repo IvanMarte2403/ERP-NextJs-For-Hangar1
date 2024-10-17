@@ -176,6 +176,18 @@
 
 .container-productos{
     margin-top: var(--spacing-xl);
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    margin-bottom: var(--spacing-lg);
+  
+    button{
+        all: unset;
+        background-color: var(--background-color-2);
+        color: var(--color-secondary);
+        border-radius: 0.4rem;
+        padding: 0.5rem 1rem 0.5rem 1rem;
+    }
 }
 
 
@@ -203,9 +215,45 @@
     flex-direction: row;
     justify-content: flex-end;
     margin-top: var(--spacing-lg);
+   
         p{
             font-weight: 700;
+            background-color: var(--background-color-2);
+            padding: 0.5rem 1rem 0.5rem 1rem;
+            border-radius: 0.4rem;
+            color: var(--color-secondary);
         }
+}
+
+.container-subtotal{
+    display: flex;
+    width: 100%;
+    justify-content: flex-end;
+    margin-bottom: var(--spacing-xxl);
+    margin-top: var(--spacing-xl);
+
+
+}
+.container-historial-de-pagos{
+    width: 100%;
+    table{
+        width: 80%;
+        margin-top: var(--spacing-md);
+        border-spacing: 0 1rem; 
+
+        thead{
+            padding-bottom: var(--spacing-xl); /* Simular margen inferior con padding */
+        }
+        th{
+            text-align: start;
+        }
+    }
+}
+
+.containerAbonosTotal{
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-end;
 }
 
 .table-order{

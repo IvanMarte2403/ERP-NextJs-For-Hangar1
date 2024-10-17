@@ -135,6 +135,36 @@
         input{
             margin-bottom: var(--spacing-md);
         }
+
+             select {
+            margin-bottom: var(--spacing-xl);
+            all: unset;
+            appearance: none; /* Eliminar el estilo predeterminado del navegador */
+            background-color: #fff; /* Fondo blanco */
+            border: 1px solid #000; /* Borde negro */
+            padding: 0.5rem; /* Espaciado interno */
+            border-radius: 0.25rem; /* Bordes redondeados */
+            width: 100%; /* Ancho completo */
+            cursor: pointer; /* Cambiar el cursor al pasar sobre el select */
+            font-family: Arial, sans-serif; /* Fuente */
+            font-size: 1rem; /* Tamaño de fuente */
+            
+            /* Estilo para la flecha del dropdown */
+            background-image: url('data:image/svg+xml;charset=US-ASCII,<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="black" class="bi bi-caret-down-fill" viewBox="0 0 16 16"><path d="M7.247 11.14l-4.796-5.481C1.451 5.253 1.879 4.5 2.553 4.5h10.894c.674 0 1.102.753.602 1.159l-4.796 5.481a1 1 0 0 1-1.508 0z"/></svg>');
+            background-repeat: no-repeat;
+            background-position: right 0.75rem center;
+            background-size: 1rem;
+            
+            /* Estilo para el dropdown */
+            option {
+                background-color: #fff; /* Fondo blanco */
+                color: #000; /* Texto negro */
+            }
+        }
+
+        button{
+            margin-top: var(--spacing-lg);
+        }
     }
 
     .abonos-list{

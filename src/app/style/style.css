@@ -310,8 +310,24 @@
   all: unset;
   background-color: var(--background-color-1);
   padding: var(--spacing-md);
-  width: 60%;
+  width: 100%;
   border-radius: 0.4rem;
+}
+.container-buscador .dropdown-buscador {
+  all: unset;
+  display: flex;
+  flex-direction: column;
+  list-style: none;
+  background-color: var(--background-color-1);
+  width: 100%;
+  border-radius: 0.4rem;
+  border-top-left-radius: 0;
+  border-top-right-radius: 0;
+  padding: var(--spacing-md);
+}
+.container-buscador .dropdown-buscador li {
+  border-bottom: 1px #000 solid;
+  padding: var(--spacing-md);
 }
 
 .tb-padding {

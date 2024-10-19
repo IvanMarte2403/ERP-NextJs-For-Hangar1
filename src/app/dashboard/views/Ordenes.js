@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRouter } from "react";
 import { fetchAndStoreOrders } from "../../../../lib/apiService";
 import { collection, query, orderBy, limit, startAfter, getDocs, doc, updateDoc } from "firebase/firestore";
 import { db } from "../../../../lib/firebase";
@@ -12,6 +12,12 @@ export default function Ordenes({ onOrderClick }) {
   const [loading, setLoading] = useState(false);
   const [activeDropdown, setActiveDropdown] = useState(null);
   const ordersPerPage = 15;
+
+  const [allOrders, setAllOrders] = useState([]); // Estado para todas las órdenes
+  const [filteredOrders, setFilteredOrders] = useState([]); // Órdenes filtradas para la búsqueda
+  const [searchTerm, setSearchTerm] = useState(''); // Término de búsqueda
+
+
 
   // Total de Ordenes
   const [totalOrders, setTotalOrders] = useState(0);
@@ -30,6 +36,38 @@ export default function Ordenes({ onOrderClick }) {
   useEffect(() => {
     getTotalOrdersCount();
   }, []);
+
+
+  useEffect(() => {
+    const fetchAllOrders = async () => {
+      setLoading(true);
+      const ordersQuery = query(collection(db, "orders"), orderBy("uploadTime", "desc"));
+      const querySnapshot = await getDocs(ordersQuery);
+
+      const fetchedOrders = querySnapshot.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data()
+      }));
+
+      setAllOrders(fetchedOrders);
+      setLoading(false);
+    };
+
+    fetchAllOrders();
+  }, []);
+
+
+  useEffect(() => {
+    if (searchTerm) {
+      const results = allOrders.filter(order => 
+        order.orderID.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        (order.email && order.email.toLowerCase().includes(searchTerm.toLowerCase()))
+      );
+      setFilteredOrders(results);
+    } else {
+      setFilteredOrders([]);
+    }
+  }, [searchTerm, allOrders]);
 
   const totalPages = Math.ceil(totalOrders / ordersPerPage); // Calcular el total de páginas dinámicamente
 
@@ -132,11 +170,26 @@ export default function Ordenes({ onOrderClick }) {
     <div className="containerOrdenes">
       
       <div className="container-buscador">
-        <input type="
-        "
-        placeholder="Buscar por No. Orden o correo electrónico"
+        <input 
+          type="text"
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+          placeholder="Buscar por No. Orden o correo electrónico"
         />
+        {filteredOrders.length > 0 && (
+          <ul className="dropdown-buscador">
+            {filteredOrders.map(order => (
+              <li 
+                key={order.id} 
+                onClick={() => router.push(`/orderDetails/${order.orderID}`)}
+              >
+                {order.orderID} - {order.email}
+              </li>
+            ))}
+          </ul>
+        )}
       </div>
+
       <div className="ordenes-container">
           
 

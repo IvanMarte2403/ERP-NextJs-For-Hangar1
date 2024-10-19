@@ -41,6 +41,12 @@ const closeModal = () => {
 useEffect(() => {
   const randomOrderNumber = Math.floor(10000000 + Math.random() * 90000000).toString();
   setOrderNumber(randomOrderNumber);
+
+  // Generar la fecha y hora actuales en el formato adecuado para el input
+  const currentDate = new Date();
+  const formattedDate = currentDate.toISOString().slice(0, 16); // Formato: "YYYY-MM-DDTHH:MM"
+  setFecha(formattedDate);
+  
 }, []);
 
 
@@ -271,21 +277,27 @@ useEffect(() => {
                     {/* Input */}
                     <div className="input">
                       <p>Taller</p>
-                      <input
-                      type="text"
-                      onChange={(e) => setTaller(e.target.value)}
-
-                      />
+                      <select
+                        onChange={(e) => setTaller(e.target.value)}
+                      >
+                        <option value="">Selecciona un taller</option>
+                        <option value="H1">H1</option>
+                        <option value="H2">H2</option>
+                        <option value="H3">H3</option>
+                      </select>
                     </div>
                     {/* Input */}
                     <div className="input">
                       <p>Asesor</p>
-                      <input
-                      type="text"
-                      onChange={(e) => setInCharge(e.target.value)}
-
-                      />
+                      <select
+                        onChange={(e) => setInCharge(e.target.value)}
+                      >
+                        <option value="">Selecciona un asesor</option>
+                        <option value="Cristian Abarca">Cristian Abarca</option>
+                        <option value="Jorge Sanchez">Jorge Sanchez</option>
+                      </select>
                     </div>
+
 
 
                 </div>
@@ -294,22 +306,41 @@ useEffect(() => {
                     {/* Input */}
                     <div className="input">
                       <p>Categoría</p>
-                      <input
-                      type="text"
-                      onChange={(e) => setCategoria(e.target.value)}
-
-                      />
+                      <select
+                        onChange={(e) => setCategoria(e.target.value)}
+                      >
+                        <option value="">Selecciona una categoría</option>
+                        <option value="Hot Hatches Turbo">Hot Hatches Turbo</option>
+                        <option value="Muscle Cars">Muscle Cars</option>
+                        <option value="4x4 Off Road">4x4 Off Road</option>
+                        <option value="Hatch Back">Hatch Back</option>
+                        <option value="Sedan/Coupe Turbo">Sedan/Coupe Turbo</option>
+                        <option value="Sedan/Coupe Premium">Sedan/Coupe Premium</option>
+                        <option value="Deportivo">Deportivo</option>
+                        <option value="Carreras">Carreras</option>
+                        <option value="Exótico">Exótico</option>
+                        <option value="Blindado">Blindado</option>
+                        <option value="Clásico">Clásico</option>
+                        <option value="Cross Over">Cross Over</option>
+                        <option value="Pick Up">Pick Up</option>
+                        <option value="Mini Van">Mini Van</option>
+                        <option value="Suv">Suv</option>
+                        <option value="Suv Europea">Suv Europea</option>
+                        <option value="Moto">Moto</option>
+                      </select>
                     </div>
+
                     {/* Input */}
                     <div className="input">
-                      <p>Fecha</p>
+                      <p>Fecha y Hora</p>
                       <input
-                      type="text"
-                      onChange={(e) => setFecha(e.target.value)}
- 
-                      
+                        type="datetime-local"
+                        value={fecha} // Establece el estado de la fecha
+                        onChange={(e) => setFecha(e.target.value)}
                       />
                     </div>
+
+
 
 
                 </div>

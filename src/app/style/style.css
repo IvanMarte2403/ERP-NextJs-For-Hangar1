@@ -303,6 +303,17 @@
   cursor: pointer;
 }
 
+.container-buscador {
+  width: 100%;
+}
+.container-buscador input {
+  all: unset;
+  background-color: var(--background-color-1);
+  padding: var(--spacing-md);
+  width: 60%;
+  border-radius: 0.4rem;
+}
+
 .tb-padding {
   padding: var(--spacing-md);
 }
@@ -1017,6 +1028,10 @@ tr:hover {
   width: 86%;
   padding: var(--spacing-sm);
 }
+.order-details-new .user-no-asignado .input-client select {
+  all: unset;
+  background-color: var(--background-color-1);
+}
 .order-details-new .user-no-asignado .button-container {
   display: flex;
   justify-content: flex-end;
@@ -1060,6 +1075,13 @@ tr:hover {
   border-radius: 0.4rem;
   margin-top: var(--spacing-sm);
   padding: var(--spacing-sm);
+}
+.order-details-new .car-container-new .input select {
+  all: unset;
+  border: 1px rgba(0, 0, 0, 0.8) solid;
+  padding: var(--spacing-sm);
+  border-radius: 0.4rem;
+  margin-top: var(--spacing-sm);
 }
 .order-details-new .car-container-new .container-placa {
   display: flex;

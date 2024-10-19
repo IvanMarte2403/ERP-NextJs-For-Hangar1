@@ -109,6 +109,17 @@
     }
 }
 
+.container-buscador{
+    width: 100%;
+    input{
+        all: unset; 
+        background-color: var(--background-color-1);
+        padding: var(--spacing-md);
+        width: 60%;
+        border-radius: 0.4rem;
+    }
+}
+
 .tb-padding{
     padding: var(--spacing-md);    
 }

@@ -95,6 +95,11 @@
                 width: 86%;
                 padding: var(--spacing-sm);
             }
+
+            select{
+                all: unset;
+                background-color: var(--background-color-1);
+            }
         }
 
   
@@ -146,6 +151,14 @@
                 border-radius: 0.4rem;
                 margin-top: var(--spacing-sm);
                 padding: var(--spacing-sm);
+            }
+
+            select{
+                all: unset;
+                border: 1px rgba(0, 0, 0, 0.8) solid;
+                padding: var(--spacing-sm);
+                border-radius: 0.4rem;
+                margin-top: var(--spacing-sm);
             }
         }
 

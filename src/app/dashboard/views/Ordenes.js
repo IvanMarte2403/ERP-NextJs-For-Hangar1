@@ -12,11 +12,27 @@ export default function Ordenes({ onOrderClick }) {
   const [loading, setLoading] = useState(false);
   const [activeDropdown, setActiveDropdown] = useState(null);
   const ordersPerPage = 15;
-  const totalPages = 40;
+
+  // Total de Ordenes
+  const [totalOrders, setTotalOrders] = useState(0);
+
+    // Función para obtener la cantidad total de órdenes
+  const getTotalOrdersCount = async () => {
+    const snapshot = await getDocs(collection(db, "orders"));
+    setTotalOrders(snapshot.size);
+  };
 
   useEffect(() => {
     loadOrders();
   }, [currentPage]);
+
+    // Llamar a la función al montar el componente
+  useEffect(() => {
+    getTotalOrdersCount();
+  }, []);
+
+  const totalPages = Math.ceil(totalOrders / ordersPerPage); // Calcular el total de páginas dinámicamente
+
 
   const loadOrders = async () => {
     setLoading(true);
@@ -96,20 +112,8 @@ export default function Ordenes({ onOrderClick }) {
 
   const renderPagination = () => {
     const pages = [];
-
-    if (currentPage > 1) {
-      pages.push(
-        <button key={1} onClick={() => handlePageChange(1)}>
-          1
-        </button>
-      );
-    }
-
-    if (currentPage > 10) {
-      pages.push(<span key="left-dots">...</span>);
-    }
-
-    for (let i = Math.max(2, currentPage - 4); i <= Math.min(totalPages - 1, currentPage + 5); i++) {
+  
+    for (let i = 1; i <= totalPages; i++) {
       pages.push(
         <button
           key={i}
@@ -120,28 +124,22 @@ export default function Ordenes({ onOrderClick }) {
         </button>
       );
     }
-
-    if (currentPage < totalPages - 9) {
-      pages.push(<span key="right-dots">...</span>);
-    }
-
-    if (currentPage < totalPages) {
-      pages.push(
-        <button key={totalPages} onClick={() => handlePageChange(totalPages)}>
-          {totalPages}
-        </button>
-      );
-    }
-
+  
     return pages;
   };
 
   return (
     <div className="containerOrdenes">
-   
-
+      
+      <div className="container-buscador">
+        <input type="
+        "
+        placeholder="Buscar por No. Orden o correo electrónico"
+        />
+      </div>
       <div className="ordenes-container">
-  
+          
+
         {loading ? (
           <p>Cargando órdenes...</p>  
         ) : (
@@ -153,7 +151,6 @@ export default function Ordenes({ onOrderClick }) {
                 <th>Cliente</th>
                 <th>Auto</th>
                 <th>Asesor</th>
-                <th>Total</th>
                 <th>Estado</th>
               </tr>
             </thead>
@@ -169,7 +166,7 @@ export default function Ordenes({ onOrderClick }) {
                   <td>{`${order.firstName || ''} ${order.lastName || ''}`}</td>
                   <td>{`${order.brand || ''} ${order.model || ''}`}</td>
                   <td>{order.inCharge}</td>
-                  <td>{/* Aquí puedes calcular el total si tienes esa información */}</td>
+             
                   <div className="tb-padding" onClick={(e) => {
                     e.stopPropagation(); // Evita que el clic en el dropdown navegue a la página de detalles
                     toggleDropdown(order.orderID);

@@ -410,7 +410,11 @@ tr:hover {
   width: 100%;
 }
 .subtitle .save-container {
-  width: 15%;
+  width: 20%;
+}
+.subtitle .save-container img {
+  cursor: pointer;
+  width: 100% !important;
 }
 
 .container-orden {

@@ -177,6 +177,7 @@ const updateAbonosInFirebase = (updatedAbonos) => {
             brand: orderData.brand,
             model: orderData.model,
             paymentMethod: orderData.paymentMethod,
+            uploadTime: orderData.uploadTime,
           });
 
           // Calcular los inspectionItems
@@ -239,22 +240,19 @@ const updateAbonosInFirebase = (updatedAbonos) => {
 
       // Datos actualizados que vamos a guardar
       const updatedOrderData = {
-        firstName: formData.firstName,
-        lastName: formData.lastName,
         mobile: formData.mobile,
         inCharge: formData.inCharge,
         brand: formData.brand,
-        model: formData.model,
         paymentMethod: formData.paymentMethod,
-        uploadTime: new Date(formData.uploadTime).toISOString() // Guardar la fecha y hora modificada
-
-
       };
 
       // Actualizar el documento en Firebase
       await updateDoc(orderDocRef, updatedOrderData);
 
       console.log("== Orden actualizada en Firebase con éxito ==");
+      alert("Se ha guardado correctamente"); // Mostrar alerta
+      window.location.reload(); // Recargar la página
+
       setIsEdited(false); // Deshabilitar el botón de guardar después de guardar
     } catch (error) {
       console.error("Error actualizando la orden en Firebase:", error);
@@ -286,13 +284,9 @@ const updateAbonosInFirebase = (updatedAbonos) => {
       <div className="subtitle">
           <h3>
             <p>Fecha</p>
-            <input
-            type="datetime-local"
-            name="uploadTime"
-            value={formData.uploadTime ? new Date(formData.uploadTime).toISOString().slice(0, 16) : ''} 
-
-            onChange={handleInputChange}
-            />
+            <p>
+            {formData.uploadTime ? new Date(formData.uploadTime).toLocaleDateString('es-MX') : 'Fecha no disponible'}
+          </p>
         </h3>        
         <div className="container-print">
           <PDFDownloadLink document={<OrderPDF order={order} />} fileName={`Orden_${order.orderNumber}.pdf`}>
@@ -336,18 +330,12 @@ const updateAbonosInFirebase = (updatedAbonos) => {
             </div>
             
             <div className="column-client">
-              <input 
-                className="input-two"
-                name="firstName"
-                value={formData.firstName}
-                onChange={handleInputChange}
-              />
-              <input
-                className="input-two"
-                name="lastName"
-                value={formData.lastName}
-                onChange={handleInputChange}
-              />
+            <input 
+              className="input-two"
+              name="firstName"
+              value={formData.firstName}
+              readOnly
+            />
             </div>
         </div>
 
@@ -357,11 +345,14 @@ const updateAbonosInFirebase = (updatedAbonos) => {
             <p className="span-client">Asesor:</p>
           </div>
           <div className="column-client">
-            <input
-              name="inCharge"
-              value={formData.inCharge}
-              onChange={handleInputChange}
-            />
+          <select
+            name="inCharge"
+            value={formData.inCharge}
+            onChange={handleInputChange}
+          >
+            <option value="Cristian Abarca">Cristian Abarca</option>
+            <option value="Jorge Sanchez">Jorge Sanchez</option>
+          </select>
           </div>
         </div>
         
@@ -393,12 +384,7 @@ const updateAbonosInFirebase = (updatedAbonos) => {
                 value={formData.brand}
                 onChange={handleInputChange}
               />
-              <input
-                className="input-two"
-                name="model"
-                value={formData.model}
-                onChange={handleInputChange}
-              />
+         
           </div>
       
         </div>

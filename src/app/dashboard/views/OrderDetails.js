@@ -107,34 +107,31 @@ export default function OrderDetails({ orderId }) {
 
 
 //--- Abonos ---
-
   // Función para actualizar los abonos en Firebase
-// Función para actualizar los abonos en Firebase y recalcular el total
-const updateAbonosInFirebase = (updatedAbonos) => {
-  setAbonos(updatedAbonos); // Actualizar los abonos en el estado local
+    // Función para actualizar los abonos en Firebase y recalcular el total
+    const updateAbonosInFirebase = (updatedAbonos) => {
+      setAbonos(updatedAbonos); // Actualizar los abonos en el estado local
 
-  // Recalcular la suma de abonos
-  const abonosTotal = updatedAbonos.reduce((acc, abono) => acc + parseFloat(abono.cantidad_abono || 0), 0);
-  setAbonosSum(abonosTotal);
+      // Recalcular la suma de abonos
+      const abonosTotal = updatedAbonos.reduce((acc, abono) => acc + parseFloat(abono.cantidad_abono || 0), 0);
+      setAbonosSum(abonosTotal);
 
-  // Recalcular el total de la orden restando los abonos
-  const totalSubtotal = order.inspectionItems.reduce((acc, item) => {
-    const cost = item.partUnitPrice || 0;
-    const quantity = item.quantity || 0;
-    const taxAmount = cost * quantity * taxRate;
-    const subtotal = (cost * quantity) + taxAmount - discount;
-    return acc + subtotal;
-  }, 0);
+      // Recalcular el total de la orden restando los abonos
+      const totalSubtotal = order.inspectionItems.reduce((acc, item) => {
+        const cost = item.partUnitPrice || 0;
+        const quantity = item.quantity || 0;
+        const taxAmount = cost * quantity * taxRate;
+        const subtotal = (cost * quantity) + taxAmount - discount;
+        return acc + subtotal;
+      }, 0);
 
-  setTotalAmount(totalSubtotal - abonosTotal); // Actualizar el total con los abonos
-};
- // Función para cerrar el modal de abonar
- const closeAbonarModal = async () => {
-  setIsAbonarModalOpen(false);
-  document.querySelector('.content').classList.remove('main-blur');
-
-
-};
+      setTotalAmount(totalSubtotal - abonosTotal); // Actualizar el total con los abonos
+    };
+    // Función para cerrar el modal de abonar
+    const closeAbonarModal = async () => {
+      setIsAbonarModalOpen(false);
+      document.querySelector('.content').classList.remove('main-blur');
+    };
 
 // --- Productos --- 
   // Función para guardar el nuevo producto en Firebase
@@ -393,7 +390,7 @@ const calculateTotalSubtotal = (items) => {
           </div>
         </div>
 
-        {/* Campos Editables */}
+        {/* Nombre del cliente  */}
         <div className="row-client">
             <div className="column-client">
               <p className="span-client">Nombre del cliente:</p>
@@ -408,7 +405,8 @@ const calculateTotalSubtotal = (items) => {
             />
             </div>
         </div>
-
+        
+        {/* Edit Asesor,  */}
         <div className="row-client">
 
           <div className="column-client">
@@ -471,9 +469,9 @@ const calculateTotalSubtotal = (items) => {
                   value={formData.paymentMethod}
                   onChange={handleInputChange}
                 >
-                  <option value="Tarjeta de Crédito">Tarjeta de Crédito</option>
-                  <option value="Tarjeta de Débito">Tarjeta de Débito</option>
-                  <option value="Depósito">Depósito</option>
+                  <option value="Tarjeta de Crédito">Tarjeta de Credito</option>
+                  <option value="Tarjeta de Débito">Tarjeta de Debito</option>
+                  <option value="Depósito">Deposito</option>
                   <option value="Efectivo">Efectivo</option>
                 </select>
               </div>

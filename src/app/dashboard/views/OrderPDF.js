@@ -27,16 +27,16 @@ const styles = StyleSheet.create({
   },
 
   // Header
-  headerContainer:{
-    width: '100%',  
+  headerContainer: {
+    width: '100%',
     justifyContent: 'space-between',
     flexDirection: 'row',
     marginTop: 40,
   },
-  headerColumn:{
+  headerColumn: {
     width: '55%',
   },
-  headerColumn2:{
+  headerColumn2: {
     width: '30%',
   },
   textInfo: {
@@ -53,14 +53,22 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     flexDirection: 'row',
     padding: '2rem',
-    marginTop:  15,
+    marginTop: 15,
   },
-  spanText:{
+  spanText: {
     fontWeight: 800,
   },
-  asesorContainer:{
+  asesorContainer: {
     marginTop: 80,
-  }
+  },
+  // Nuevo estilo para el nombre del producto y marca
+  productName: {
+    fontSize: 12,
+  },
+  productBrand: {
+    fontSize: 10,
+    color: '#555',
+  },
 });
 
 // Componente que genera el PDF
@@ -75,134 +83,223 @@ const OrderPDF = ({ order }) => {
     );
   }
 
+  // Función para calcular el subtotal y total incluyendo impuestos
+  const calculateSubtotal = (item) => {
+    const price = parseFloat(item.partUnitPrice) || 0;
+    const quantity = parseInt(item.quantity) || 0;
+    const impuestos = item.impuestos === "16" ? 0.16 : 0;
+    const taxAmount = price * quantity * impuestos;
+    const subtotal = price * quantity + taxAmount;
+    return {
+      taxAmount,
+      subtotal,
+    };
+  };
+
+  const total = order.inspectionItems.reduce((acc, item) => {
+    const { subtotal } = calculateSubtotal(item);
+    return acc + subtotal;
+  }, 0);
+
   return (
     <Document>
       <Page style={styles.page}>
-
         {/* Header Section */}
         <View style={styles.headerContainer}>
           <View style={styles.headerColumn2}>
-            <Image
-              style={styles.imagenSc}
-              src="img/speedCenter.png"
-            />
+            <Image style={styles.imagenSc} src="img/speedCenter.png" />
           </View>
-
-          <View style={styles.headerColumn}>
-            
-          </View>  
-        </View>      
+          <View style={styles.headerColumn}></View>
+        </View>
 
         {/* Info Principal */}
-        <View style={styles.section}> 
+        <View style={styles.section}>
+          {/* Row Header */}
+          <View style={styles.rowHeader}>
+            {/* Elemento */}
+            <View>
+              <Text>
+                <Text style={styles.spanText}>Orden: </Text> {order.orderNumber}
+              </Text>
+            </View>
+            {/* Elemento */}
+            <View>
+              <Text>
+                <Text style={styles.spanText}>Fecha de Creación: </Text>
+                {order.uploadTime
+                  ? new Date(order.uploadTime).toLocaleDateString('es-MX')
+                  : 'Fecha no disponible'}
+              </Text>
+            </View>
+          </View>
 
           {/* Row Header */}
           <View style={styles.rowHeader}>
-            {/* Elemenent  */}
+            {/* Elemento */}
             <View>
-
-            <Text> <Text style={styles.spanText}> Orden. N</Text> 2024</Text>
-
-           
+              <Text>
+                <Text style={styles.spanText}>Folio de Garantía: </Text> 109020
+              </Text>
             </View>
-            {/* Element */}
+            {/* Elemento */}
             <View>
-              <Text> <Text style={styles.spanText}>Fecha de Creación: </Text> 24/04/2003</Text>
+              <Text style={styles.text}>
+                Auto: {`${order.brand || ''} ${order.model || ''}`}
+              </Text>
             </View>
           </View>
-          
-            {/* Row Header */}
+
+          {/* Row Header */}
           <View style={styles.rowHeader}>
-
-              {/* Elemenent  */}
-              <View>
-              <Text> <Text style={styles.spanText}>Folio de Garantía </Text> 109020</Text>
-              </View>
-              {/* Element */}
-              <View>
-              <Text style={styles.text}>Auto: {`${order.brand || ''} ${order.model || ''}`}</Text>
-              </View>
+            {/* Elemento */}
+            <View>
+              <Text style={styles.text}>
+                Cliente: {`${order.firstName || ''} ${order.lastName || ''}`}
+              </Text>
+            </View>
+            {/* Elemento */}
+            <View>
+              <Text style={styles.text}>Teléfono: {order.mobile || 'N/A'}</Text>
+            </View>
           </View>
 
-            
-            {/* Row Header */}
-            <View style={styles.rowHeader}>
+          {/* Row Header */}
+          <View style={styles.rowHeader}>
+            {/* Elemento */}
+            <View>
+              <Text style={styles.text}>
+                Método de Pago: {order.paymentMethod || 'N/A'}
+              </Text>
+            </View>
+            {/* Elemento */}
+            <View></View>
+          </View>
 
-              {/* Elemenent  */}
-              <View>
-              <Text style={styles.text}>Cliente: {`${order.firstName || ''} ${order.lastName || ''}`}</Text>
-              </View>
-              {/* Element */}
-              <View>
-              <Text style={styles.text}>Teléfono: {order.mobile || 'N/A'}</Text>
-
-              </View>
-            
+          {/* Productos */}
+          <View style={{ marginTop: 40 }}>
+            {/* Encabezados de la tabla */}
+            <View
+              style={{
+                flexDirection: 'row',
+                borderBottom: '1 solid black',
+                paddingBottom: 5,
+              }}
+            >
+              <Text style={{ width: '30%', fontWeight: 'bold', textAlign: 'left' }}>
+                Producto
+              </Text>
+              <Text style={{ width: '15%', fontWeight: 'bold', textAlign: 'left' }}>
+                Costo
+              </Text>
+              <Text style={{ width: '10%', fontWeight: 'bold', textAlign: 'left' }}>
+                Cantidad
+              </Text>
+              <Text style={{ width: '10%', fontWeight: 'bold', textAlign: 'left' }}>
+                Impuesto
+              </Text>
+              <Text style={{ width: '15%', fontWeight: 'bold', textAlign: 'left' }}>
+                IVA
+              </Text>
+              <Text style={{ width: '15%', fontWeight: 'bold', textAlign: 'left' }}>
+                Subtotal
+              </Text>
             </View>
 
-                {/* Row Header */}
-            <View style={styles.rowHeader}>
+            {/* Filas de productos */}
+            {order.inspectionItems && order.inspectionItems.length > 0 ? (
+              order.inspectionItems.map((item, index) => {
+                const price = parseFloat(item.partUnitPrice) || 0;
+                const quantity = parseInt(item.quantity) || 0;
+                const impuestos = item.impuestos === "16" ? 0.16 : 0;
+                const taxPercentage = impuestos * 100;
+                const { taxAmount, subtotal } = calculateSubtotal(item);
 
-                 {/* Elemenent  */}
-                <View>
-                    <Text style={styles.text}>Método de Pago: {order.paymentMethod || 'N/A'}</Text>
-                </View>
-                      {/* Element */}
-                <View>
-                </View>
-
-              </View>
-
-          {/*Productos */}
-        
-            <View style={{ marginTop: 40 }}>
-           {/* Encabezados de la tabla */}
-                  <View style={{ flexDirection: 'row', borderBottom: '1 solid black', paddingBottom: 5 }}>
-                    <Text style={{ width: '30%', fontWeight: 'bold', textAlign: 'left' }}>Producto</Text>
-                    <Text style={{ width: '15%', fontWeight: 'bold', textAlign: 'left' }}>Marca</Text>
-                    <Text style={{ width: '15%', fontWeight: 'bold', textAlign: 'left' }}>Costo</Text>
-                    <Text style={{ width: '10%', fontWeight: 'bold', textAlign: 'left' }}>Cantidad</Text>
-                    <Text style={{ width: '15%', fontWeight: 'bold', textAlign: 'left' }}>Impuestos</Text> {/* Nueva columna de impuestos */}
-                    <Text style={{ width: '15%', fontWeight: 'bold', textAlign: 'left' }}>Subtotal</Text>
+                return (
+                  <View
+                    key={index}
+                    style={{ flexDirection: 'row', marginBottom: 10, marginTop: 5 }}
+                  >
+                    <Text style={{ width: '30%' }}>
+                      <Text style={styles.productName}>{item.inspectionItemName}</Text>
+                      {'\n'}
+                      <Text style={styles.productBrand}>{item.brand || 'N/A'}</Text>
+                    </Text>
+                    <Text style={{ width: '15%' }}>${price.toFixed(2)}</Text>
+                    <Text style={{ width: '10%' }}>{quantity}</Text>
+                    <Text style={{ width: '10%' }}>{taxPercentage.toFixed(0)}%</Text>
+                    <Text style={{ width: '15%' }}>${taxAmount.toFixed(2)}</Text>
+                    <Text style={{ width: '15%' }}>${subtotal.toFixed(2)}</Text>
                   </View>
+                );
+              })
+            ) : (
+              <Text>No hay productos o servicios asociados</Text>
+            )}
+          </View>
 
-                {/* Filas de productos */}
-                {order.inspectionItems && order.inspectionItems.length > 0 ? (
-  order.inspectionItems.map((item, index) => (
-    <View key={index} style={{ flexDirection: 'row', marginBottom: 10, marginTop: 5 }}>
-      <Text style={{ width: '30%' }}>{item.inspectionItemName}</Text>
-      <Text style={{ width: '15%' }}>{item.brand || 'N/A'}</Text>
-      <Text style={{ width: '15%' }}>${(item.partUnitPrice || 0).toFixed(2)}</Text>
-      <Text style={{ width: '10%' }}>{item.quantity || 0}</Text>
-      <Text style={{ width: '15%' }}>${((item.partUnitPrice || 0) * (item.quantity || 0) * 0.16).toFixed(2)}</Text>
-      <Text style={{ width: '15%' }}>${((item.partUnitPrice || 0) * (item.quantity || 0)).toFixed(2)}</Text>
-    </View>
-  ))
-) : (
-  <Text>No hay productos o servicios asociados</Text>
-)}
+          {/* Total al final de la tabla */}
+          <View
+            style={{ flexDirection: 'row', borderTop: '1 solid black', paddingTop: 5 }}
+          >
+            <Text
+              style={{ width: '75%', fontWeight: '700', textAlign: 'right', paddingRight: 10 }}
+            >
+              Total:
+            </Text>
+            <Text style={{ width: '25%', fontWeight: 'bold', textAlign: 'left' }}>
+              ${total.toFixed(2)}
+            </Text>
+          </View>
 
-              </View>
-              
-                {/* Total al final de la tabla */}
-                <View style={{ flexDirection: 'row', borderTop: '1 solid black', paddingTop: 5 }}>
-                  <Text style={{ width: '100%', fontWeight: '700', textAlign: 'right' }}>Total:</Text>
-                  <Text style={{ width: '25%', fontWeight: 'bold', textAlign: 'left' }}>
-                    ${order.inspectionItems && order.inspectionItems.length > 0
-                      ? order.inspectionItems.reduce((acc, item) => acc + ((item.partUnitPrice || 0) * (item.quantity || 0)), 0).toFixed(2)
-                      : '0.00'}
+          {/* Historial de Pagos */}
+          <View style={{ marginTop: 20 }}>
+            <Text style={{ fontSize: 14, fontWeight: 'bold', marginBottom: 10 }}>
+              Anticipos
+            </Text>
+            {order.abonos && order.abonos.length > 0 ? (
+              <>
+                {/* Encabezados de la tabla */}
+                <View
+                  style={{
+                    flexDirection: 'row',
+                    borderBottom: '1 solid black',
+                    paddingBottom: 5,
+                  }}
+                >
+                  <Text style={{ width: '33%', fontWeight: 'bold', textAlign: 'left' }}>
+                    Cantidad
+                  </Text>
+                  <Text style={{ width: '33%', fontWeight: 'bold', textAlign: 'left' }}>
+                    Método de Pago
+                  </Text>
+                  <Text style={{ width: '34%', fontWeight: 'bold', textAlign: 'left' }}>
+                    Fecha
                   </Text>
                 </View>
-
+                {/* Filas de pagos */}
+                {order.abonos.map((abono, index) => (
+                  <View
+                    key={index}
+                    style={{ flexDirection: 'row', marginBottom: 5, marginTop: 5 }}
+                  >
+                    <Text style={{ width: '33%' }}>${abono.cantidad_abono}</Text>
+                    <Text style={{ width: '33%' }}>{abono.metodo_pago}</Text>
+                    <Text style={{ width: '34%' }}>
+                      {new Date(abono.fecha_abono).toLocaleDateString('es-MX')}
+                    </Text>
+                  </View>
+                ))}
+              </>
+            ) : (
+              <Text>No hay pagos registrados</Text>
+            )}
+          </View>
 
           <View style={styles.asesorContainer}>
             <Text style={styles.text}>Asesor: {order.inCharge}</Text>
             <Text style={styles.text}>Estado: {order.estado_orden || 'Presupuesto'}</Text>
           </View>
-
         </View>
-
-
 
         <Text style={styles.footer}>Firma Cliente</Text>
       </Page>

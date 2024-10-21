@@ -29,7 +29,10 @@ export default function OrderDetails({ orderId }) {
     inCharge: '',
     brand: '',
     model: '',
-    paymentMethod: ''
+    paymentMethod: '',
+    year: '',
+    kilometros: '',
+
   });{}
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
 
@@ -206,6 +209,10 @@ export default function OrderDetails({ orderId }) {
             model: orderData.model,
             paymentMethod: orderData.paymentMethod,
             uploadTime: orderData.uploadTime,
+            year: orderData.year,
+            kilometros: orderData.kilometros
+
+
           });
 
           // Calcular los inspectionItems
@@ -274,6 +281,8 @@ export default function OrderDetails({ orderId }) {
         inCharge: formData.inCharge,
         brand: formData.brand,
         paymentMethod: formData.paymentMethod,
+        year: formData.year,
+        kilometros: formData.kilometros
       };
 
       // Actualizar el documento en Firebase
@@ -445,11 +454,41 @@ const calculateTotalSubtotal = (items) => {
           <div className="column-client">
              <p className="span-client">Auto:</p>
           </div>
+
+          {/* Coche y Año */}
           <div className="column-client">
               <input
                 className="input-two"
                 name="brand"
                 value={formData.brand}
+                onChange={handleInputChange}
+              />
+              
+              {/* Input de Year */}
+              <input
+                className="input-two"
+                name="year"
+                value={formData.year}
+                onChange={handleInputChange}
+              />
+
+
+         
+          </div>
+      
+        </div>
+
+        {/* Kilometraje */}
+        <div className="row-client">
+
+          <div className="column-client">
+             <p className="span-client">Kilometraje:</p>
+          </div>
+          <div className="column-client">
+              <input
+                className="input-two"
+                name="kilometraje"
+                value={formData.kilometros}
                 onChange={handleInputChange}
               />
          

@@ -25,8 +25,6 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     marginTop: 50,
   },
-
-  // Header
   headerContainer: {
     width: '100%',
     justifyContent: 'space-between',
@@ -61,7 +59,6 @@ const styles = StyleSheet.create({
   asesorContainer: {
     marginTop: 80,
   },
-  // Nuevo estilo para el nombre del producto y marca
   productName: {
     fontSize: 12,
   },
@@ -114,15 +111,13 @@ const OrderPDF = ({ order }) => {
 
         {/* Info Principal */}
         <View style={styles.section}>
-          {/* Row Header */}
+          {/* Fila de Orden y Fecha */}
           <View style={styles.rowHeader}>
-            {/* Elemento */}
             <View>
               <Text>
                 <Text style={styles.spanText}>Orden: </Text> {order.orderNumber}
               </Text>
             </View>
-            {/* Elemento */}
             <View>
               <Text>
                 <Text style={styles.spanText}>Fecha de Creación: </Text>
@@ -133,102 +128,77 @@ const OrderPDF = ({ order }) => {
             </View>
           </View>
 
-          {/* Row Header */}
+          {/* Fila de Auto y Cliente */}
           <View style={styles.rowHeader}>
-            {/* Elemento */}
-            <View>
-              <Text>
-                <Text style={styles.spanText}>Folio de Garantía: </Text> 109020
-              </Text>
-            </View>
-            {/* Elemento */}
             <View>
               <Text style={styles.text}>
-                Auto: {`${order.brand || ''} ${order.model || ''}`}
+                Auto: {`${order.brand || ''} ${order.year || ''}`}
               </Text>
             </View>
-          </View>
-
-          {/* Row Header */}
-          <View style={styles.rowHeader}>
-            {/* Elemento */}
             <View>
               <Text style={styles.text}>
                 Cliente: {`${order.firstName || ''} ${order.lastName || ''}`}
               </Text>
             </View>
-            {/* Elemento */}
+          </View>
+
+          {/* Fila de Teléfono y Kilometraje */}
+          <View style={styles.rowHeader}>
             <View>
               <Text style={styles.text}>Teléfono: {order.mobile || 'N/A'}</Text>
             </View>
+            <View>
+              <Text style={styles.text}>Kilometraje: {order.kilometros || 'N/A'}</Text>
+            </View>
           </View>
 
-          {/* Row Header */}
+          {/* Fila de Placa y Método de Pago */}
           <View style={styles.rowHeader}>
-            {/* Elemento */}
+            <View>
+              <Text style={styles.text}>Placa: {order.placa_coche || 'N/A'}</Text>
+            </View>
             <View>
               <Text style={styles.text}>
                 Método de Pago: {order.paymentMethod || 'N/A'}
               </Text>
             </View>
-            {/* Elemento */}
-            <View></View>
           </View>
 
           {/* Productos */}
           <View style={{ marginTop: 40 }}>
-            {/* Encabezados de la tabla */}
-            <View
-              style={{
-                flexDirection: 'row',
-                borderBottom: '1 solid black',
-                paddingBottom: 5,
-              }}
-            >
-              <Text style={{ width: '30%', fontWeight: 'bold', textAlign: 'left' }}>
-                Producto
-              </Text>
-              <Text style={{ width: '15%', fontWeight: 'bold', textAlign: 'left' }}>
-                Costo
-              </Text>
-              <Text style={{ width: '10%', fontWeight: 'bold', textAlign: 'left' }}>
-                Cantidad
-              </Text>
-              <Text style={{ width: '10%', fontWeight: 'bold', textAlign: 'left' }}>
-                Impuesto
-              </Text>
-              <Text style={{ width: '15%', fontWeight: 'bold', textAlign: 'left' }}>
-                IVA
-              </Text>
-              <Text style={{ width: '15%', fontWeight: 'bold', textAlign: 'left' }}>
-                Subtotal
-              </Text>
+            {/* Encabezados de la tabla actualizados */}
+            <View style={{
+              flexDirection: 'row',
+              borderBottom: '1 solid black',
+              paddingBottom: 5,
+              justifyContent: 'space-between'
+            }}>
+              <Text style={{ width: '28%', fontWeight: 'bold', textAlign: 'left' }}>Producto</Text>
+              <Text style={{ width: '13%', fontWeight: 'bold', textAlign: 'left' }}>Costo</Text>
+              <Text style={{ width: '13%', fontWeight: 'bold', textAlign: 'left' }}>Cantidad</Text>
+              <Text style={{ width: '13%', fontWeight: 'bold', textAlign: 'left' }}>IVA</Text>
+              <Text style={{ width: '23%', fontWeight: 'bold', textAlign: 'left' }}>Subtotal</Text>
             </View>
 
-            {/* Filas de productos */}
+            {/* Filas de productos actualizadas */}
             {order.inspectionItems && order.inspectionItems.length > 0 ? (
               order.inspectionItems.map((item, index) => {
                 const price = parseFloat(item.partUnitPrice) || 0;
                 const quantity = parseInt(item.quantity) || 0;
                 const impuestos = item.impuestos === "16" ? 0.16 : 0;
-                const taxPercentage = impuestos * 100;
                 const { taxAmount, subtotal } = calculateSubtotal(item);
 
                 return (
-                  <View
-                    key={index}
-                    style={{ flexDirection: 'row', marginBottom: 10, marginTop: 5 }}
-                  >
-                    <Text style={{ width: '30%' }}>
+                  <View key={index} style={{ flexDirection: 'row', marginBottom: 10, marginTop: 5, justifyContent: 'space-between' }}>
+                    <Text style={{ width: '28%' ,   }}>
                       <Text style={styles.productName}>{item.inspectionItemName}</Text>
                       {'\n'}
                       <Text style={styles.productBrand}>{item.brand || 'N/A'}</Text>
                     </Text>
-                    <Text style={{ width: '15%' }}>${price.toFixed(2)}</Text>
-                    <Text style={{ width: '10%' }}>{quantity}</Text>
-                    <Text style={{ width: '10%' }}>{taxPercentage.toFixed(0)}%</Text>
-                    <Text style={{ width: '15%' }}>${taxAmount.toFixed(2)}</Text>
-                    <Text style={{ width: '15%' }}>${subtotal.toFixed(2)}</Text>
+                    <Text style={{ width: '13%' ,}}>${price.toFixed(2)}</Text>
+                    <Text style={{ width: '13%',  }}>{quantity}</Text>
+                    <Text style={{ width: '13%' }}>${taxAmount.toFixed(2)}</Text>
+                    <Text style={{ width: '23%', }}>${subtotal.toFixed(2)}</Text>
                   </View>
                 );
               })
@@ -237,15 +207,9 @@ const OrderPDF = ({ order }) => {
             )}
           </View>
 
-          {/* Total al final de la tabla */}
-          <View
-            style={{ flexDirection: 'row', borderTop: '1 solid black', paddingTop: 5 }}
-          >
-            <Text
-              style={{ width: '75%', fontWeight: '700', textAlign: 'right', paddingRight: 10 }}
-            >
-              Total:
-            </Text>
+          {/* Total */}
+          <View style={{ flexDirection: 'row', borderTop: '1 solid black', paddingTop: 5 }}>
+            <Text style={{ width: '75%', fontWeight: '700', textAlign: 'right', paddingRight: 10 }}>Total:</Text>
             <Text style={{ width: '25%', fontWeight: 'bold', textAlign: 'left' }}>
               ${total.toFixed(2)}
             </Text>

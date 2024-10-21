@@ -1,9 +1,16 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { updateDoc, doc } from "firebase/firestore";
 import { db } from "../../../../../lib/firebase";
 
 export default function ModalEditProduct({ isOpen, onClose, orderId, inspectionItems, setOrder }) {
-  const [editedItems, setEditedItems] = useState(inspectionItems);
+  const [editedItems, setEditedItems] = useState([]);
+
+  // Actualizar la lista de productos cuando se abre el modal
+  useEffect(() => {
+    if (isOpen) {
+      setEditedItems(inspectionItems);
+    }
+  }, [isOpen, inspectionItems]);
 
   // Función para manejar el cambio de campos
   const handleInputChange = (index, field, value) => {
@@ -19,9 +26,8 @@ export default function ModalEditProduct({ isOpen, onClose, orderId, inspectionI
     const cost = parseFloat(item.partUnitPrice) || 0;
     const quantity = parseInt(item.quantity) || 0;
     const taxRate = item.impuestos === "16" ? 0.16 : 0; // Verificar el campo "impuestos"
-  
     const subtotal = cost * quantity * (1 + taxRate);
-    return subtotal.toFixed(2); // Asegura que sea un número antes de usar toFixed()
+    return subtotal.toFixed(2);
   };
 
   // Función para eliminar un producto de la lista
@@ -31,10 +37,8 @@ export default function ModalEditProduct({ isOpen, onClose, orderId, inspectionI
   };
 
   // Función para guardar cambios en la base de datos
-// Función para guardar cambios en la base de datos
-const handleSaveChanges = async () => {
+  const handleSaveChanges = async () => {
     try {
-      // Asegurarse de que los campos tienen el tipo correcto
       const formattedItems = editedItems.map(item => ({
         inspectionItemName: item.inspectionItemName || '', // Asegurar string
         partUnitPrice: parseFloat(item.partUnitPrice) || 0, // Asegurar número
@@ -42,7 +46,7 @@ const handleSaveChanges = async () => {
         brand: item.brand || '', // Asegurar string
         impuestos: item.impuestos || "0", // Asegurar string
       }));
-  
+
       const orderDocRef = doc(db, "orders", orderId.toString());
       await updateDoc(orderDocRef, { inspectionItems: formattedItems });
       setOrder(prevOrder => ({ ...prevOrder, inspectionItems: formattedItems }));
@@ -52,7 +56,6 @@ const handleSaveChanges = async () => {
       console.error("Error al actualizar productos:", error);
     }
   };
-  
 
   if (!isOpen) return null;
 
@@ -104,16 +107,16 @@ const handleSaveChanges = async () => {
                   />
                 </td>
                 <td>
-                <select
+                  <select
                     value={item.impuestos || "0"}
                     onChange={(e) => {
-                    const newImpuestos = e.target.value;
-                    handleInputChange(index, "impuestos", newImpuestos);
+                      const newImpuestos = e.target.value;
+                      handleInputChange(index, "impuestos", newImpuestos);
                     }}
-                >
+                  >
                     <option value="0">0%</option>
                     <option value="16">16%</option>
-                </select>
+                  </select>
                 </td>
                 <td>{calculateSubtotal(item)}</td>
                 <td>

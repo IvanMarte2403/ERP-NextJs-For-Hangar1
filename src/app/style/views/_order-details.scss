@@ -191,7 +191,17 @@
         color: var(--color-secondary);
         border-radius: 0.4rem;
         padding: 0.5rem 1rem 0.5rem 1rem;
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        justify-content: center;
     }
+
+    tr:hover{
+        box-shadow: none !important;
+    }
+
+
 }
 
 
@@ -212,6 +222,18 @@
     border-radius: 1rem;
 }
 
+
+// ContainerButtons Editar y Añadir Producto
+.container-buttons{
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    width: 10%;
+
+    button{
+        cursor: pointer;
+    }
+}
 
 .producto-abonar{
     width: 100%;

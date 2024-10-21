@@ -6,9 +6,15 @@ import { db } from "../../../../lib/firebase";
 import { PDFDownloadLink } from '@react-pdf/renderer';
 import OrderPDF from "./OrderPDF"; 
 import Link from 'next/link'; // Importa el componente Link de Next.js
+
+//-- Modal --
 import ModalProduct from './Modal/ModalProduct'
 import ModalAbonar from './Modal/ModalAbonar';
+import ModalEditProduct  from "./Modal/EditProduct";
 
+// -- Diseño -- 
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'; // Importa el componente FontAwesomeIcon
+import { faEdit, faPlus } from '@fortawesome/free-solid-svg-icons'; // Importa los iconos específicos
 
 
 export default function OrderDetails({ orderId }) {
@@ -25,54 +31,79 @@ export default function OrderDetails({ orderId }) {
     model: '',
     paymentMethod: ''
   });{}
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+
+  
 
   const [abonos, setAbonos] = useState([]); // Estado para los abonos
   const [abonosSum, setAbonosSum] = useState(0); // Estado para la suma de los abonos
 
 
   //--Modal-- 
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  // Función para abrir el modal
-  const openModal = () => {
-    setIsModalOpen(true);
-    document.querySelector('.content').classList.add('main-blur'); // Agregar la clase cuando el modal está abierto
+    
+    const openModal = () => {
+      setIsModalOpen(true);
+      document.querySelector('.content').classList.add('main-blur'); // Agregar la clase cuando el modal está abierto
 
-  };
+    };
 
-  const [isAbonarModalOpen, setIsAbonarModalOpen] = useState(false);
+    const [isAbonarModalOpen, setIsAbonarModalOpen] = useState(false);
 
-  // Función para cerrar el modal
-  const closeModal = async () => {
-    setIsModalOpen(false);
-    document.querySelector('.content').classList.remove('main-blur'); // Quitar la clase cuando el modal se cierra
-      // Recargar la información de la orden para actualizar los productos
-      const orderDocRef = doc(db, "orders", orderId.toString());
-      const docSnap = await getDoc(orderDocRef);
-  
-      if (docSnap.exists()) {
-          const orderData = docSnap.data();
-          setOrder(orderData); // Actualizar el estado de la orden con los nuevos productos
-          const inspectionItems = orderData.inspectionItems || [];
-  
-          // Calcular el total después de agregar los productos
-          const totalSubtotal = inspectionItems.reduce((acc, item) => {
-              const cost = item.partUnitPrice || 0;
-              const quantity = item.quantity || 0;
-              const taxAmount = cost * quantity * taxRate;
-              const subtotal = (cost * quantity) + taxAmount - discount;
-              return acc + subtotal;
-          }, 0);
-  
-          setTotalAmount(totalSubtotal); // Actualizar el total con los productos nuevos
-      } else {
-          console.error("Error: No se encontró el documento después de cerrar el modal");
+    // Función para cerrar el modal
+    const closeModal = async () => {
+      setIsModalOpen(false);
+      document.querySelector('.content').classList.remove('main-blur'); // Quitar la clase cuando el modal se cierra
+        // Recargar la información de la orden para actualizar los productos
+        const orderDocRef = doc(db, "orders", orderId.toString());
+        const docSnap = await getDoc(orderDocRef);
+    
+        if (docSnap.exists()) {
+            const orderData = docSnap.data();
+            setOrder(orderData); // Actualizar el estado de la orden con los nuevos productos
+            const inspectionItems = orderData.inspectionItems || [];
+    
+            // Calcular el total después de agregar los productos
+            const totalSubtotal = inspectionItems.reduce((acc, item) => {
+                const cost = item.partUnitPrice || 0;
+                const quantity = item.quantity || 0;
+                const taxAmount = cost * quantity * taxRate;
+                const subtotal = (cost * quantity) + taxAmount - discount;
+                return acc + subtotal;
+            }, 0);
+    
+            setTotalAmount(totalSubtotal); // Actualizar el total con los productos nuevos
+        } else {
+            console.error("Error: No se encontró el documento después de cerrar el modal");
+        }
+    };
+    // Función para abrir el modal de abonar
+    const openAbonarModal = () => {
+      setIsAbonarModalOpen(true);
+      document.querySelector('.content').classList.add('main-blur');
+    };
+
+  // -- Modal Edit -- 
+    const [isModalOpen, setIsModalOpen] = useState(false);
+
+    // Función para abrir el modal de edición
+    const openEditModal = () => {
+      setIsEditModalOpen(true);
+      document.querySelector('.content').classList.add('main-blur'); // Agregar la clase cuando el modal está abierto
+
+    };
+
+    // Función para cerrar el modal de edición
+    const closeEditModal = () => {
+      setIsEditModalOpen(false);
+      document.querySelector('.content').classList.remove('main-blur'); // Quitar la clase cuando el modal se cierra
+
+      // Recalcular el total después de cerrar el modal
+      if (order && order.inspectionItems) {
+        const newTotalAmount = calculateTotalAmount(order.inspectionItems); // Recalcular el total
+        setTotalAmount(newTotalAmount); // Actualizar el total
       }
-  };
-  // Función para abrir el modal de abonar
-  const openAbonarModal = () => {
-    setIsAbonarModalOpen(true);
-    document.querySelector('.content').classList.add('main-blur');
-  };
+
+    };
 
 
 //--- Abonos ---
@@ -183,12 +214,14 @@ const updateAbonosInFirebase = (updatedAbonos) => {
           // Calcular los inspectionItems
           const inspectionItems = orderData.inspectionItems || [];
           const totalSubtotal = inspectionItems.reduce((acc, item) => {
-            const cost = item.partUnitPrice || 0;
-            const quantity = item.quantity || 0;
-            const taxAmount = cost * quantity * taxRate;
-            const subtotal = (cost * quantity) + taxAmount - discount;
+            const cost = parseFloat(item.partUnitPrice) || 0;
+            const quantity = parseInt(item.quantity) || 0;
+            const impuestos = item.impuestos === "16" ? 0.16 : 0; // Verificar el campo "impuestos"
+            const taxAmount = cost * quantity * impuestos;
+            const subtotal = (cost * quantity) + taxAmount;
             return acc + subtotal;
           }, 0);
+          
 
           setTotalAmount(totalSubtotal - abonosTotal); // Establecer el total
         } else {
@@ -265,14 +298,43 @@ const updateAbonosInFirebase = (updatedAbonos) => {
 
   const inspectionItems = order.inspectionItems || [];
 
-  // Calculo del total con el subtotal 
+  // Ajustar el cálculo de impuestos en cada producto
+  const calculateProductTax = (item) => {
+    const cost = parseFloat(item.partUnitPrice) || 0;
+    const quantity = parseInt(item.quantity) || 0;
+    const impuestos = item.impuestos === "16" ? 0.16 : 0;
+    return (cost * quantity * impuestos).toFixed(2);
+  };
+
+
+  // Calculo del subtotal por producto considerando los impuestos
   const calculateSubtotal = (item) => {
-    const cost = item.partUnitPrice || 0;
-    const quantity = item.quantity || 0;
-    const taxAmount = cost * quantity * taxRate;
-    const subtotal = (cost * quantity) + taxAmount - discount;
+    const cost = parseFloat(item.partUnitPrice) || 0;
+    const quantity = parseInt(item.quantity) || 0;
+    const impuestos = item.impuestos === "16" ? 0.16 : 0;
+    const taxAmount = cost * quantity * impuestos;
+    const subtotal = (cost * quantity) + taxAmount;
     return subtotal.toFixed(2);
   };
+
+
+  // Ajustar el total considerando los impuestos y el subtotal actualizado
+const calculateTotalAmount = (items) => {
+  return items.reduce((acc, item) => {
+    const cost = parseFloat(item.partUnitPrice) || 0;
+    const quantity = parseInt(item.quantity) || 0;
+    const impuestos = item.impuestos === "16" ? 0.16 : 0;
+    const taxAmount = cost * quantity * impuestos;
+    const subtotal = (cost * quantity) + taxAmount;
+    return acc + subtotal;
+  }, 0);
+};
+  
+const calculateTotalSubtotal = (items) => {
+  return items.reduce((acc, item) => acc + parseFloat(calculateSubtotal(item)), 0);
+};
+
+
 
   return (
     <div className="order-details">
@@ -333,7 +395,7 @@ const updateAbonosInFirebase = (updatedAbonos) => {
             <input 
               className="input-two"
               name="firstName"
-              value={formData.firstName}
+              value={formData.firstName} 
               readOnly
             />
             </div>
@@ -420,12 +482,23 @@ const updateAbonosInFirebase = (updatedAbonos) => {
       {/* Productos & Servicios */}
       <div className="container-productos">
         <h2>Productos & Servicios</h2>
+        <div className="container-buttons">
+          <button onClick={openModal}>
+            <img
+              src="icons/plus.svg"
+            />
+          </button>
 
-        <button
-          onClick={openModal}
-          >
-          Agregar Producto
-        </button>
+          <button
+        
+          onClick={openEditModal}>
+            <img
+              src="icons/edit.svg"
+            />
+          </button>
+        </div>
+
+
       </div>
       {/* Productos & Servicios */}
       <table className="table-order">
@@ -441,29 +514,37 @@ const updateAbonosInFirebase = (updatedAbonos) => {
           </tr>
         </thead>
         <tbody>
-          {inspectionItems.length > 0 ? (
-            inspectionItems.map((item, index) => (
+        {inspectionItems.length > 0 ? (
+          inspectionItems.map((item, index) => {
+            const cost = parseFloat(item.partUnitPrice) || 0;
+            const quantity = parseInt(item.quantity) || 0;
+            const impuestos = item.impuestos === "16" ? "16%" : "0%";
+            const taxAmount = calculateProductTax(item);
+            const subtotal = calculateSubtotal(item);
+
+            return (
               <tr key={index}>
                 <td>{item.inspectionItemName}</td>
                 <td>{item.brand || 'N/A'}</td>
-                <td>${(item.partUnitPrice || 0).toFixed(2)}</td>
-                <td>{item.quantity || 0}</td>
-                <td>${((item.partUnitPrice || 0) * taxRate).toFixed(2)}</td>
+                <td>${cost.toFixed(2)}</td>
+                <td>{quantity}</td>
+                <td>{impuestos}</td>
                 <td>${discount.toFixed(2)}</td>
-                <td>${calculateSubtotal(item)}</td>
+                <td>${subtotal}</td>
               </tr>
-            ))
-          ) : (
-            <tr>
-              <td colSpan="7">No hay productos o servicios asociados</td>
-            </tr>
-          )}
-        </tbody>
+            );
+          })
+        ) : (
+          <tr>
+            <td colSpan="7">No hay productos o servicios asociados</td>
+          </tr>
+        )}
+      </tbody>
       </table>  
 
       <div className="container-subtotal">
-          <h3>Subtotal Productos: ${inspectionItems.reduce((acc, item) => acc + parseFloat(calculateSubtotal(item)), 0).toFixed(2)}
-          </h3>
+      <h3>Subtotal Productos: ${inspectionItems.reduce((acc, item) => acc + parseFloat(calculateSubtotal(item)), 0).toFixed(2)}</h3>
+        
       </div>
       
       {/* Anticipo */}
@@ -505,22 +586,17 @@ const updateAbonosInFirebase = (updatedAbonos) => {
           )}
         </div>
 
-
-
-
-     
-
       <div className="abonar"></div>
       </div>
 
-          {/* Mostrar el modal */}
-        <ModalProduct
-        isOpen={isModalOpen}
-        onClose={closeModal}
-        orderId={orderId}
-        onSaveProduct={saveProductToFirebase}
-        className= "modalProduct"
-      />
+                {/* Mostrar el modal */}
+            <ModalProduct
+              isOpen={isModalOpen}
+              onClose={closeModal}
+              orderId={orderId}
+              onSaveProduct={saveProductToFirebase}
+              className= "modalProduct"
+            />
 
             {/* Mostrar el modal de abonar */}
             <ModalAbonar
@@ -529,7 +605,17 @@ const updateAbonosInFirebase = (updatedAbonos) => {
             orderId={orderId}
             existingAbonos={order?.abonos || []} // Pasar los abonos actuales si existen
             onUpdateAbonos={updateAbonosInFirebase} // Pasar la función de actualización
+
           />
+
+
+            <ModalEditProduct
+              isOpen={isEditModalOpen}
+              onClose={closeEditModal}
+              orderId={orderId}
+              inspectionItems={order.inspectionItems}
+              setOrder={setOrder}
+            />
     </div>
   );
 }

@@ -1,0 +1,59 @@
+.modal-edit-product{
+    position: fixed;
+    width: 70%;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background-color: white;
+    padding: 20px;
+    z-index: 1000;
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    border-radius: 0.4rem;
+
+    td{
+        button{
+            all: unset;
+            background-color: var(--background-color-2);
+            color: var(--color-secondary);
+            padding: var(--spacing-sm);
+            border-radius: 0.4rem;
+        }
+    }
+
+    tr:hover {
+        background-color: transparent; // O el color de fondo que desees
+        color: inherit; // O el color de texto que desees
+        // Añade aquí cualquier otra propiedad que necesites resetear
+        box-shadow: none; // Quita el box-shadow
+        width: 100%;
+    }
+
+
+
+    td input{
+        all: unset;
+    }
+
+    td select{
+        background-color: var(--background-color-1);
+        border-bottom: none;
+    }
+
+    .modal-actions{
+        width: 100%;
+        display: flex;
+        flex-direction: row;
+        justify-content: space-evenly;
+        align-items: center;
+        margin-top: var(--spacing-xxl);
+        button{
+            all: unset;
+            background-color: var(--background-color-2);
+            border-radius: 0.2rem;
+            color: var(--color-secondary);
+            padding: 0.5rem 1rem 0.5rem 1rem;
+            cursor: pointer;
+        }
+    }
+}

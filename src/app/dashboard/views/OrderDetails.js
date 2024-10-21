@@ -512,7 +512,7 @@ const calculateTotalSubtotal = (items) => {
                   <option value="Tarjeta de Débito">Tarjeta de Debito</option>
                   <option value="Depósito">Deposito</option>
                   <option value="Efectivo">Efectivo</option>
-                  <option value="Efectivo">Transferencia</option>
+                  <option value="Transferencia">Transferencia</option>
 
                 </select>
               </div>

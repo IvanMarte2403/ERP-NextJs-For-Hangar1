@@ -105,6 +105,8 @@ export default function ModalAbonar({ isOpen, onClose, orderId, existingAbonos =
             <option value="Tarjeta de Crédito">Tarjeta de Crédito</option>
             <option value="Tarjeta de Débito">Tarjeta de Débito</option>
             <option value="Efectivo">Efectivo</option>
+            <option value="Transferencia">Transferencia</option>
+
           </select>
           
           <button onClick={addNewAbono}>Añadir Abono</button>

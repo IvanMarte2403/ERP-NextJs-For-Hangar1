@@ -116,9 +116,11 @@ useEffect(() => {
     const [categoria, setCategoria] = useState(''); 
     const [fecha, setFecha] = useState(''); 
     const [placa, setPlaca] = useState(''); 
+    const [kilometros, setKilometros] = useState('');
+    const [categoria_h, setCategoriaH] = useState('');
 
     const handleCreateOrder = async () => {
-      if (!model || !year || !taller || !inCharge || !categoria || !fecha || !placa) {
+      if (!model || !year || !taller || !inCharge || !categoria || !fecha || !placa || !kilometros || !categoria_h) {
         alert("Por favor, completa todos los campos del formulario");
         return;
       }
@@ -150,6 +152,9 @@ useEffect(() => {
         categoria,
         taller,
         placa_coche: placa,
+        kilometros: parseInt(kilometros), 
+        categoria_h: categoria_h,
+
       };
     
       const success = await createOrder(orderData);
@@ -301,11 +306,38 @@ useEffect(() => {
 
 
                 </div>
+
+                {/* Kilometraje / SpeedCenter */}
+                <div className="row-forms">
+                    {/* Input */}
+                    <div className="input">
+                      <p>Kilometraje</p>
+                      <input
+                        type="number"
+                        placeholder="km"
+                        onChange={(e) => setKilometros(e.target.value)}
+                      />
+                    </div>
+                    {/* Input */}
+                    <div className="input">
+                      <p>Categoría</p>
+                      <select
+                          onChange={(e) => setCategoriaH(e.target.value)}
+                        >
+                          <option value="">Selecciona una categoría</option>
+                          <option value="SpeedCenter">SpeedCenter</option>
+                          <option value="PrimeService">PrimeService</option>
+                        </select>
+                    </div>
+
+
+
+                </div>
                 {/* Row Forms */}
                 <div className="row-forms">
                     {/* Input */}
                     <div className="input">
-                      <p>Categoría</p>
+                      <p>Categoría de Coche</p>
                       <select
                         onChange={(e) => setCategoria(e.target.value)}
                       >

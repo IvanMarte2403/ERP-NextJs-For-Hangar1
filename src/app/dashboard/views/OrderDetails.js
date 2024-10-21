@@ -291,10 +291,10 @@ export default function OrderDetails({ orderId }) {
 
   useEffect(() => {
     if (order && order.inspectionItems) {
-      const updatedTotalAmount = calculateTotalAmount(order.inspectionItems);
+      const updatedTotalAmount = calculateTotalAmount(order.inspectionItems) - abonosSum;
       setTotalAmount(updatedTotalAmount);
     }
-  }, [order]); // Cambiamos la dependencia a 'order'
+  }, [order, abonosSum]); // Cambiamos la dependencia a 'order'
 
   if (!order) {
     return <p>Cargando detalles de la orden...</p>;

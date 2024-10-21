@@ -37,25 +37,30 @@ export default function ModalEditProduct({ isOpen, onClose, orderId, inspectionI
   };
 
   // Función para guardar cambios en la base de datos
-  const handleSaveChanges = async () => {
+  // En EditProduct.js
+const handleSaveChanges = async () => {
     try {
       const formattedItems = editedItems.map(item => ({
-        inspectionItemName: item.inspectionItemName || '', // Asegurar string
-        partUnitPrice: parseFloat(item.partUnitPrice) || 0, // Asegurar número
-        quantity: parseInt(item.quantity) || 0, // Asegurar número
-        brand: item.brand || '', // Asegurar string
-        impuestos: item.impuestos || "0", // Asegurar string
+        inspectionItemName: item.inspectionItemName || '',
+        partUnitPrice: parseFloat(item.partUnitPrice) || 0,
+        quantity: parseInt(item.quantity) || 0,
+        brand: item.brand || '',
+        impuestos: item.impuestos || "0",
       }));
-
+  
       const orderDocRef = doc(db, "orders", orderId.toString());
       await updateDoc(orderDocRef, { inspectionItems: formattedItems });
+  
+      // Actualiza el estado 'order' en 'OrderDetails.js'
       setOrder(prevOrder => ({ ...prevOrder, inspectionItems: formattedItems }));
+  
       alert("Productos actualizados correctamente");
       onClose();
     } catch (error) {
       console.error("Error al actualizar productos:", error);
     }
   };
+  
 
   if (!isOpen) return null;
 

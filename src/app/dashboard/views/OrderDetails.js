@@ -97,10 +97,10 @@ export default function OrderDetails({ orderId }) {
       setIsEditModalOpen(false);
       document.querySelector('.content').classList.remove('main-blur'); // Quitar la clase cuando el modal se cierra
 
-      // Recalcular el total después de cerrar el modal
+       // Recalcular el total si el estado de order cambió
       if (order && order.inspectionItems) {
-        const newTotalAmount = calculateTotalAmount(order.inspectionItems); // Recalcular el total
-        setTotalAmount(newTotalAmount); // Actualizar el total
+        const updatedTotalAmount = calculateTotalAmount(order.inspectionItems);
+        setTotalAmount(updatedTotalAmount);
       }
 
     };
@@ -292,6 +292,13 @@ const updateAbonosInFirebase = (updatedAbonos) => {
     }
   };
 
+  useEffect(() => {
+    if (order && order.inspectionItems) {
+      const updatedTotalAmount = calculateTotalAmount(order.inspectionItems);
+      setTotalAmount(updatedTotalAmount);
+    }
+  }, [order]); // Cambiamos la dependencia a 'order'
+
   if (!order) {
     return <p>Cargando detalles de la orden...</p>;
   }
@@ -333,6 +340,7 @@ const calculateTotalAmount = (items) => {
 const calculateTotalSubtotal = (items) => {
   return items.reduce((acc, item) => acc + parseFloat(calculateSubtotal(item)), 0);
 };
+
 
 
 
@@ -609,13 +617,13 @@ const calculateTotalSubtotal = (items) => {
           />
 
 
-            <ModalEditProduct
-              isOpen={isEditModalOpen}
-              onClose={closeEditModal}
-              orderId={orderId}
-              inspectionItems={order.inspectionItems}
-              setOrder={setOrder}
-            />
+          <ModalEditProduct
+            isOpen={isEditModalOpen}
+            onClose={closeEditModal}
+            orderId={orderId}
+            inspectionItems={order.inspectionItems}
+            setOrder={setOrder}
+          />
     </div>
   );
 }

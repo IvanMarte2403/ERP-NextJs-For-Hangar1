@@ -1,8 +1,9 @@
 .modal-edit-product{
     position: fixed;
-    width: 70%;
+    width: 80%;
     top: 50%;
     left: 50%;
+
     transform: translate(-50%, -50%);
     background-color: white;
     padding: 20px;
@@ -10,7 +11,13 @@
     border-radius: 8px;
     box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
     border-radius: 0.4rem;
+    .modal-content{
+        max-height: 80vh; /* Altura máxima para el contenido del modal */
+        overflow: hidden; /* Ocultar barras de desplazamiento */
+        overflow-y: auto;
+        max-height: 80vh; /* Establecer una altura máxima para permitir el scroll */
 
+    }
     td{
         button{
             all: unset;

@@ -56,13 +56,15 @@ export default function Ordenes({ onOrderClick }) {
     fetchAllOrders();
   }, []);
 
-
+  // -- Filtro de Búsqueda -- 
   useEffect(() => {
     if (searchTerm) {
+      const lowerCaseSearchTerm = searchTerm.toLowerCase();
       const results = allOrders.filter(order => 
-        order.orderID.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        (order.email && order.email.toLowerCase().includes(searchTerm.toLowerCase()))
-      );
+      (order.orderID && order.orderID.toLowerCase().includes(lowerCaseSearchTerm)) ||
+      (order.email && order.email.toLowerCase().includes(lowerCaseSearchTerm)) ||
+      (order.firstName && order.firstName.toLowerCase().includes(lowerCaseSearchTerm))
+    );
       setFilteredOrders(results);
     } else {
       setFilteredOrders([]);
@@ -181,10 +183,10 @@ export default function Ordenes({ onOrderClick }) {
             {filteredOrders.map(order => (
               <li 
                 key={order.id} 
-                onClick={() => router.push(`/orderDetails/${order.orderID}`)}
-              >
-                {order.orderID} - {order.email}
-              </li>
+                onClick={() => onOrderClick(order.orderID)} 
+                >
+              {order.orderID} - {order.firstName} {order.lastName}
+        </li>
             ))}
           </ul>
         )}

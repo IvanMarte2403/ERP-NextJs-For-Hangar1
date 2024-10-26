@@ -176,7 +176,7 @@ export default function Ordenes({ onOrderClick }) {
           type="text"
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
-          placeholder="Buscar por No. Orden o correo electrónico"
+          placeholder="Buscar por No. Orden, correo electrónico, nombre"
         />
         {filteredOrders.length > 0 && (
           <ul className="dropdown-buscador">

@@ -1,17 +1,37 @@
 "use client";
 
-import { useState} from "react";
+import { useState, useEffect } from "react";
 import Ordenes from "./views/Ordenes";
 import Dashboard from "./views/Dashboard";
 import Notificaciones from "./views/Notificaciones";
 import OrderDetails from "./views/OrderDetails";
 import NavBar from "../../components/NavBar"
+import { getAuth, onAuthStateChanged } from "firebase/auth"; // Importar Firebase Auth
 
 //--- Views --- 
 
 import OrderDetailsNew from "./views/OrderDetailsNew";
+import Products from "./views/Product";
+
 
 export default function DashboardPage() {
+  const [userEmail, setUserEmail] = useState(null); // Estado para almacenar el correo del usuario
+
+  // Obtener el correo del usuario autenticado
+    useEffect(() => {
+      const auth = getAuth();
+      const unsubscribe = onAuthStateChanged(auth, (user) => {
+        if (user) {
+          setUserEmail(user.email); // Establecer el correo del usuario autenticado
+        } else {
+          setUserEmail(null); // Usuario no autenticado
+        }
+      });
+
+      return () => unsubscribe(); // Limpiar la suscripción al desmontar
+    }, []);
+
+
   const [view, setView] = useState("ordenes"); // Estado para manejar la vista actual
   const [selectedOrderId, setSelectedOrderId] = useState(null); // Estado para manejar la ID de la orden seleccionada
   //Estado para controlar si es una nueva orden
@@ -34,7 +54,9 @@ export default function DashboardPage() {
         return <OrderDetails orderId={selectedOrderId} isNewOrder={isNewOrder} />;
       case "orderDetailsNew":
         return <OrderDetailsNew setSelectedOrderId={setSelectedOrderId} setView={setView} />;
-      default:
+      case "productos":
+        return <Products userEmail={userEmail} />; 
+        default:
         return <Ordenes />;
     }
   };
@@ -53,7 +75,7 @@ export default function DashboardPage() {
           <img src="img/logo-hangar-1.png" alt="Logo" />
         </div>
 
-        <NavBar setView={setView} /> {/* Pasamos la función setView como prop */}
+        <NavBar setView={setView} />
 
       </div>
 

@@ -163,98 +163,101 @@ export default function OrderDetails({ orderId }) {
   const discount = 0; // Descuento inicial en 0
 
 
+
 //--- Consulta de Datos ---
+
+const fetchOrderFromFirebase = async () => {
+  try {
+    console.log("Iniciando consulta en Firebase para obtener la orden usando orderID:", orderId);
+    
+     // Verificar si orderId está definido
+  if (!orderId) {
+    console.error("Error: orderId es undefined o null");
+    return;
+  }
+  
+    // Consulta Firebase usando el orderID
+    const docRef = doc(db, "orders", orderId.toString());
+    console.log("Referencia del documento creada:", docRef);
+
+    const docSnap = await getDoc(docRef);
+    console.log("Resultado de la consulta:", docSnap.exists());
+
+
+    if (docSnap.exists()) {
+      const orderData = docSnap.data();
+      console.log("Detalles de la orden obtenidos de Firebase:", orderData);
+
+      setOrder(orderData);
+
+            // Obtener abonos[] si existen
+      const abonosList = orderData.abonos || [];
+      setAbonos(abonosList);
+
+          // Calcular la suma de los abonos
+      const abonosTotal = abonosList.reduce((acc, abono) => acc + parseFloat(abono.cantidad_abono || 0), 0);
+      setAbonosSum(abonosTotal);
+
+
+      setFormData({
+        firstName: orderData.firstName,
+        lastName: orderData.lastName,
+        mobile: orderData.mobile,
+        inCharge: orderData.inCharge,
+        brand: orderData.brand,
+        model: orderData.model,
+        paymentMethod: orderData.paymentMethod,
+        uploadTime: orderData.uploadTime,
+        year: orderData.year,
+        kilometros: orderData.kilometros
+
+
+      });
+
+      // Calcular los inspectionItems
+      const inspectionItems = orderData.inspectionItems || [];
+      const totalSubtotal = inspectionItems.reduce((acc, item) => {
+        const cost = parseFloat(item.partUnitPrice) || 0;
+        const quantity = parseInt(item.quantity) || 0;
+        const impuestos = item.impuestos === "16" ? 0.16 : 0; // Verificar el campo "impuestos"
+        const taxAmount = cost * quantity * impuestos;
+        const subtotal = (cost * quantity) + taxAmount;
+        return acc + subtotal;
+      }, 0);
+      
+
+      setTotalAmount(totalSubtotal - abonosTotal); // Establecer el total
+    } else {
+      console.log("No se encontró el documento en Firebase!");
+      const newOrderData = {
+        firstName: '',
+        lastName: '',
+        mobile: '',
+        inCharge: '',
+        brand: '',
+        model: '',
+        paymentMethod: '',
+        orderNumber: orderId,  // Utiliza orderId como el número de orden
+        inspectionItems: [],  // Inicializa una lista vacía de productos o servicios
+        uploadTime: new Date().toISOString() // Agregar el tiempo actual
+
+      };
+       // Crear el nuevo documento en Firebase
+      await setDoc(docRef, newOrderData);
+
+        // Establecer los datos de la nueva orden
+      setOrder(newOrderData);
+      setFormData(newOrderData);
+      setTotalAmount(0);
+    }
+  } catch (error) {
+    console.error("Error obteniendo la orden de Firebase:", error);
+  }
+};
 
   useEffect(() => {''
     // Consulta en Firebase para obtener los detalles de la orden
-    const fetchOrderFromFirebase = async () => {
-      try {
-        console.log("Iniciando consulta en Firebase para obtener la orden usando orderID:", orderId);
-        
-         // Verificar si orderId está definido
-      if (!orderId) {
-        console.error("Error: orderId es undefined o null");
-        return;
-      }
-      
-        // Consulta Firebase usando el orderID
-        const docRef = doc(db, "orders", orderId.toString());
-        console.log("Referencia del documento creada:", docRef);
 
-        const docSnap = await getDoc(docRef);
-        console.log("Resultado de la consulta:", docSnap.exists());
-
-
-        if (docSnap.exists()) {
-          const orderData = docSnap.data();
-          console.log("Detalles de la orden obtenidos de Firebase:", orderData);
-
-          setOrder(orderData);
-
-                // Obtener abonos[] si existen
-          const abonosList = orderData.abonos || [];
-          setAbonos(abonosList);
-
-              // Calcular la suma de los abonos
-          const abonosTotal = abonosList.reduce((acc, abono) => acc + parseFloat(abono.cantidad_abono || 0), 0);
-          setAbonosSum(abonosTotal);
-
-
-          setFormData({
-            firstName: orderData.firstName,
-            lastName: orderData.lastName,
-            mobile: orderData.mobile,
-            inCharge: orderData.inCharge,
-            brand: orderData.brand,
-            model: orderData.model,
-            paymentMethod: orderData.paymentMethod,
-            uploadTime: orderData.uploadTime,
-            year: orderData.year,
-            kilometros: orderData.kilometros
-
-
-          });
-
-          // Calcular los inspectionItems
-          const inspectionItems = orderData.inspectionItems || [];
-          const totalSubtotal = inspectionItems.reduce((acc, item) => {
-            const cost = parseFloat(item.partUnitPrice) || 0;
-            const quantity = parseInt(item.quantity) || 0;
-            const impuestos = item.impuestos === "16" ? 0.16 : 0; // Verificar el campo "impuestos"
-            const taxAmount = cost * quantity * impuestos;
-            const subtotal = (cost * quantity) + taxAmount;
-            return acc + subtotal;
-          }, 0);
-          
-
-          setTotalAmount(totalSubtotal - abonosTotal); // Establecer el total
-        } else {
-          console.log("No se encontró el documento en Firebase!");
-          const newOrderData = {
-            firstName: '',
-            lastName: '',
-            mobile: '',
-            inCharge: '',
-            brand: '',
-            model: '',
-            paymentMethod: '',
-            orderNumber: orderId,  // Utiliza orderId como el número de orden
-            inspectionItems: [],  // Inicializa una lista vacía de productos o servicios
-            uploadTime: new Date().toISOString() // Agregar el tiempo actual
-
-          };
-           // Crear el nuevo documento en Firebase
-          await setDoc(docRef, newOrderData);
-
-            // Establecer los datos de la nueva orden
-          setOrder(newOrderData);
-          setFormData(newOrderData);
-          setTotalAmount(0);
-        }
-      } catch (error) {
-        console.error("Error obteniendo la orden de Firebase:", error);
-      }
-    };
 
     fetchOrderFromFirebase(); // Ejecutar la consulta al cargar el componente
   }, [orderId]);
@@ -290,7 +293,7 @@ export default function OrderDetails({ orderId }) {
 
       console.log("== Orden actualizada en Firebase con éxito ==");
       alert("Se ha guardado correctamente"); // Mostrar alerta
-      window.location.reload(); // Recargar la página
+      await fetchOrderFromFirebase();
 
       setIsEdited(false); // Deshabilitar el botón de guardar después de guardar
     } catch (error) {
@@ -521,7 +524,7 @@ const calculateTotalSubtotal = (items) => {
 
         <div className="precio-container">
           <div>
-          <h2>Total: ${totalAmount.toFixed(2)}</h2> {/* Mostrar el total calculado */}
+          <h2>Total: $ {totalAmount.toLocaleString('es-MX', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</h2>
           </div>
        
         </div>
@@ -573,12 +576,12 @@ const calculateTotalSubtotal = (items) => {
               <tr key={index}>
                 <td>{item.inspectionItemName}</td>
                 <td>{item.brand || 'N/A'}</td>
-                <td>${cost.toFixed(2)}</td>
+                <td>$ {cost.toLocaleString('es-MX', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
                 <td>{quantity}</td>
                 <td>{impuestos}</td>
                 <td>${discount.toFixed(2)}</td>
-                <td>${subtotal}</td>
-              </tr>
+                <td>$ {parseFloat(subtotal).toLocaleString('es-MX', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
+                </tr>
             );
           })
         ) : (
@@ -590,7 +593,7 @@ const calculateTotalSubtotal = (items) => {
       </table>  
 
       <div className="container-subtotal">
-      <h3>Subtotal Productos: ${inspectionItems.reduce((acc, item) => acc + parseFloat(calculateSubtotal(item)), 0).toFixed(2)}</h3>
+      <h3>Subtotal Productos: $ {inspectionItems.reduce((acc, item) => acc + parseFloat(calculateSubtotal(item)), 0).toLocaleString('es-MX', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</h3>
         
       </div>
       
@@ -616,7 +619,7 @@ const calculateTotalSubtotal = (items) => {
                 <tbody>
                   {abonos.map((abono, index) => (
                     <tr key={index}>
-                      <td>${abono.cantidad_abono}</td>
+                      <td>$ {parseFloat(abono.cantidad_abono).toLocaleString('es-MX', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
                       <td>{abono.metodo_pago}</td>
                       <td>{new Date(abono.fecha_abono).toLocaleDateString()}</td>
                     </tr>
@@ -626,7 +629,7 @@ const calculateTotalSubtotal = (items) => {
               
               <div className="containerAbonosTotal">
                 <h3>
-                Subtotal Abonos: ${abonosSum.toFixed(2)} {/* Muestra la suma de los abonos */}
+                Subtotal Abonos: $ {abonosSum.toLocaleString('es-MX', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                 </h3>
               </div>
             </>

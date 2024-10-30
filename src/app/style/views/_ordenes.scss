@@ -1,7 +1,7 @@
 .containerOrdenes{
     width: 100%;
     height: 100%;
-    padding: 2rem 4rem 2rem 4rem;
+    padding: 2rem 2rem 2rem 2rem;
     background-color: rgba(5, 5, 5, 0.052);
 
     .header-ordenes{
@@ -34,12 +34,13 @@
         box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2), 0 6px 20px rgba(0, 0, 0, 0.19);
 
         th{
-            text-align: left;
+            text-align: center;
         }
 
         tbody{
             td{
                 padding: var(--spacing-sm);
+                text-align: center;
             }
         }
 
@@ -47,21 +48,17 @@
     }
 
     .vendido{
-        padding: var(--spacing-sm);
         width: 100%;
-        background-color: green;
+        color: green;
         border-radius: 1rem;
-        color: var(--color-secondary);
         font-weight: 700;
         text-align: center;
         margin-top: var(--spacing-sm);
     }
 
     .negociación{
-        padding: var(--spacing-sm);
-        background-color: #0096d2;
+        color: #0096d2;
         border-radius: 1rem;
-        color: var(--color-secondary);
         font-weight: 700;
         text-align: center;
         margin-top: var(--spacing-sm);
@@ -69,12 +66,10 @@
     }
 
     .presupuesto{
-        background-color: #ff6961;
+        color: #ff6961;
         border-radius: 1rem;
-        color: var(--color-secondary);
         font-weight: 700;
         text-align: center;
-        margin-top: var(--spacing-sm);
 
     }
 
@@ -115,7 +110,7 @@
         all: unset; 
         background-color: var(--background-color-1);
         padding: var(--spacing-md);
-        width: 100%;
+        width: 98%;
         border-radius: 0.4rem;
     }
 
@@ -141,6 +136,10 @@
 
 .tb-padding{
     padding: var(--spacing-md);    
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
 }
 
 .tb-padding-border{
@@ -156,4 +155,11 @@
 
 .no-hover{
     box-shadow: none !important;
+}
+
+// Categoria y Estado
+.dropdown{
+    position: absolute;
+    background-color: white;
+    z-index: 1000;
 }

@@ -168,6 +168,33 @@ export default function Ordenes({ onOrderClick }) {
     return pages;
   };
 
+// --Calculos--
+
+
+const calculateOrderTotal = (order) => {
+  if (!order.inspectionItems || !Array.isArray(order.inspectionItems)) {
+    return '0.00';
+  }
+
+  const total = order.inspectionItems.reduce((acc, item) => {
+    const partUnitPrice = parseFloat(item.partUnitPrice) || 0;
+    const quantity = parseFloat(item.quantity) || 0;
+    const impuestos = item.impuestos ? item.impuestos.trim() : "0"; // "16" o "0"
+
+    let itemTotal = partUnitPrice * quantity;
+
+    if (impuestos === "16") {
+      itemTotal *= 1.16; // Agregar el 16% de IVA
+    }
+
+    return acc + itemTotal;
+  }, 0);
+
+  return total.toLocaleString('es-MX', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+};
+
+
+
   return (
     <div className="containerOrdenes">
       
@@ -202,11 +229,13 @@ export default function Ordenes({ onOrderClick }) {
             <thead className="no-hover">
               <tr className="no-hover">
                 <th>Número</th>
-                <th>Fecha-Creación</th>
+                <th>Fecha</th>
                 <th>Cliente</th>
                 <th>Auto</th>
                 <th>Asesor</th>
                 <th>Estado</th>
+                <th>Categoria</th>
+                <th>Total</th>
               </tr>
             </thead>
             <tbody>
@@ -235,6 +264,10 @@ export default function Ordenes({ onOrderClick }) {
                       </div>
                     )}
                   </div>
+
+                  <td>{order.categoria_h || 'SpeedCenter'}</td>
+                  <td>$ {calculateOrderTotal(order)}</td>
+
                 </tr>
               ))}
             </tbody>

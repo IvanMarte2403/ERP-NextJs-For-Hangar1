@@ -215,7 +215,7 @@
 .containerOrdenes {
   width: 100%;
   height: 100%;
-  padding: 2rem 4rem 2rem 4rem;
+  padding: 2rem 2rem 2rem 2rem;
   background-color: rgba(5, 5, 5, 0.052);
 }
 .containerOrdenes .header-ordenes {
@@ -243,37 +243,32 @@
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2), 0 6px 20px rgba(0, 0, 0, 0.19);
 }
 .ordenes-container .ordenes-table th {
-  text-align: left;
+  text-align: center;
 }
 .ordenes-container .ordenes-table tbody td {
   padding: var(--spacing-sm);
+  text-align: center;
 }
 .ordenes-container .vendido {
-  padding: var(--spacing-sm);
   width: 100%;
-  background-color: green;
+  color: green;
   border-radius: 1rem;
-  color: var(--color-secondary);
   font-weight: 700;
   text-align: center;
   margin-top: var(--spacing-sm);
 }
 .ordenes-container .negociación {
-  padding: var(--spacing-sm);
-  background-color: #0096d2;
+  color: #0096d2;
   border-radius: 1rem;
-  color: var(--color-secondary);
   font-weight: 700;
   text-align: center;
   margin-top: var(--spacing-sm);
 }
 .ordenes-container .presupuesto {
-  background-color: #ff6961;
+  color: #ff6961;
   border-radius: 1rem;
-  color: var(--color-secondary);
   font-weight: 700;
   text-align: center;
-  margin-top: var(--spacing-sm);
 }
 .ordenes-container .pagination {
   margin-top: var(--spacing-xl);
@@ -310,7 +305,7 @@
   all: unset;
   background-color: var(--background-color-1);
   padding: var(--spacing-md);
-  width: 100%;
+  width: 98%;
   border-radius: 0.4rem;
 }
 .container-buscador .dropdown-buscador {
@@ -333,6 +328,10 @@
 
 .tb-padding {
   padding: var(--spacing-md);
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
 }
 
 .tb-padding-border {
@@ -345,6 +344,12 @@
 
 .no-hover {
   box-shadow: none !important;
+}
+
+.dropdown {
+  position: absolute;
+  background-color: white;
+  z-index: 1000;
 }
 
 .order-details {

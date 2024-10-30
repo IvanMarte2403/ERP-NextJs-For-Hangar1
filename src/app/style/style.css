@@ -1190,14 +1190,16 @@
   display: flex;
   width: 100%;
   align-items: center;
+  justify-content: space-between;
 }
 .order-details-new .car-container-new .container-placa .placa {
-  width: 30%;
+  width: 50%;
 }
 .order-details-new .car-container-new .container-placa .placa p {
   margin-bottom: var(--font-size-sm);
 }
 .order-details-new .car-container-new .container-placa .placa input {
+  width: 100%;
   all: unset;
   border: 2px solid #000;
   border-radius: 0.4rem;
@@ -1207,6 +1209,7 @@
 .order-details-new .car-container-new .container-button {
   display: flex;
   justify-content: flex-end;
+  margin-top: var(--spacing-md);
 }
 .order-details-new .car-container-new .container-button .new-order {
   all: unset;

@@ -118,9 +118,10 @@ useEffect(() => {
     const [placa, setPlaca] = useState(''); 
     const [kilometros, setKilometros] = useState('');
     const [categoria_h, setCategoriaH] = useState('');
+    const [color, setColor] = useState(''); // Estado para el color
 
     const handleCreateOrder = async () => {
-      if (!model || !year || !taller || !inCharge || !categoria || !fecha || !placa || !kilometros || !categoria_h) {
+      if (!model || !year || !taller || !inCharge || !categoria || !fecha || !placa || !kilometros || !categoria_h || !color) {
         alert("Por favor, completa todos los campos del formulario");
         return;
       }
@@ -154,7 +155,7 @@ useEffect(() => {
         placa_coche: placa,
         kilometros: parseInt(kilometros), 
         categoria_h: categoria_h,
-
+        color: color,   
       };
     
       const success = await createOrder(orderData);
@@ -376,6 +377,8 @@ useEffect(() => {
 
 
                 </div>
+
+
                   {/* Placa */}
                 <div className="container-placa">
                   <div className="placa">
@@ -386,6 +389,16 @@ useEffect(() => {
 
                     />
                   </div>
+
+                       {/* Input */}
+                       <div className="input">
+                      <p>Color</p>
+                      <input
+                        type="text"
+                        onChange={(e) => setColor(e.target.value)} // Actualizar el estado color
+
+                      />
+                    </div>
                 </div>
 
                 {/* Bottoms */}

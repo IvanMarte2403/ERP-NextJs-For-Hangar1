@@ -166,12 +166,14 @@
             display: flex;
             width: 100%;
             align-items: center;
+            justify-content: space-between;
             .placa{
-                width: 30%;
+                width: 50%;
                 p{
                     margin-bottom: var(--font-size-sm);
                 }
                 input{
+                    width: 100%;
                     all: unset;
                     border: 2px solid #000;
                     border-radius: 0.4rem;
@@ -184,6 +186,7 @@
         .container-button{
             display: flex; 
             justify-content: flex-end;
+            margin-top: var(--spacing-md);
             .new-order{
                 all: unset;
                 background-color: var(--background-color-2);

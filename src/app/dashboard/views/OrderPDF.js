@@ -164,6 +164,13 @@ const OrderPDF = ({ order }) => {
             </View>
           </View>
 
+          {/* Agregar el campo Color */}
+          <View style={styles.rowHeader}>
+            <View>
+              <Text style={styles.text}>Color: {order.color || 'N/A'}</Text>
+            </View>
+          </View>
+
           {/* Productos */}
           <View style={{ marginTop: 40 }}>
             {/* Encabezados de la tabla actualizados */}

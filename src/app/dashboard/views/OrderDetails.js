@@ -32,6 +32,7 @@ export default function OrderDetails({ orderId }) {
     paymentMethod: '',
     year: '',
     kilometros: '',
+    color: '',
 
   });{}
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
@@ -209,8 +210,8 @@ const fetchOrderFromFirebase = async () => {
         paymentMethod: orderData.paymentMethod,
         uploadTime: orderData.uploadTime,
         year: orderData.year,
-        kilometros: orderData.kilometros
-
+        kilometros: orderData.kilometros,
+        color: orderData.color || '', 
 
       });
 
@@ -285,7 +286,8 @@ const fetchOrderFromFirebase = async () => {
         brand: formData.brand,
         paymentMethod: formData.paymentMethod,
         year: formData.year,
-        kilometros: formData.kilometros
+        kilometros: formData.kilometros,
+        color: formData.color,
       };
 
       // Actualizar el documento en Firebase
@@ -438,7 +440,7 @@ const calculateTotalSubtotal = (items) => {
           </div>
         </div>
         
-
+        {/* Telefono */}
         <div className="row-client">
 
           <div className="column-client">
@@ -501,6 +503,23 @@ const calculateTotalSubtotal = (items) => {
       
         </div>
 
+
+          {/* Colorl */}
+        <div className="row-client">
+
+              <div className="column-client">
+                <p className="span-client">Color:</p>
+              </div>
+
+              <div className="column-client">
+                <input type="text"
+                      name="color"
+                      value={formData.color}
+                      onChange={handleInputChange} 
+                 />
+              </div>
+          
+        </div>
         <div className="row-client">
 
               <div className="column-client">
@@ -522,7 +541,7 @@ const calculateTotalSubtotal = (items) => {
                 </select>
               </div>
           
-          </div>
+        </div>
 
         <div className="precio-container">
           <div>

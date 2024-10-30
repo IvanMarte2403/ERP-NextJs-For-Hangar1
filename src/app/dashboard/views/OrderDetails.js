@@ -395,6 +395,8 @@ const calculateTotalSubtotal = (items) => {
   
       {/* Container Orden */}
       <div className="container-orden">
+
+        
         {/* Estado de la Orden */}
         <div className={`presupuesto-container ${order.estado_orden?.toLowerCase()}`}>
           <div>

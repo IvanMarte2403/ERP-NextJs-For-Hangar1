@@ -37,12 +37,8 @@ export default function OrderDetails({ orderId }) {
   });{}
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
 
-  
-
   const [abonos, setAbonos] = useState([]); // Estado para los abonos
-  const [abonosSum, setAbonosSum] = useState(0); // Estado para la suma de los abonos
-
-
+  const [abonosSum, setAbonosSum] = useState(0); // Estado para la suma de los abonos 
   //--Modal-- 
     
     const openModal = () => {
@@ -50,9 +46,7 @@ export default function OrderDetails({ orderId }) {
       document.querySelector('.content').classList.add('main-blur'); // Agregar la clase cuando el modal está abierto
 
     };
-
     const [isAbonarModalOpen, setIsAbonarModalOpen] = useState(false);
-
     // Función para cerrar el modal
     const closeModal = async () => {
       setIsModalOpen(false);
@@ -162,9 +156,6 @@ export default function OrderDetails({ orderId }) {
 
   const taxRate = 0.16; // Impuesto del 16%
   const discount = 0; // Descuento inicial en 0
-
-
-
 //--- Consulta de Datos ---
 
 const fetchOrderFromFirebase = async () => {
@@ -324,7 +315,6 @@ const fetchOrderFromFirebase = async () => {
     return (cost * quantity * impuestos).toFixed(2);
   };
 
-
   // Calculo del subtotal por producto considerando los impuestos
   const calculateSubtotal = (item) => {
     const cost = parseFloat(item.partUnitPrice) || 0;
@@ -334,7 +324,6 @@ const fetchOrderFromFirebase = async () => {
     const subtotal = (cost * quantity) + taxAmount;
     return subtotal.toFixed(2);
   };
-
 
   // Ajustar el total considerando los impuestos y el subtotal actualizado
 const calculateTotalAmount = (items) => {
@@ -351,9 +340,6 @@ const calculateTotalAmount = (items) => {
 const calculateTotalSubtotal = (items) => {
   return items.reduce((acc, item) => acc + parseFloat(calculateSubtotal(item)), 0);
 };
-
-
-
 
   return (
     <div className="order-details">
@@ -567,6 +553,14 @@ const calculateTotalSubtotal = (items) => {
               src="icons/edit.svg"
             />
           </button>
+          
+          <button
+              onClick={openAbonarModal}
+
+          >
+            Anticipo
+          </button>
+      
         </div>
 
 
@@ -580,7 +574,6 @@ const calculateTotalSubtotal = (items) => {
             <th>Costo</th>
             <th>Cantidad</th>
             <th>Impuestos</th>
-            <th>Descuentos</th>
             <th>SubTotal</th>
           </tr>
         </thead>
@@ -600,7 +593,6 @@ const calculateTotalSubtotal = (items) => {
                 <td>$ {cost.toLocaleString('es-MX', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
                 <td>{quantity}</td>
                 <td>{impuestos}</td>
-                <td>${discount.toFixed(2)}</td>
                 <td>$ {parseFloat(subtotal).toLocaleString('es-MX', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
                 </tr>
             );
@@ -618,12 +610,7 @@ const calculateTotalSubtotal = (items) => {
         
       </div>
       
-      {/* Anticipo */}
-      <div className="producto-abonar">
-        <p
-          onClick={openAbonarModal}
-        >Anticipo</p>
-      </div>
+
 
       <div className="container-historial-de-pagos">
           {abonos.length > 0 && (

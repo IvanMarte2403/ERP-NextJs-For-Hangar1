@@ -16,7 +16,7 @@ export default function NavBar({ setView }) {
   }, []);
 
   // Lista de correos autorizados para ver la opción "Productos"
-  const allowedEmails = ['isaac@hangar1.com.mx', 'ivan@hangar1.com.mx', 'oliver@hangar1.com.mx'];
+  const allowedEmails = ['isaac@hangar1.com.mx', 'ivan@hangar1.com.mx', 'oliver@hangar1.com.mx', 'emilio@hangar1.com.mx'];
 
   return (
     <div className="container-nav">

@@ -10,6 +10,7 @@ export default function Products({ userEmail }) {
   const [subCat3, setSubCat3] = useState('');
   const [tipo, setTipo] = useState('');
   const [unidadMedida, setUnidadMedida] = useState('');
+  const [descuento, setDescuento] = useState(0); // Estado para el descuento
 
   const handleSave = async () => {
     // Verificar si todos los campos están completos
@@ -36,6 +37,7 @@ export default function Products({ userEmail }) {
       subCat3,
       tipo,
       unidadMedida,
+      descuento,
     };
 
     const isCreated = await createProduct(productData, userEmail);
@@ -114,7 +116,26 @@ export default function Products({ userEmail }) {
             <select value={subCat2} onChange={(e) => setSubCat2(e.target.value)}>
               <option value="">Seleccionar</option>
               <option value="ELECTRO POTENCIA">ELECTRO POTENCIA</option>
-              {/* Añade las demás opciones aquí */}
+              <option value=" ">ELECTRO TRANSFERENCIA</option>
+              <option value="EQUIPO DE  PROTECCIÓN">EQUIPO DE PROTECCIÓN</option>
+              <option value="EQUIPO ELECTRICO Y ELECTRÓNICO">EQUIPO ELECTRICO Y ELECTRÓNICO|</option>
+              <option value="ESTETICA EXTERIOR">ESTETICA EXTERIOR</option>
+              <option value="FILTROS DE AIRE DE ALTO FLUJO">FILTROS DE AIRE DE ALTO FLUJO</option>  
+              <option value="FRENOS">FRENOS</option>  
+              <option value="ILUMINACIÓN Y VISIÓN">ILUMINACIÓN Y VISIÓN</option>    
+              <option value="KITS AERODINÁMICOS">KITS AERODINÁMICOS</option>  
+              <option value="KITS AERODINÁMICOS DE FIBRA DE CARBONO">KITS AERODINÁMICOS DE FIBRA DE CARBONO</option>      
+              <option value="KITS AERODINÁMICOS POLIURETANO">KITS AERODINÁMICOS POLIURETANO</option>      
+              <option value="MANO DE OBRA">MANO DE OBRA</option>  
+              <option value="PELICULA DE VIDRIOS">PELICULA DE VIDRIOS</option>          
+              <option value="PINTURA">PINTURA</option>          
+              <option value="PLACA INVISIBLE">PLACA INVISIBLE</option>  
+              <option value="RINES">RINES</option>
+              <option value="SERVICIOS">SERVICIOS</option>
+              <option value="SISTEMAS DE ESCAPE">SISTEMAS DE ESCAPE</option>    
+              <option value="SUNROOFS">SUNROOFS</option>        
+              <option value="SUSPENSIÓN">SUSPENSIÓN</option>   
+              <option value="VALVULAS TURBO">VALVULAS TURBO</option>               
               <option value="VINIL/WRAP">VINIL/WRAP</option>
               <option value="OTRO">OTRO</option>
             </select>

@@ -6,7 +6,7 @@
 }
 
 .nav-bar-home{
-    width: 12%;
+    width: 8%;
     min-height: 100vh;
     padding: var(--spacing-sm);
     background-color: var(--background-color-2);
@@ -33,9 +33,10 @@
                 list-style-type: none;
                 text-align: left;
                 display: flex;
+                align-items: center;
                 flex-direction: row;
                 width: 80%;
-                font-size: var(--font-size-sm);
+                font-size: 0.6rem;
                 margin-top: var(--spacing-lg);
                 font-weight: 700;
                 cursor: pointer;

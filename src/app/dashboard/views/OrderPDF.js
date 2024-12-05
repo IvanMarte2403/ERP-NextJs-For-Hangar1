@@ -1,12 +1,13 @@
 import React from 'react';
-import { Page, Text, View, Document, StyleSheet, Image } from '@react-pdf/renderer';
+import { Page, Text, View, Document, StyleSheet, Image, Font } from '@react-pdf/renderer';
+import stylesPDF from './OrderPDFStyles';
 
 // Estilos para el PDF
 const styles = StyleSheet.create({
   page: {
     padding: 30,
-    fontFamily: 'Helvetica',
-  },
+    fontFamily: 'Inter',
+  },  
   title: {
     fontSize: 18,
     marginBottom: 10,
@@ -42,15 +43,11 @@ const styles = StyleSheet.create({
     textAlign: 'right',
     fontWeight: 'bold',
   },
-  imagenSc: {
-    width: '150%',
-    objectFit: 'cover',
-  },
+
   rowHeader: {
     width: '100%',
     justifyContent: 'space-between',
     flexDirection: 'row',
-    padding: '2rem',
     marginTop: 15,
   },
   spanText: {
@@ -68,6 +65,17 @@ const styles = StyleSheet.create({
   },
 });
 
+Font.register({
+  family: 'Inter',
+  fonts: [
+    { src: '/fonts/Inter.ttf', fontWeight: '100' }, // Thin
+    { src: '/fonts/Inter.ttf', fontWeight: '400' }, // Regular
+    { src: '/fonts/Inter.ttf', fontWeight: '700' }, // Bold
+    { src: '/fonts/Inter.ttf', fontWeight: '800' }, // Extra Bold
+  ],
+});
+
+
 // Componente que genera el PDF
 const OrderPDF = ({ order }) => {
   if (!order || !order.orderNumber) {
@@ -80,6 +88,7 @@ const OrderPDF = ({ order }) => {
     );
   }
 
+ 
   // Función para calcular el subtotal y total incluyendo impuestos
   const calculateSubtotal = (item) => {
     const price = parseFloat(item.partUnitPrice) || 0;
@@ -101,78 +110,92 @@ const OrderPDF = ({ order }) => {
   return (
     <Document>
       <Page style={styles.page}>
-        {/* Header Section */}
-        <View style={styles.headerContainer}>
-          <View style={styles.headerColumn2}>
-            <Image style={styles.imagenSc} src="img/speedCenter.png" />
-          </View>
-          <View style={styles.headerColumn}></View>
-        </View>
 
-        {/* Info Principal */}
-        <View style={styles.section}>
-          {/* Fila de Orden y Fecha */}
-          <View style={styles.rowHeader}>
-            <View>
-              <Text>
-                <Text style={styles.spanText}>Orden: </Text> {order.orderNumber}
-              </Text>
-            </View>
-            <View>
-              <Text>
-                <Text style={styles.spanText}>Fecha de Creación: </Text>
+        {/* Header Section */}
+        <View style={stylesPDF.headerContainer}>
+          <View style={stylesPDF.headerOrderNumberContainer}>
+            <Text style={stylesPDF.textOrderNumber}> 
+                  <Text style={stylesPDF.spanText}>Número de Órden/</Text> {order.orderNumber}
+            </Text>
+
+              <Text style={stylesPDF.textFecha}> 
                 {order.uploadTime
                   ? new Date(order.uploadTime).toLocaleDateString('es-MX')
                   : 'Fecha no disponible'}
-              </Text>
-            </View>
+             </Text>
           </View>
 
-          {/* Fila de Auto y Cliente */}
-          <View style={styles.rowHeader}>
-            <View>
-              <Text style={styles.text}>
-                Auto: {`${order.brand || ''} ${order.year || ''}`}
-              </Text>
-            </View>
-            <View>
-              <Text style={styles.text}>
-                Cliente: {`${order.firstName || ''} ${order.lastName || ''}`}
-              </Text>
-            </View>
+          <View style={stylesPDF.containerCategoriaImagen}>
+            <Image style={stylesPDF.imagesnSc} src="img/speedCenter.png" />
           </View>
-
-          {/* Fila de Teléfono y Kilometraje */}
-          <View style={styles.rowHeader}>
-            <View>
-              <Text style={styles.text}>Teléfono: {order.mobile || 'N/A'}</Text>
-            </View>
-            <View>
-              <Text style={styles.text}>Kilometraje: {order.kilometros || 'N/A'}</Text>
-            </View>
+        </View>
+                  
+        {/* UserName */}
+        <View style={stylesPDF.containerNameUser}>
+          <View style={stylesPDF.userView}>
+            <Image style={stylesPDF.imageUser} src="icons/user.png"/>  
+            <Text style={stylesPDF.firstName}>{`${order.firstName || ''} ${order.lastName || ''}`}
+            </Text> 
           </View>
+        </View>
 
-          {/* Fila de Placa y Método de Pago */}
-          <View style={styles.rowHeader}>
-            <View>
-              <Text style={styles.text}>Placa: {order.placa_coche || 'N/A'}</Text>
-            </View>
-            <View>
-              <Text style={styles.text}>
+        {/* Datos de Usuario y Coche */}
+        
+        
+        <View style={stylesPDF.containerDatos}>
+            {/* Usuario */}
+            <View style={stylesPDF.containerUsuario}>
+              {/* Telefono */}
+              <Text style={stylesPDF.infoText}>
+                Telefono: {order.mobile || 'N/A'}
+              </Text>
+              {/* Correo */}
+              <Text style={stylesPDF.infoText}>
+                Telefono: prueba@hangar1.com.mx 
+              </Text>
+              {/* Asesor */}
+              <Text style={stylesPDF.infoText}>
+                  Asesor: {order.inCharge}
+              </Text>
+              <Text style={stylesPDF.infoText}>
+                Folio Garantía
+              </Text>
+
+              <Text style={stylesPDF.infoText}>
                 Método de Pago: {order.paymentMethod || 'N/A'}
               </Text>
             </View>
-          </View>
-
-          {/* Agregar el campo Color */}
-          <View style={styles.rowHeader}>
-            <View>
-              <Text style={styles.text}>Color: {order.color || 'N/A'}</Text>
+            
+            {/* Auto */}
+            <View style={stylesPDF.containerCoche}>
+                <View style={stylesPDF.carIconContainer}>
+                  <Image style={stylesPDF.carIcon} src="icons/car.png" />
+                  <Text style={stylesPDF.infoText}>
+                    {`${order.brand || ''}`}
+                  </Text>
+                </View>
+                <Text style={stylesPDF.infoText}>
+                  Color: {order.color || 'N/A'}               
+                </Text>
+                <Text style={stylesPDF.infoText}>
+                  Placa: {order.placa_coche || 'N/A'}
+                </Text>
+                <Text style={stylesPDF.infoText}>
+                  Kilometraje: {order.kilometros || 'N/A'}
+                </Text>
+                <Text style={stylesPDF.infoText}>
+                  Año: {order.year || ''}
+                </Text>
+                  
             </View>
-          </View>
+        </View>
 
+
+
+        {/* Info Principal */}
+        <View style={styles.section}>
           {/* Productos */}
-          <View style={{ marginTop: 40 }}>
+          <View style={{ marginTop: 40, border:'2px solid #000', padding: '10px'}}>
             {/* Encabezados de la tabla actualizados */}
             <View style={{
               flexDirection: 'row',
@@ -215,7 +238,7 @@ const OrderPDF = ({ order }) => {
           </View>
 
           {/* Total */}
-          <View style={{ flexDirection: 'row', borderTop: '1 solid black', paddingTop: 5 }}>
+          <View style={{ flexDirection: 'row', borderTop: '1 solid black', paddingTop: 5}}>
             <Text style={{ width: '75%', fontWeight: '700', textAlign: 'right', paddingRight: 10 }}>Total:</Text>
             <Text style={{ width: '25%', fontWeight: 'bold', textAlign: 'left' }}>
               ${total.toFixed(2)}
@@ -266,10 +289,10 @@ const OrderPDF = ({ order }) => {
             )}
           </View>
 
-          <View style={styles.asesorContainer}>
-            <Text style={styles.text}>Asesor: {order.inCharge}</Text>
+          {/* <View style={styles.asesorContainer}>
+            <Text style={styles.text}></Text>
             <Text style={styles.text}>Estado: {order.estado_orden || 'Presupuesto'}</Text>
-          </View>
+          </View> */}
         </View>
 
         <Text style={styles.footer}>Firma Cliente</Text>

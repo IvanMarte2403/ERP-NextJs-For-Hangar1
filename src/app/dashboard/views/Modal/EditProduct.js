@@ -13,7 +13,7 @@ export default function ModalEditProduct({ isOpen, onClose, orderId, inspectionI
   }, [isOpen, inspectionItems]);
 
   // Función para manejar el cambio de campos
-  const handleInputChange = (index, field, value) => {
+  const handleInputChange = (index, field, value ) => {
     setEditedItems((prevItems) =>
       prevItems.map((item, i) =>
         i === index ? { ...item, [field]: value } : item
@@ -38,29 +38,29 @@ export default function ModalEditProduct({ isOpen, onClose, orderId, inspectionI
 
   // Función para guardar cambios en la base de datos
   // En EditProduct.js
-const handleSaveChanges = async () => {
-    try {
-      const formattedItems = editedItems.map(item => ({
-        inspectionItemName: item.inspectionItemName || '',
-        partUnitPrice: parseFloat(item.partUnitPrice) || 0,
-        quantity: parseInt(item.quantity) || 0,
-        brand: item.brand || '',
-        impuestos: item.impuestos || "0",
-      }));
-  
-      const orderDocRef = doc(db, "orders", orderId.toString());
-      await updateDoc(orderDocRef, { inspectionItems: formattedItems });
-  
-      // Actualiza el estado 'order' en 'OrderDetails.js'
-      setOrder(prevOrder => ({ ...prevOrder, inspectionItems: formattedItems }));
-  
-      alert("Productos actualizados correctamente");
-      onClose();
-    } catch (error) {
-      console.error("Error al actualizar productos:", error);
-    }
-  };
-  
+  const handleSaveChanges = async () => {
+      try {
+        const formattedItems = editedItems.map(item => ({
+          inspectionItemName: item.inspectionItemName || '',
+          partUnitPrice: parseFloat(item.partUnitPrice) || 0,
+          quantity: parseInt(item.quantity) || 0,
+          brand: item.brand || '',
+          impuestos: item.impuestos || "0",
+        }));
+    
+        const orderDocRef = doc(db, "orders", orderId.toString());
+        await updateDoc(orderDocRef, { inspectionItems: formattedItems });
+    
+        // Actualiza el estado 'order' en 'OrderDetails.js'
+        setOrder(prevOrder => ({ ...prevOrder, inspectionItems: formattedItems }));
+    
+        alert("Productos actualizados correctamente");
+        onClose();
+      } catch (error) {
+        console.error("Error al actualizar productos:", error);
+      }
+    };
+    
 
   if (!isOpen) return null;
 

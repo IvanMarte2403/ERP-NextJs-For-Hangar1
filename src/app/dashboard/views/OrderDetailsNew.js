@@ -5,19 +5,18 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'; // Importa el 
 import { faPhone, faEnvelope, faTimes} from '@fortawesome/free-solid-svg-icons'; // Importa el icono específico
 // --Modales--
 import ModalClient from './Modal/ModalClient'; // Importa el modal
-
 //--Services--
-
 import { getClientInformation } from '../../../../services/ClientInformation'; // Importamos la consulta
 import { getAllClients } from '../../../../services/ClientsDatabase'; // Importamos la consulta
 import {createOrder} from '../../../../services/CreateOrder'
-
+import { getAuth } from "firebase/auth";
 
 export default function OrderDetailsNew({ setSelectedOrderId, setView}) {
+  const [fecha, setFecha] = useState(''); 
 
 const [isUserAssigned, setIsUserAssigned] = useState(false); // Estado para manejar si el usuario está asignado
 const [clientInfo, setClientInfo] = useState(null); // Estado para la información del cliente
-
+const [dailyCount, setDailyCount] = useState(1);
 // Estado para el número de orden aleatorio
 const [orderNumber, setOrderNumber] = useState('');
 
@@ -36,18 +35,54 @@ const closeModal = () => {
     document.querySelector('.container-crud').classList.remove('main-blur'); // Quitar la clase .main-blur
 };
 
-//--- Generar un número aleatorio----
-// Generar número aleatorio de 8 dígitos al montar el componente
 useEffect(() => {
-  const randomOrderNumber = Math.floor(10000000 + Math.random() * 90000000).toString();
-  setOrderNumber(randomOrderNumber);
-
-  // Generar la fecha y hora actuales en el formato adecuado para el input
-  const currentDate = new Date();
-  const formattedDate = currentDate.toISOString().slice(0, 16); // Formato: "YYYY-MM-DDTHH:MM"
-  setFecha(formattedDate);
-  
+  const now = new Date();
+  // Formato YYYY-MM-DDTHH:MM para el input datetime-local
+  const formattedNow = now.toISOString().slice(0,16);
+  setFecha(formattedNow);
 }, []);
+
+
+//--- Generar un número inteligente
+useEffect(() => {
+  console.log("useEffect para generar el número de orden ejecutado");
+  const auth = getAuth();
+  const user = auth.currentUser;
+  console.log("Usuario actual:", user);
+
+  
+  let advisorNumber = '03'; // Por defecto
+  if (user) {
+    const email = user.email;
+    if (email === 'asesor1@hangar1.com.mx') {
+      advisorNumber = '01';
+    } else if (email === 'asesor2@hangar1.com.mx') {
+      advisorNumber = '02';
+    }
+  }
+
+  console.log("advisorNumber seleccionado:", advisorNumber);
+
+  console.log("Valor de fecha:", fecha);
+  console.log("Valor de dailyCount:", dailyCount);
+
+  if (fecha) {
+    const currentDateObj = new Date(fecha);
+    const yearStr = currentDateObj.getFullYear().toString().slice(-2);
+    const monthStr = (currentDateObj.getMonth() + 1).toString().padStart(2, '0');
+    const dayStr = currentDateObj.getDate().toString().padStart(2, '0');
+
+    const sequence = dailyCount.toString().padStart(2, '0');
+    const formattedOrderNumber = `${advisorNumber}${yearStr}${monthStr}${dayStr}${sequence}`;
+
+    console.log("formattedOrderNumber generado:", formattedOrderNumber);
+
+    setOrderNumber(formattedOrderNumber);
+  }else{
+    console.log("No se generó número porque 'fecha' está vacío");
+
+  }
+}, [fecha, dailyCount]);
 
 
 
@@ -61,8 +96,6 @@ useEffect(() => {
       setIsUserAssigned(true); // Marcar como asignado
     }
   };
-
-
 
   // --- All Clients --- 
 
@@ -104,9 +137,6 @@ useEffect(() => {
         setIsUserAssigned(true); // Marcar como asignado
       }
     };
-
-
-
     // --- Formulario de Crear Order---
 
     const [model, setModel] = useState(''); 
@@ -114,18 +144,18 @@ useEffect(() => {
     const [taller, setTaller] = useState(''); 
     const [inCharge, setInCharge] = useState(''); 
     const [categoria, setCategoria] = useState(''); 
-    const [fecha, setFecha] = useState(''); 
     const [placa, setPlaca] = useState(''); 
     const [kilometros, setKilometros] = useState('');
     const [categoria_h, setCategoriaH] = useState('');
     const [color, setColor] = useState(''); // Estado para el color
+
+
 
     const handleCreateOrder = async () => {
       if (!model || !year || !taller || !inCharge || !categoria || !fecha || !placa || !kilometros || !categoria_h || !color) {
         alert("Por favor, completa todos los campos del formulario");
         return;
       }
-
           
       // Depurar para verificar los datos del cliente
       console.log("Datos del cliente asignado:", clientInfo);
@@ -169,7 +199,7 @@ useEffect(() => {
       }
     };
 
-    
+
 
 
   return (

@@ -4,19 +4,25 @@
  import { auth } from '../../lib/firebase'; 
 
 
-export default function NavBar({ setView }) {
+ export default function NavBar({ setView}) {
   const [userEmail, setUserEmail] = useState('');
 
   useEffect(() => {
-    // Obtener el correo electrónico del usuario actual
-    const user = auth.currentUser;
-    if (user) {
-      setUserEmail(user.email);
-    }
+    const unsubscribe = auth.onAuthStateChanged((user) => {
+      if (user) {
+        setUserEmail(user.email); // Establecer el correo del usuario autenticado
+      } else {
+        setUserEmail(''); // Vaciar el correo si no hay usuario
+      }
+    });
+  
+    return () => unsubscribe(); // Limpia la suscripción al desmontar
   }, []);
+  
 
   // Lista de correos autorizados para ver la opción "Productos"
   const allowedEmails = ['isaac@hangar1.com.mx', 'ivan@hangar1.com.mx', 'oliver@hangar1.com.mx', 'emilio@hangar1.com.mx'];
+  const allowedDashboardEmails = ['admin@hangar1.com.mx', 'ivan@hangar1.com.mx', 'oliver@hangar1.com.mx', 'emilio@hangar1.com.mx'];
 
   return (
     <div className="container-nav">
@@ -24,14 +30,15 @@ export default function NavBar({ setView }) {
         <li onClick={() => setView("ordenes")}>
           <img src="icons/car-solid.png" alt="Órdenes Icono" /> Ordenes
         </li>
-{/* 
-        <li onClick={() => setView("dashboard")}>
-          <img src="icons/dashboard.png" alt="Dashboard Icono" /> Dashboard
-        </li>
 
-        <li onClick={() => setView("notificaciones")}>
-          <img src="icons/notificaciones.png" alt="Notificaciones Icono" /> Notificaciones
-        </li> */}
+        {allowedDashboardEmails.includes(userEmail) && (
+          
+          <li onClick={() => setView("dashboard")}
+          >
+            <img src="icons/dashboard.png" alt="" />
+            Dashboard</li>
+        )}
+
 
         {allowedEmails.includes(userEmail) && (
           <li onClick={() => setView("productos")}>

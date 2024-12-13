@@ -10,9 +10,13 @@ import { getClientInformation } from '../../../../services/ClientInformation'; /
 import { getAllClients } from '../../../../services/ClientsDatabase'; // Importamos la consulta
 import {createOrder} from '../../../../services/CreateOrder'
 import { getAuth } from "firebase/auth";
+import { doc, getDoc, collection, query, where, getDocs } from "firebase/firestore";
+import { db } from "../../../../lib/firebase"; // O tu ruta real de inicialización de Firestore
+
 
 export default function OrderDetailsNew({ setSelectedOrderId, setView}) {
-  const [fecha, setFecha] = useState(''); 
+  
+const [fecha, setFecha] = useState(''); 
 
 const [isUserAssigned, setIsUserAssigned] = useState(false); // Estado para manejar si el usuario está asignado
 const [clientInfo, setClientInfo] = useState(null); // Estado para la información del cliente
@@ -22,6 +26,13 @@ const [orderNumber, setOrderNumber] = useState('');
 
 // --- Modal --- 
 const [isModalOpen, setIsModalOpen] = useState(false); // Estado para manejar si el modal está abierto
+
+async function checkIfOrderExists(orderNum) {
+  const ordersRef = collection(db, "orders");
+  const q = query(ordersRef, where("orderNumber", "==", orderNum));
+  const querySnapshot = await getDocs(q);
+  return !querySnapshot.empty; // true si ya existe, false si no
+}
 
 // Función para abrir el modal
 const openModal = () => {
@@ -44,45 +55,58 @@ useEffect(() => {
 
 
 //--- Generar un número inteligente
+//--- Generar un número inteligente
 useEffect(() => {
-  console.log("useEffect para generar el número de orden ejecutado");
-  const auth = getAuth();
-  const user = auth.currentUser;
-  console.log("Usuario actual:", user);
+  async function generateUniqueOrderNumber() {
+    console.log("useEffect para generar el número de orden ejecutado");
+    const auth = getAuth();
+    const user = auth.currentUser;
+    
+    let advisorNumber = '03'; // Por defecto
+    if (user) {
+      const email = user.email;
+      if (email === 'asesor1@hangar1.com.mx') {
+        advisorNumber = '01';
+      } else if (email === 'asesor2@hangar1.com.mx') {
+        advisorNumber = '02';
+      }
+    }
+    console.log("advisorNumber seleccionado:", advisorNumber);
+    console.log("Valor de fecha:", fecha);
 
-  
-  let advisorNumber = '03'; // Por defecto
-  if (user) {
-    const email = user.email;
-    if (email === 'asesor1@hangar1.com.mx') {
-      advisorNumber = '01';
-    } else if (email === 'asesor2@hangar1.com.mx') {
-      advisorNumber = '02';
+    if (fecha) {
+      const currentDateObj = new Date(fecha);
+      const yearStr = currentDateObj.getFullYear().toString().slice(-2);
+      const monthStr = (currentDateObj.getMonth() + 1).toString().padStart(2, '0');
+      const dayStr = currentDateObj.getDate().toString().padStart(2, '0');
+
+      // Genera una secuencia aleatoria entre 00 y 99
+      let randomSequence;
+      let formattedOrderNumber;
+      let exists = true;
+
+      // Repetir hasta encontrar un orderNumber que no exista
+      while (exists) {
+        randomSequence = Math.floor(Math.random() * 100).toString().padStart(2, '0');
+        formattedOrderNumber = `${advisorNumber}${yearStr}${monthStr}${dayStr}${randomSequence}`;
+        
+        // Verificar en la base de datos
+        exists = await checkIfOrderExists(formattedOrderNumber);
+        if (!exists) {
+          setOrderNumber(formattedOrderNumber);
+          console.log("formattedOrderNumber generado:", formattedOrderNumber);
+        } else {
+          console.warn(`Colisión: ${formattedOrderNumber} ya existe, regenerando...`);
+        }
+      }
+    } else {
+      console.log("No se generó número porque 'fecha' está vacío");
     }
   }
 
-  console.log("advisorNumber seleccionado:", advisorNumber);
+  generateUniqueOrderNumber();
+}, [fecha]);
 
-  console.log("Valor de fecha:", fecha);
-  console.log("Valor de dailyCount:", dailyCount);
-
-  if (fecha) {
-    const currentDateObj = new Date(fecha);
-    const yearStr = currentDateObj.getFullYear().toString().slice(-2);
-    const monthStr = (currentDateObj.getMonth() + 1).toString().padStart(2, '0');
-    const dayStr = currentDateObj.getDate().toString().padStart(2, '0');
-
-    const sequence = dailyCount.toString().padStart(2, '0');
-    const formattedOrderNumber = `${advisorNumber}${yearStr}${monthStr}${dayStr}${sequence}`;
-
-    console.log("formattedOrderNumber generado:", formattedOrderNumber);
-
-    setOrderNumber(formattedOrderNumber);
-  }else{
-    console.log("No se generó número porque 'fecha' está vacío");
-
-  }
-}, [fecha, dailyCount]);
 
 
 

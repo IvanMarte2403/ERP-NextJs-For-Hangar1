@@ -65,6 +65,8 @@ export default function Ordenes({ onOrderClick }) {
       (order.orderID && order.orderID.toLowerCase().includes(lowerCaseSearchTerm)) ||
       (order.email && order.email.toLowerCase().includes(lowerCaseSearchTerm)) ||
       (order.firstName && order.firstName.toLowerCase().includes(lowerCaseSearchTerm))
+      || (order.brand && order.brand.toLowerCase().includes(lowerCaseSearchTerm))
+
     );
       setFilteredOrders(results);
     } else {
@@ -216,7 +218,7 @@ const calculateOrderTotal = (order) => {
           type="text"
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
-          placeholder="Buscar por No. Orden, correo electrónico, nombre"
+          placeholder="Buscar por No. Orden, correo electrónico, nombre o coche"
         />
         {filteredOrders.length > 0 && (
           <ul className="dropdown-buscador">
@@ -225,7 +227,7 @@ const calculateOrderTotal = (order) => {
                 key={order.id} 
                 onClick={() => onOrderClick(order.orderID)} 
                 >
-              {order.orderID} - {order.firstName} {order.lastName}
+              {order.orderID} - {order.firstName} {order.lastName} - {order.brand}
         </li>
             ))}
           </ul>

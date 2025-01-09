@@ -51,8 +51,15 @@ export default function DashboardPage() {
       case "notificaciones":
         return <Notificaciones />;
       case "orderDetails":
-        return <OrderDetails orderId={selectedOrderId} isNewOrder={isNewOrder} />;
-      case "orderDetailsNew":
+        case "orderDetails":
+          return (
+            <OrderDetails
+              orderId={selectedOrderId}
+              isNewOrder={isNewOrder}
+              userEmail={userEmail} 
+            />
+          );
+              case "orderDetailsNew":
         return <OrderDetailsNew setSelectedOrderId={setSelectedOrderId} setView={setView} />;
       case "productos":
         return <Products userEmail={userEmail} />; 

@@ -43,7 +43,6 @@ const styles = StyleSheet.create({
     textAlign: 'right',
     fontWeight: 'bold',
   },
-
   rowHeader: {
     width: '100%',
     justifyContent: 'space-between',
@@ -75,9 +74,8 @@ Font.register({
   ],
 });
 
-
-// Componente que genera el PDF
-const OrderPDF = ({ order }) => {
+// Componente que genera el PDF de REMISIÓN
+const RemisionPDF = ({ order }) => {
   if (!order || !order.orderNumber) {
     return (
       <Document>
@@ -87,9 +85,7 @@ const OrderPDF = ({ order }) => {
       </Document>
     );
   }
-  
 
- 
   // Función para calcular el subtotal y total incluyendo impuestos
   const calculateSubtotal = (item) => {
     const price = parseFloat(item.partUnitPrice) || 0;
@@ -115,15 +111,20 @@ const OrderPDF = ({ order }) => {
         {/* Header Section */}
         <View style={stylesPDF.headerContainer}>
           <View style={stylesPDF.headerOrderNumberContainer}>
-            <Text style={stylesPDF.textOrderNumber}> 
-                  <Text style={stylesPDF.spanText}>Número de Órden/</Text> {order.orderNumber}
+            <Text style={stylesPDF.textOrderNumber}>
+              <Text style={stylesPDF.spanText}>Número de Órden/</Text> {order.orderNumber}
             </Text>
 
-              <Text style={stylesPDF.textFecha}> 
-                {order.uploadTime
-                  ? new Date(order.uploadTime).toLocaleDateString('es-MX')
-                  : 'Fecha no disponible'}
-             </Text>
+            {/* Texto extra indicando que es REMISIÓN */}
+            <Text style={stylesPDF.textOrderNumber}>
+              <Text style={stylesPDF.spanText}>Remisión</Text>
+            </Text>
+
+            <Text style={stylesPDF.textFecha}>
+              {order.uploadTime
+                ? new Date(order.uploadTime).toLocaleDateString('es-MX')
+                : 'Fecha no disponible'}
+            </Text>
           </View>
 
           <View style={stylesPDF.containerCategoriaImagen}>
@@ -136,68 +137,65 @@ const OrderPDF = ({ order }) => {
           <View style={stylesPDF.userView}>
             <Image style={stylesPDF.imageUser} src="icons/user.png"/>  
             <Text style={stylesPDF.firstName}>{`${order.firstName || ''} ${order.lastName || ''}`}
-            </Text> 
+            </Text>
           </View>
         </View>
 
         {/* Datos de Usuario y Coche */}
-        
-        
         <View style={stylesPDF.containerDatos}>
-            {/* Usuario */}
-            <View style={stylesPDF.containerUsuario}>
-              {/* Telefono */}
-              <Text style={stylesPDF.infoText}>
-                Telefono: {order.mobile || 'N/A'}
-              </Text>
-              {/* Correo */}
-              <Text style={stylesPDF.infoText}>
-                Correo: prueba@hangar1.com.mx 
-              </Text>
-              {/* Asesor */}
-              <Text style={stylesPDF.infoText}>
-                  Asesor: {order.inCharge}
-              </Text>
-              <Text style={stylesPDF.infoText}>
-                Folio Garantía: {order.garantia_number}
-              </Text>
-
-              <Text style={stylesPDF.infoText}>
-                Método de Pago: {order.paymentMethod || 'N/A'}
-              </Text>
-            </View>
+          {/* Usuario */}
+          <View style={stylesPDF.containerUsuario}>
+            {/* Telefono */}
+            <Text style={stylesPDF.infoText}>
+              Telefono: {order.mobile || 'N/A'}
+            </Text>
+            {/* Correo */}
+            <Text style={stylesPDF.infoText}>
+              Telefono: prueba@hangar1.com.mx
+            </Text>
+            {/* Asesor */}
+            <Text style={stylesPDF.infoText}>
+              Asesor: {order.inCharge}
+            </Text>
             
-            {/* Auto */}
-            <View style={stylesPDF.containerCoche}>
-                <View style={stylesPDF.carIconContainer}>
-                  <Image style={stylesPDF.carIcon} src="icons/car.png" />
-                  <Text style={stylesPDF.infoText}>
-                    {`${order.brand || ''}`}
-                  </Text>
-                </View>
-                <Text style={stylesPDF.infoText}>
-                  Color: {order.color || 'N/A'}               
-                </Text>
-                <Text style={stylesPDF.infoText}>
-                  Placa: {order.placa_coche || 'N/A'}
-                </Text>
-                <Text style={stylesPDF.infoText}>
-                  Kilometraje: {order.kilometros || 'N/A'}
-                </Text>
-                <Text style={stylesPDF.infoText}>
-                  Año: {order.year || ''}
-                </Text>
-                  
+            {/* Folio de Remisión */}
+            <Text style={stylesPDF.infoText}>
+              Folio de Remisión: {order.remision_number || 'N/A'}
+            </Text>
+
+            <Text style={stylesPDF.infoText}>
+              Método de Pago: {order.paymentMethod || 'N/A'}
+            </Text>
+          </View>
+
+          {/* Auto */}
+          <View style={stylesPDF.containerCoche}>
+            <View style={stylesPDF.carIconContainer}>
+              <Image style={stylesPDF.carIcon} src="icons/car.png" />
+              <Text style={stylesPDF.infoText}>
+                {order.brand || ''}
+              </Text>
             </View>
+            <Text style={stylesPDF.infoText}>
+              Color: {order.color || 'N/A'}
+            </Text>
+            <Text style={stylesPDF.infoText}>
+              Placa: {order.placa_coche || 'N/A'}
+            </Text>
+            <Text style={stylesPDF.infoText}>
+              Kilometraje: {order.kilometros || 'N/A'}
+            </Text>
+            <Text style={stylesPDF.infoText}>
+              Año: {order.year || ''}
+            </Text>
+          </View>
         </View>
-
-
 
         {/* Info Principal */}
         <View style={styles.section}>
           {/* Productos */}
           <View style={{ marginTop: 40, border:'2px solid #000', padding: '10px'}}>
-            {/* Encabezados de la tabla actualizados */}
+            {/* Encabezados de la tabla */}
             <View style={{
               flexDirection: 'row',
               borderBottom: '1 solid black',
@@ -211,25 +209,29 @@ const OrderPDF = ({ order }) => {
               <Text style={{ width: '23%', fontWeight: 'bold', textAlign: 'left' }}>Subtotal</Text>
             </View>
 
-            {/* Filas de productos actualizadas */}
+            {/* Filas de productos */}
             {order.inspectionItems && order.inspectionItems.length > 0 ? (
               order.inspectionItems.map((item, index) => {
                 const price = parseFloat(item.partUnitPrice) || 0;
                 const quantity = parseInt(item.quantity) || 0;
                 const impuestos = item.impuestos === "16" ? 0.16 : 0;
-                const { taxAmount, subtotal } = calculateSubtotal(item);
+                const taxAmount = price * quantity * impuestos;
+                const subtotal = price * quantity + taxAmount;
 
                 return (
-                  <View key={index} style={{ flexDirection: 'row', marginBottom: 10, marginTop: 5, justifyContent: 'space-between' }}>
-                    <Text style={{ width: '28%' ,   }}>
+                  <View
+                    key={index}
+                    style={{ flexDirection: 'row', marginBottom: 10, marginTop: 5, justifyContent: 'space-between' }}
+                  >
+                    <Text style={{ width: '28%' }}>
                       <Text style={styles.productName}>{item.inspectionItemName}</Text>
                       {'\n'}
                       <Text style={styles.productBrand}>{item.brand || 'N/A'}</Text>
                     </Text>
-                    <Text style={{ width: '13%' ,}}>${price.toFixed(2)}</Text>
-                    <Text style={{ width: '13%',  }}>{quantity}</Text>
+                    <Text style={{ width: '13%' }}>${price.toFixed(2)}</Text>
+                    <Text style={{ width: '13%' }}>{quantity}</Text>
                     <Text style={{ width: '13%' }}>${taxAmount.toFixed(2)}</Text>
-                    <Text style={{ width: '23%', }}>${subtotal.toFixed(2)}</Text>
+                    <Text style={{ width: '23%' }}>${subtotal.toFixed(2)}</Text>
                   </View>
                 );
               })
@@ -239,7 +241,7 @@ const OrderPDF = ({ order }) => {
           </View>
 
           {/* Total */}
-          <View style={{ flexDirection: 'row', borderTop: '1 solid black', paddingTop: 5}}>
+          <View style={{ flexDirection: 'row', borderTop: '1 solid black', paddingTop: 5 }}>
             <Text style={{ width: '75%', fontWeight: '700', textAlign: 'right', paddingRight: 10 }}>Total:</Text>
             <Text style={{ width: '25%', fontWeight: 'bold', textAlign: 'left' }}>
               ${total.toFixed(2)}
@@ -271,7 +273,6 @@ const OrderPDF = ({ order }) => {
                     Fecha
                   </Text>
                 </View>
-                {/* Filas de pagos */}
                 {order.abonos.map((abono, index) => (
                   <View
                     key={index}
@@ -289,17 +290,12 @@ const OrderPDF = ({ order }) => {
               <Text>No hay pagos registrados</Text>
             )}
           </View>
-
-          {/* <View style={styles.asesorContainer}>
-            <Text style={styles.text}></Text>
-            <Text style={styles.text}>Estado: {order.estado_orden || 'Presupuesto'}</Text>
-          </View> */}
         </View>
 
         <Text style={styles.footer}>Firma Cliente</Text>
       </Page>
-    </Document> 
+    </Document>
   );
 };
 
-export default OrderPDF;
+export default RemisionPDF;

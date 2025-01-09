@@ -1,11 +1,13 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState} from "react";
 import { doc, getDoc, updateDoc, setDoc } from "firebase/firestore";
 import { db } from "../../../../lib/firebase";
 import { PDFDownloadLink } from '@react-pdf/renderer';
 import OrderPDF from "./OrderPDF"; 
 import Link from 'next/link'; // Importa el componente Link de Next.js
+import RemisionPDF from "./RemisionPDF"; 
+import AnticiposPDF from './AnticiposPDF';
 
 //-- Modal --
 import ModalProduct from './Modal/ModalProduct'
@@ -17,11 +19,12 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'; // Importa el 
 import { faEdit, faPlus } from '@fortawesome/free-solid-svg-icons'; // Importa los iconos específicos
 
 
-export default function OrderDetails({ orderId }) {
+export default function OrderDetails({ orderId, isNewOrder, userEmail }) {
   console.log("OrderDetails");
+  const [pdfReady, setPdfReady] = useState(false);  
   const [order, setOrder] = useState(null);
   const [totalAmount, setTotalAmount] = useState(0); // Estado para almacenar el total
-  const [isEdited, setIsEdited] = useState(false); // Estado para habilitar el botón de guardar
+  const [isEdited, setIsEdited] = useState(false); // Estado para habilitar el botón de 
   const [formData, setFormData] = useState({
     firstName: '',
     lastName: '',
@@ -34,11 +37,55 @@ export default function OrderDetails({ orderId }) {
     kilometros: '',
     color: '',
 
-  });{}
+  });
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
-
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [abonos, setAbonos] = useState([]); // Estado para los abonos
   const [abonosSum, setAbonosSum] = useState(0); // Estado para la suma de los abonos 
+  const [pdfUrl, setPdfUrl] = useState(null);
+  const [pdfUrlRemision, setPdfUrlRemision] = useState(null);
+  const [pdfUrlAnticipos, setPdfUrlAnticipos] = useState(null);
+
+  // LISTAS de usuarios autorizados
+  const usersTodos = [
+    "emilio@hangar1.com.mx",
+    "ivan@hangar1.com.mx",
+    "oliver@hangar1.com.mx",
+    "prueba10@gmail.com"
+  ];
+
+  const usersGarantias = [
+    "ary@hangar1.com.mx",
+    "gaby@hangar1.com.mx",
+    "administracion-2@hangar1.com.mx",
+    "administracion-a@hangar1.com.mx",
+    "ivan@hangar1.com.mx",
+
+  ];
+
+  const usersCotizaciones = [
+    "isaac@hangar1.com.mx",
+    "asesor2@hangar1.com.mx",
+    "asesor1@hangar1.com.mx",
+    "gaby@hangar1.com.mx",
+    "ivan@hangar1.com.mx",
+  ];
+
+  const usersAnticipos = [
+    "ary@hangar1.com.mx",
+    "gaby@hangar1.com.mx",
+    "administracion-2@hangar1.com.mx",
+    "administracion-a@hangar1.com.mx",
+    "ivan@hangar1.com.mx",
+
+  ];
+
+  // Verificar el correo actual
+  const canSeeRemision = usersTodos.includes(userEmail); 
+  const canSeeGarantia = usersGarantias.includes(userEmail);
+  const canSeeCotizacion = usersCotizaciones.includes(userEmail);
+  const canSeeAnticipo = usersAnticipos.includes(userEmail);
+
   //--Modal-- 
     
     const openModal = () => {
@@ -101,6 +148,10 @@ export default function OrderDetails({ orderId }) {
         setTotalAmount(updatedTotalAmount);
       }
 
+    };
+
+    const toggleDropdown = () => {
+      setIsDropdownOpen((prev) => !prev);
     };
 
 
@@ -341,6 +392,220 @@ const calculateTotalSubtotal = (items) => {
   return items.reduce((acc, item) => acc + parseFloat(calculateSubtotal(item)), 0);
 };
 
+
+// ==== Número De Garantía ====
+
+
+
+const handleGenerateGuaranteeNumber = async () => {
+  console.log("== handleGenerateGuaranteeNumber: Iniciando ==");
+
+  try {
+    // 1) Referencia al documento de la orden en la colección "orders"
+    const orderRef = doc(db, "orders", order.orderNumber.toString());
+    console.log("== handleGenerateGuaranteeNumber: orderRef ==", orderRef.path);
+
+    // 2) Obtenemos los datos de la orden
+    const orderSnap = await getDoc(orderRef);
+
+    if (!orderSnap.exists()) {
+      console.log("No existe la orden con orderNumber:", order.orderNumber);
+      return;
+    }
+
+    const orderData = orderSnap.data();
+    console.log("== handleGenerateGuaranteeNumber: Datos actuales de la orden ==", orderData);
+
+    // 3) Revisamos si YA existe 'garantia_number'
+    if (typeof orderData.garantia_number === "number") {
+      // Si existe, solo lo usamos
+      console.log("El campo 'garantia_number' YA existe:", orderData.garantia_number);
+
+      // Reflejamos en el estado local (para que se muestre en el PDF, si corresponde)
+      setOrder({ ...order, garantia_number: orderData.garantia_number });
+      return;
+    }
+
+    // 4) Si NO existe, consultamos la colección "contadores", doc "contadores-garantia"
+    const contadoresRef = doc(db, "contadores", "contadores-garantia");
+    console.log("== handleGenerateGuaranteeNumber: contadoresRef ==", contadoresRef.path);
+
+    let contadoresSnap = await getDoc(contadoresRef);
+
+    if (!contadoresSnap.exists()) {
+      console.log("No se encontró el documento 'contadores-garantia'. Creándolo...");
+
+      // Creamos el documento con "garantia: 0" (o el valor inicial que desees)
+      await setDoc(contadoresRef, { garantia: 0 });
+      console.log("Documento 'contadores-garantia' creado con 'garantia = 0'");
+
+      // Volvemos a leerlo para continuar la lógica
+      contadoresSnap = await getDoc(contadoresRef);
+
+      if (!contadoresSnap.exists()) {
+        // Si sigue sin existir, algo falló
+        console.log("Error: No se pudo crear 'contadores-garantia'");
+        return;
+      }
+    }
+
+    // Ahora sí existe, extraemos la data
+    const currentGarantia = contadoresSnap.data().garantia;
+    console.log("== handleGenerateGuaranteeNumber: currentGarantia (antes de sumar) ==", currentGarantia);
+
+    // 5) Sumamos +1 al contador
+    const newGarantia = currentGarantia + 1;
+    console.log("== handleGenerateGuaranteeNumber: newGarantia (después de sumar) ==", newGarantia);
+
+    // 6) Actualizamos la orden con el nuevo 'garantia_number'
+    await updateDoc(orderRef, { garantia_number: newGarantia });
+    console.log("== handleGenerateGuaranteeNumber: 'garantia_number' actualizado en la orden ==", newGarantia);
+
+    // 7) Actualizamos el mismo contador en "contadores-garantia"
+    await updateDoc(contadoresRef, { garantia: newGarantia });
+    console.log("== handleGenerateGuaranteeNumber: 'garantia' actualizado en contadores-garantia ==", newGarantia);
+
+    // 8) Reflejamos en el estado local
+    setOrder({ ...order, garantia_number: newGarantia });
+    console.log("== handleGenerateGuaranteeNumber: State order.garantia_number ==", newGarantia);
+
+  } catch (error) {
+    console.error("Error en handleGenerateGuaranteeNumber:", error);
+  }
+};
+
+
+// =====Selección de Documento=======
+
+const handleSelectDocument = async (docType) => {
+  console.log("Documento seleccionado:", docType);
+
+  // Cerramos el dropdown
+  setIsDropdownOpen(false);
+
+  if (docType === "Garantía") {
+    try {
+      // 1) Generar / Incrementar "garantia_number" (misma lógica existente)
+      await handleGenerateGuaranteeNumber();
+
+      // 2) Abrir el PDF en otra pestaña (si ya se generó la url)
+      if (pdfUrl) {
+        console.log("Abriendo PDF Garantía con url =", pdfUrl);
+        window.open(pdfUrl, "_blank");
+      } else {
+        console.log("No se ha generado la url del PDF todavía.");
+      }
+    } catch (error) {
+      console.error("Error generando garantía:", error);
+    }
+  } else if (docType === "Remisión") {
+    try {
+      // Generar / Incrementar 'remision_number'
+      await handleGenerateRemisionNumber();
+
+      // Abrir RemisionPDF en nueva pestaña
+      // (Igual que con la garantía, deberías tener un <PDFDownloadLink> oculto que genera la URL)
+      if (pdfUrlRemision) {
+        window.open(pdfUrlRemision, "_blank");
+      } else {
+        console.log("No se ha generado la url del RemisionPDF todavía.");
+      }
+    } catch (error) {
+      console.error("Error generando remisión:", error);
+    }
+
+  } else if (docType === "Anticipos") {
+    try {
+      // No se genera un número o contador
+      if (pdfUrlAnticipos) {
+        window.open(pdfUrlAnticipos, "_blank");
+      } else {
+        console.log("No se ha generado la url del PDF de Anticipos todavía.");
+      }
+    } catch (error) {
+      console.error("Error generando PDF de Anticipos:", error);
+    }
+  } else if (docType === "Cotización") {
+    console.log("Opción Cotización: lógica aún no implementada.");
+  }
+};
+
+
+// ===== Número de Remisión =====
+
+const handleGenerateRemisionNumber = async () => {
+  console.log("== handleGenerateRemisionNumber: Iniciando ==");
+
+  try {
+    // 1) Referencia al documento de la orden en la colección "orders"
+    const orderRef = doc(db, "orders", order.orderNumber.toString());
+    console.log("== handleGenerateRemisionNumber: orderRef ==", orderRef.path);
+
+    // 2) Obtenemos los datos de la orden
+    const orderSnap = await getDoc(orderRef);
+
+    if (!orderSnap.exists()) {
+      console.log("No existe la orden con orderNumber:", order.orderNumber);
+      return;
+    }
+
+    const orderData = orderSnap.data();
+    console.log("== handleGenerateRemisionNumber: Datos actuales de la orden ==", orderData);
+
+    // 3) Revisamos si YA existe 'remision_number'
+    if (typeof orderData.remision_number === "number") {
+      // Si existe, solo lo usamos
+      console.log("El campo 'remision_number' YA existe:", orderData.remision_number);
+      setOrder({ ...order, remision_number: orderData.remision_number });
+      return;
+    }
+
+    // 4) Si NO existe, consultamos la colección "contadores", doc "contadores-remision"
+    const contadoresRef = doc(db, "contadores", "contadores-remision");
+    console.log("== handleGenerateRemisionNumber: contadoresRef ==", contadoresRef.path);
+
+    let contadoresSnap = await getDoc(contadoresRef);
+
+    if (!contadoresSnap.exists()) {
+      console.log("No se encontró el documento 'contadores-remision'. Creándolo...");
+
+      // Creamos el documento con "remision: 0"
+      await setDoc(contadoresRef, { remision: 0 });
+      console.log("Documento 'contadores-remision' creado con 'remision = 0'");
+
+      // Volvemos a leerlo para continuar la lógica
+      contadoresSnap = await getDoc(contadoresRef);
+
+      if (!contadoresSnap.exists()) {
+        console.log("Error: No se pudo crear 'contadores-remision'");
+        return;
+      }
+    }
+
+    const currentRemision = contadoresSnap.data().remision;
+    console.log("== handleGenerateRemisionNumber: currentRemision (antes de sumar) ==", currentRemision);
+
+    // 5) Sumamos +1 al contador
+    const newRemision = currentRemision + 1;
+    console.log("== handleGenerateRemisionNumber: newRemision (después de sumar) ==", newRemision);
+
+    // 6) Actualizamos la orden con el nuevo 'remision_number'
+    await updateDoc(orderRef, { remision_number: newRemision });
+    console.log("== handleGenerateRemisionNumber: 'remision_number' actualizado en la orden ==", newRemision);
+
+    // 7) Actualizamos el mismo contador en "contadores-remision"
+    await updateDoc(contadoresRef, { remision: newRemision });
+    console.log("== handleGenerateRemisionNumber: 'remision' actualizado en contadores-remision ==", newRemision);
+
+    // 8) Reflejamos en el estado local
+    setOrder({ ...order, remision_number: newRemision });
+    console.log("== handleGenerateRemisionNumber: State order.remision_number ==", newRemision);
+
+  } catch (error) {
+    console.error("Error en handleGenerateRemisionNumber:", error);
+  }
+};
+
   return (
     <div className="order-details">
       <div className="content">
@@ -354,13 +619,79 @@ const calculateTotalSubtotal = (items) => {
             <p>
             {formData.uploadTime ? new Date(formData.uploadTime).toLocaleDateString('es-MX') : 'Fecha no disponible'}
           </p>
-        </h3>        
+        </h3>    
+        {/* Container Print     */}
         <div className="container-print">
-          <PDFDownloadLink document={<OrderPDF order={order} />} fileName={`Orden_${order.orderNumber}.pdf`}>
-            {({ loading }) => (
-              loading ? <p>Cargando PDF...</p> : <img src="icons/print.svg" alt="Imprimir" />
-            )}
+
+          {/* PDFDownloadLink oculto para generar pdfUrl de Garantía */}
+          <PDFDownloadLink
+            document={<OrderPDF order={order} />}
+            fileName={`Orden_${order.orderNumber}.pdf`}
+          >
+            {({ loading, url }) => {
+              if (!loading && url && pdfUrl !== url) {
+                setPdfUrl(url);
+              }
+              return null;
+            }}
           </PDFDownloadLink>
+
+          {/* PDFDownloadLink oculto para generar pdfUrlRemision */}
+          <PDFDownloadLink
+            document={<RemisionPDF order={order} />}
+            fileName={`Remision_${order.orderNumber}.pdf`}
+          >
+            {({ loading, url }) => {
+              if (!loading && url && pdfUrlRemision !== url) {
+                setPdfUrlRemision(url);
+              }
+              return null;
+            }}
+          </PDFDownloadLink>
+
+          {/* PDFDownloadLink oculto para generar pdfUrlAnticipos */}
+          <PDFDownloadLink
+            document={<AnticiposPDF order={order} />}
+            fileName={`Anticipos_${order.orderNumber}.pdf`}
+          >
+            {({ loading, url }) => {
+              if (!loading && url && pdfUrlAnticipos !== url) {
+                setPdfUrlAnticipos(url);
+              }
+              return null;
+            }}
+          </PDFDownloadLink>
+
+
+          {/* Botón que abre/cierra dropdown */}
+          <button onClick={toggleDropdown}>
+            <img src="icons/print.svg" alt="Imprimir" />
+          </button>
+
+          {isDropdownOpen && (
+          <ul className="print-dropdown">
+            {/* Remisión */}
+            {canSeeRemision && (
+              <li onClick={() => handleSelectDocument("Remisión")}>Remisión</li>
+            )}
+
+            {/* Garantía */}
+            {canSeeGarantia && (
+              <li onClick={() => handleSelectDocument("Garantía")}>Garantía</li>
+            )}
+
+            {/* Cotizaciones */}
+            {canSeeCotizacion && (
+              <li onClick={() => handleSelectDocument("Cotización")}>Cotización</li>
+            )}
+
+            {/* Anticipos */}
+            {canSeeAnticipo && (
+              <li onClick={() => handleSelectDocument("Anticipos")}>Anticipos</li>
+            )}
+          </ul>
+        )}
+
 
           {isEdited && (
             <div className="save-container" onClick={handleSave}>
@@ -368,8 +699,10 @@ const calculateTotalSubtotal = (items) => {
             </div>
           )}
         </div>
+
+
       </div>
-                 {/* Checks Container  */}
+      {/* Checks Container  */}
       <div className="checks-container">
           <Link
             className="link"

@@ -409,9 +409,38 @@
 .subtitle .container-print {
   width: 15%;
   display: flex;
-  flex-direction: row;
+  flex-direction: column;
   justify-content: space-around;
   align-items: center;
+}
+.subtitle .container-print a {
+  all: unset;
+  cursor: pointer;
+  background-color: #ffffff;
+}
+.subtitle .container-print button {
+  all: unset;
+  cursor: pointer;
+}
+.subtitle .container-print ul {
+  display: flex;
+  flex-direction: column;
+}
+.subtitle .container-print ul li {
+  list-style: none;
+}
+.subtitle .container-print .print-dropdown {
+  width: 100%;
+  background-color: #000;
+  border-radius: 0.4rem;
+}
+.subtitle .container-print .print-dropdown li {
+  margin-bottom: var(--spacing-sm);
+  color: var(--color-secondary);
+  padding-top: 0.4rem;
+  padding-left: 0.4rem;
+  font-weight: 500;
+  cursor: pointer;
 }
 .subtitle img {
   width: 100%;

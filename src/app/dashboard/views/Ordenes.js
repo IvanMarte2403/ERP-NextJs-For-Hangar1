@@ -223,7 +223,7 @@ const calculateOrderTotal = (order) => {
         {filteredOrders.length > 0 && (
           <ul className="dropdown-buscador">
             {filteredOrders.map(order => (
-              <li 
+              <li   
                 key={order.id} 
                 onClick={() => onOrderClick(order.orderID)} 
                 >

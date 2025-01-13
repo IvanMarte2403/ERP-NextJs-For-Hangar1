@@ -51,7 +51,12 @@ export default function OrderDetails({ orderId, isNewOrder, userEmail }) {
     "emilio@hangar1.com.mx",
     "ivan@hangar1.com.mx",
     "oliver@hangar1.com.mx",
-    "prueba10@gmail.com"
+    "prueba10@gmail.com",
+    "ary@hangar1.com.mx",
+    "gaby@hangar1.com.mx",
+    "administracion-2@hangar1.com.mx",
+    "administracion-a@hangar1.com.mx",
+
   ];
 
   const usersGarantias = [

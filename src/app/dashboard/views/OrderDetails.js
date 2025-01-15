@@ -8,15 +8,13 @@ import OrderPDF from "./OrderPDF";
 import Link from 'next/link'; // Importa el componente Link de Next.js
 import RemisionPDF from "./RemisionPDF"; 
 import AnticiposPDF from './AnticiposPDF';
+import CotizacionPDF from "./CotizacionPDF";
+
 
 //-- Modal --
 import ModalProduct from './Modal/ModalProduct'
 import ModalAbonar from './Modal/ModalAbonar';
 import ModalEditProduct  from "./Modal/EditProduct";
-
-// -- Diseño -- 
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'; // Importa el componente FontAwesomeIcon
-import { faEdit, faPlus } from '@fortawesome/free-solid-svg-icons'; // Importa los iconos específicos
 
 
 export default function OrderDetails({ orderId, isNewOrder, userEmail }) {
@@ -45,6 +43,8 @@ export default function OrderDetails({ orderId, isNewOrder, userEmail }) {
   const [pdfUrl, setPdfUrl] = useState(null);
   const [pdfUrlRemision, setPdfUrlRemision] = useState(null);
   const [pdfUrlAnticipos, setPdfUrlAnticipos] = useState(null);
+  const [pdfUrlCotizacion, setPdfUrlCotizacion] = useState(null);
+
 
   // LISTAS de usuarios autorizados
   const usersTodos = [
@@ -382,20 +382,20 @@ const fetchOrderFromFirebase = async () => {
   };
 
   // Ajustar el total considerando los impuestos y el subtotal actualizado
-const calculateTotalAmount = (items) => {
-  return items.reduce((acc, item) => {
-    const cost = parseFloat(item.partUnitPrice) || 0;
-    const quantity = parseInt(item.quantity) || 0;
-    const impuestos = item.impuestos === "16" ? 0.16 : 0;
-    const taxAmount = cost * quantity * impuestos;
-    const subtotal = (cost * quantity) + taxAmount;
-    return acc + subtotal;
-  }, 0);
-};
+  const calculateTotalAmount = (items) => {
+    return items.reduce((acc, item) => {
+      const cost = parseFloat(item.partUnitPrice) || 0;
+      const quantity = parseInt(item.quantity) || 0;
+      const impuestos = item.impuestos === "16" ? 0.16 : 0;
+      const taxAmount = cost * quantity * impuestos;
+      const subtotal = (cost * quantity) + taxAmount;
+      return acc + subtotal;
+    }, 0);
+  };
   
-const calculateTotalSubtotal = (items) => {
-  return items.reduce((acc, item) => acc + parseFloat(calculateSubtotal(item)), 0);
-};
+  const calculateTotalSubtotal = (items) => {
+    return items.reduce((acc, item) => acc + parseFloat(calculateSubtotal(item)), 0);
+  };
 
 
 // ==== Número De Garantía ====
@@ -531,7 +531,17 @@ const handleSelectDocument = async (docType) => {
       console.error("Error generando PDF de Anticipos:", error);
     }
   } else if (docType === "Cotización") {
-    console.log("Opción Cotización: lógica aún no implementada.");
+    try {
+      // No hay contador en Cotización, así que no llamamos a nada extra
+      // Directamente abrimos el PDF en otra pestaña
+      if (pdfUrlCotizacion) {
+        window.open(pdfUrlCotizacion, "_blank");
+      } else {
+        console.log("No se ha generado la url del PDF de Cotización todavía.");
+      }
+    } catch (error) {
+      console.error("Error generando Cotización:", error);
+    }
   }
 };
 
@@ -666,6 +676,19 @@ const handleGenerateRemisionNumber = async () => {
               return null;
             }}
           </PDFDownloadLink>
+
+          <PDFDownloadLink
+            document={<CotizacionPDF order={order} />}
+            fileName={`Cotizacion_${order.orderNumber}.pdf`}
+          >
+            {({ loading, url }) => {
+              if (!loading && url && pdfUrlCotizacion !== url) {
+                setPdfUrlCotizacion(url);
+              }
+              return null;
+            }}
+          </PDFDownloadLink>
+
 
 
           {/* Botón que abre/cierra dropdown */}

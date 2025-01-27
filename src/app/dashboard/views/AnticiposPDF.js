@@ -184,7 +184,7 @@ const AnticiposPDF = ({ order }) => {
           ) : (
             <Text>No hay pagos registrados</Text>
           )}
-        </View>
+        </View>   
 
         {/* Pie de página */}
         <Text style={styles.footer}>Firma Cliente</Text>

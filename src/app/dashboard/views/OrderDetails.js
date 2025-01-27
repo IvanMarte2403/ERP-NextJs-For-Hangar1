@@ -508,13 +508,14 @@ const handleSelectDocument = async (docType) => {
       // Generar / Incrementar 'remision_number'
       await handleGenerateRemisionNumber();
 
-      // Abrir RemisionPDF en nueva pestaña
-      // (Igual que con la garantía, deberías tener un <PDFDownloadLink> oculto que genera la URL)
-      if (pdfUrlRemision) {
-        window.open(pdfUrlRemision, "_blank");
-      } else {
-        console.log("No se ha generado la url del RemisionPDF todavía.");
-      }
+      setTimeout(() => {
+        if (pdfUrlRemision) {
+          console.log("Abriendo PDF Remisión con url =", pdfUrlRemision);
+          window.open(pdfUrlRemision, "_blank");
+        } else {
+          console.log("No se ha generado la url del RemisionPDF todavía.");
+        }
+      }, 200);
     } catch (error) {
       console.error("Error generando remisión:", error);
     }

@@ -511,6 +511,43 @@
   align-items: flex-end;
 }
 
+.container-desgloce-cantidades {
+  width: 100%;
+  display: flex;
+  color: var(--color-primary);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2), 0 6px 20px rgba(0, 0, 0, 0.19);
+  padding: var(--spacing-lg);
+  background-color: var(--background-color-1);
+  margin-top: var(--spacing-lg);
+  justify-content: space-between;
+}
+.container-desgloce-cantidades .container-cantidades {
+  display: flex;
+  width: 30%;
+  flex-direction: column;
+}
+.container-desgloce-cantidades .container-cantidades .row-cantidad {
+  display: flex;
+  width: 100%;
+  justify-content: space-between;
+  margin-bottom: var(--spacing-md);
+}
+.container-desgloce-cantidades .container-folios {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  width: 20%;
+}
+.container-desgloce-cantidades .container-folios .row-cantidad {
+  display: flex;
+  width: 100%;
+  justify-content: space-between;
+  margin-bottom: var(--spacing-md);
+}
+.container-desgloce-cantidades .container-folios .total h1 {
+  font-size: var(--font-size-xxl);
+}
+
 .checks-container {
   display: flex;
   flex-direction: row;
@@ -570,7 +607,7 @@
   display: flex;
   flex-direction: row;
   justify-content: space-between;
-  width: 18%;
+  width: 30%;
 }
 .container-buttons button {
   cursor: pointer;
@@ -594,9 +631,10 @@
 .container-subtotal {
   display: flex;
   width: 100%;
-  justify-content: flex-end;
   margin-bottom: var(--spacing-xxl);
   margin-top: var(--spacing-xl);
+  flex-direction: column;
+  align-items: flex-end;
 }
 
 .container-historial-de-pagos {
@@ -1080,6 +1118,112 @@
   color: var(--color-secondary);
   padding: 0.5rem 1rem 0.5rem 1rem;
   cursor: pointer;
+}
+
+.modalDiscount {
+  position: fixed;
+  width: 40%;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background-color: white;
+  padding: 20px;
+  z-index: 1000;
+  border-radius: 8px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  border-radius: 0.4rem;
+}
+.modalDiscount .container-title-modal {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+}
+.modalDiscount .container-title-modal .title {
+  display: flex;
+  justify-content: space-between;
+  width: 35%;
+  align-items: center;
+  margin-bottom: var(--spacing-lg);
+}
+.modalDiscount .container-title-modal .total h1 {
+  font-size: var(--spacing-lg);
+}
+.modalDiscount .container-discount-inputs {
+  display: flex;
+  flex-direction: column;
+}
+.modalDiscount .container-discount-inputs .inputs-price {
+  display: flex;
+  justify-content: space-between;
+  margin-top: var(--spacing-lg);
+}
+.modalDiscount .container-discount-inputs .inputs-price label {
+  background-color: var(--background-color-1);
+  font-size: var(--font-size-sm);
+}
+.modalDiscount .container-discount-inputs .inputs-price input {
+  background-color: var(--background-color-1);
+  border: 1px solid #C9C9C9;
+  padding: var(--spacing-sm);
+  margin-top: var(--spacing-sm);
+  border-radius: 0.4rem;
+}
+.modalDiscount .notes-input {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  margin-top: var(--spacing-lg);
+}
+.modalDiscount .notes-input label {
+  background-color: var(--background-color-1);
+  display: flex;
+  flex-direction: column;
+}
+.modalDiscount .notes-input input {
+  background-color: var(--background-color-1);
+  border: 1px solid #C9C9C9;
+  padding: var(--spacing-sm);
+  border-radius: 0.4rem;
+  margin-top: var(--spacing-sm);
+}
+.modalDiscount .modal-actions {
+  display: flex;
+  width: 100%;
+  justify-content: flex-end;
+  margin-top: var(--spacing-lg);
+}
+.modalDiscount .modal-actions .container-buttons {
+  display: flex;
+  justify-content: space-between;
+  width: 40%;
+}
+.modalDiscount .modal-actions .container-buttons .cancelar {
+  all: unset;
+  cursor: pointer;
+  background-color: var(--background-color-1);
+  border: 1px solid #000;
+  box-shadow: none;
+  font-size: var(--font-size-sm);
+  padding: var(--spacing-sm);
+  border-radius: 0.4rem;
+  color: #000;
+  font-weight: 600;
+  width: 40%;
+  text-align: center;
+}
+.modalDiscount .modal-actions .container-buttons .guardar {
+  all: unset;
+  cursor: pointer;
+  background-color: var(--background-color-2);
+  border: 1px solid #000;
+  box-shadow: none;
+  font-size: var(--font-size-sm);
+  padding: var(--spacing-sm);
+  border-radius: 0.4rem;
+  color: #fff;
+  font-weight: 600;
+  width: 40%;
+  text-align: center;
 }
 
 .order-details-new {

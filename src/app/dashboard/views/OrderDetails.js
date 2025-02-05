@@ -15,7 +15,7 @@ import CotizacionPDF from "./CotizacionPDF";
 import ModalProduct from './Modal/ModalProduct'
 import ModalAbonar from './Modal/ModalAbonar';
 import ModalEditProduct  from "./Modal/EditProduct";
-
+import ModalDiscount from "./Modal/ModalDiscount";
 
 export default function OrderDetails({ orderId, isNewOrder, userEmail }) {
   console.log("OrderDetails");
@@ -44,6 +44,7 @@ export default function OrderDetails({ orderId, isNewOrder, userEmail }) {
   const [pdfUrlRemision, setPdfUrlRemision] = useState(null);
   const [pdfUrlAnticipos, setPdfUrlAnticipos] = useState(null);
   const [pdfUrlCotizacion, setPdfUrlCotizacion] = useState(null);
+
 
 
   // LISTAS de usuarios autorizados
@@ -92,7 +93,8 @@ export default function OrderDetails({ orderId, isNewOrder, userEmail }) {
   const canSeeAnticipo = usersAnticipos.includes(userEmail);
 
   //--Modal-- 
-    
+    const [isDiscountModalOpen, setIsDiscountModalOpen] = useState(false);
+
     const openModal = () => {
       setIsModalOpen(true);
       document.querySelector('.content').classList.add('main-blur'); // Agregar la clase cuando el modal está abierto
@@ -159,6 +161,16 @@ export default function OrderDetails({ orderId, isNewOrder, userEmail }) {
       setIsDropdownOpen((prev) => !prev);
     };
 
+    const openDiscountModal = () => {
+      setIsDiscountModalOpen(true);
+      document.querySelector('.content').classList.add('main-blur');
+    };
+    
+    const closeDiscountModal = () => {
+      setIsDiscountModalOpen(false);
+      document.querySelector('.content').classList.remove('main-blur');
+    };
+
 
 //--- Abonos ---
   // Función para actualizar los abonos en Firebase
@@ -214,94 +226,94 @@ export default function OrderDetails({ orderId, isNewOrder, userEmail }) {
   const discount = 0; // Descuento inicial en 0
 //--- Consulta de Datos ---
 
-const fetchOrderFromFirebase = async () => {
-  try {
-    console.log("Iniciando consulta en Firebase para obtener la orden usando orderID:", orderId);
-    
-     // Verificar si orderId está definido
-  if (!orderId) {
-    console.error("Error: orderId es undefined o null");
-    return;
-  }
-  
-    // Consulta Firebase usando el orderID
-    const docRef = doc(db, "orders", orderId.toString());
-    console.log("Referencia del documento creada:", docRef);
-
-    const docSnap = await getDoc(docRef);
-    console.log("Resultado de la consulta:", docSnap.exists());
-
-
-    if (docSnap.exists()) {
-      const orderData = docSnap.data();
-      console.log("Detalles de la orden obtenidos de Firebase:", orderData);
-
-      setOrder(orderData);
-
-            // Obtener abonos[] si existen
-      const abonosList = orderData.abonos || [];
-      setAbonos(abonosList);
-
-          // Calcular la suma de los abonos
-      const abonosTotal = abonosList.reduce((acc, abono) => acc + parseFloat(abono.cantidad_abono || 0), 0);
-      setAbonosSum(abonosTotal);
-
-
-      setFormData({
-        firstName: orderData.firstName,
-        lastName: orderData.lastName,
-        mobile: orderData.mobile,
-        inCharge: orderData.inCharge,
-        brand: orderData.brand,
-        model: orderData.model,
-        paymentMethod: orderData.paymentMethod,
-        uploadTime: orderData.uploadTime,
-        year: orderData.year,
-        kilometros: orderData.kilometros,
-        color: orderData.color || '', 
-
-      });
-
-      // Calcular los inspectionItems
-      const inspectionItems = orderData.inspectionItems || [];
-      const totalSubtotal = inspectionItems.reduce((acc, item) => {
-        const cost = parseFloat(item.partUnitPrice) || 0;
-        const quantity = parseInt(item.quantity) || 0;
-        const impuestos = item.impuestos === "16" ? 0.16 : 0; // Verificar el campo "impuestos"
-        const taxAmount = cost * quantity * impuestos;
-        const subtotal = (cost * quantity) + taxAmount;
-        return acc + subtotal;
-      }, 0);
+  const fetchOrderFromFirebase = async () => {
+    try {
+      console.log("Iniciando consulta en Firebase para obtener la orden usando orderID:", orderId);
       
-
-      setTotalAmount(totalSubtotal - abonosTotal); // Establecer el total
-    } else {
-      console.log("No se encontró el documento en Firebase!");
-      const newOrderData = {
-        firstName: '',
-        lastName: '',
-        mobile: '',
-        inCharge: '',
-        brand: '',
-        model: '',
-        paymentMethod: '',
-        orderNumber: orderId,  // Utiliza orderId como el número de orden
-        inspectionItems: [],  // Inicializa una lista vacía de productos o servicios
-        uploadTime: new Date().toISOString() // Agregar el tiempo actual
-
-      };
-       // Crear el nuevo documento en Firebase
-      await setDoc(docRef, newOrderData);
-
-        // Establecer los datos de la nueva orden
-      setOrder(newOrderData);
-      setFormData(newOrderData);
-      setTotalAmount(0);
+      // Verificar si orderId está definido
+    if (!orderId) {
+      console.error("Error: orderId es undefined o null");
+      return;
     }
-  } catch (error) {
-    console.error("Error obteniendo la orden de Firebase:", error);
-  }
-};
+    
+      // Consulta Firebase usando el orderID
+      const docRef = doc(db, "orders", orderId.toString());
+      console.log("Referencia del documento creada:", docRef);
+
+      const docSnap = await getDoc(docRef);
+      console.log("Resultado de la consulta:", docSnap.exists());
+
+
+      if (docSnap.exists()) {
+        const orderData = docSnap.data();
+        console.log("Detalles de la orden obtenidos de Firebase:", orderData);
+
+        setOrder(orderData);
+
+              // Obtener abonos[] si existen
+        const abonosList = orderData.abonos || [];
+        setAbonos(abonosList);
+
+            // Calcular la suma de los abonos
+        const abonosTotal = abonosList.reduce((acc, abono) => acc + parseFloat(abono.cantidad_abono || 0), 0);
+        setAbonosSum(abonosTotal);
+
+
+        setFormData({
+          firstName: orderData.firstName,
+          lastName: orderData.lastName,
+          mobile: orderData.mobile,
+          inCharge: orderData.inCharge,
+          brand: orderData.brand,
+          model: orderData.model,
+          paymentMethod: orderData.paymentMethod,
+          uploadTime: orderData.uploadTime,
+          year: orderData.year,
+          kilometros: orderData.kilometros,
+          color: orderData.color || '', 
+
+        });
+
+        // Calcular los inspectionItems
+        const inspectionItems = orderData.inspectionItems || [];
+        const totalSubtotal = inspectionItems.reduce((acc, item) => {
+          const cost = parseFloat(item.partUnitPrice) || 0;
+          const quantity = parseInt(item.quantity) || 0;
+          const impuestos = item.impuestos === "16" ? 0.16 : 0; // Verificar el campo "impuestos"
+          const taxAmount = cost * quantity * impuestos;
+          const subtotal = (cost * quantity) + taxAmount;
+          return acc + subtotal;
+        }, 0);
+        
+
+        setTotalAmount(totalSubtotal - abonosTotal); // Establecer el total
+      } else {
+        console.log("No se encontró el documento en Firebase!");
+        const newOrderData = {
+          firstName: '',
+          lastName: '',
+          mobile: '',
+          inCharge: '',
+          brand: '',
+          model: '',
+          paymentMethod: '',
+          orderNumber: orderId,  // Utiliza orderId como el número de orden
+          inspectionItems: [],  // Inicializa una lista vacía de productos o servicios
+          uploadTime: new Date().toISOString() // Agregar el tiempo actual
+
+        };
+        // Crear el nuevo documento en Firebase
+        await setDoc(docRef, newOrderData);
+
+          // Establecer los datos de la nueva orden
+        setOrder(newOrderData);
+        setFormData(newOrderData);
+        setTotalAmount(0);
+      }
+    } catch (error) {
+      console.error("Error obteniendo la orden de Firebase:", error);
+    }
+  };
 
   useEffect(() => {''
     // Consulta en Firebase para obtener los detalles de la orden
@@ -400,8 +412,6 @@ const fetchOrderFromFirebase = async () => {
 
 // ==== Número De Garantía ====
 
-
-
 const handleGenerateGuaranteeNumber = async () => {
   console.log("== handleGenerateGuaranteeNumber: Iniciando ==");
 
@@ -479,7 +489,6 @@ const handleGenerateGuaranteeNumber = async () => {
   }
 };
 
-
 // =====Selección de Documento=======
 
 const handleSelectDocument = async (docType) => {
@@ -545,7 +554,6 @@ const handleSelectDocument = async (docType) => {
     }
   }
 };
-
 
 // ===== Número de Remisión =====
 
@@ -622,7 +630,27 @@ const handleGenerateRemisionNumber = async () => {
   }
 };
 
-  return (
+// Desgloce de Cantidades:
+    // Calcular el subtotal de productos
+    const totalProductos = calculateTotalSubtotal(inspectionItems);
+
+    // Leer el descuento (cantidad_dinero) del campo discount del documento; si no existe, es 0
+    const descuento = order.discount && order.discount.cantidad_dinero 
+      ? parseFloat(order.discount.cantidad_dinero)
+      : 0;
+  
+    // Calcular el total de impuestos: para cada item que tenga impuestos "16", sumar (partUnitPrice * quantity * 0.16)
+    const impuestosValue = inspectionItems.reduce((acc, item) => {
+      if (item.impuestos === "16") {
+        return acc + (parseFloat(item.partUnitPrice) * parseInt(item.quantity) * 0.16);
+      }
+      return acc;
+    }, 0);
+  
+    // Total final = Total de Productos - Descuentos - Impuestos
+    const totalFinal = totalProductos - descuento - impuestosValue;
+    
+return (
     <div className="order-details">
       <div className="content">
       <div className="order-title">
@@ -851,8 +879,7 @@ const handleGenerateRemisionNumber = async () => {
       
         </div>
 
-
-          {/* Colorl */}
+          {/* Color */}
         <div className="row-client">
 
               <div className="column-client">
@@ -868,6 +895,7 @@ const handleGenerateRemisionNumber = async () => {
               </div>
           
         </div>
+        {/* Método de Pago */}
         <div className="row-client">
 
               <div className="column-client">
@@ -890,24 +918,76 @@ const handleGenerateRemisionNumber = async () => {
               </div>
           
         </div>
-
         <div className="precio-container">
           <div>
-          <h2>Total: $ {totalAmount.toLocaleString('es-MX', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</h2>
+
+   
           </div>
        
         </div>
       </div>
-      {/* Productos & Servicios */}
+
+      {/* Desgloce Cantidades */}
+      <div className="container-desgloce-cantidades">
+          {/* Cantidades */}
+          <div className="container-cantidades">
+              {/* Total de Productos */}
+              <div className="row-cantidad">
+                <p>Total de Productos: </p>
+                <p>${totalProductos.toLocaleString('es-MX', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                </p>
+              </div>
+              <div className="row-cantidad">
+                <p>Descuentos: </p>
+                <p>${descuento.toLocaleString('es-MX', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                </p>
+              </div>
+              <div className="row-cantidad">
+                <p>Impuestos: </p>
+                <p>    ${impuestosValue.toLocaleString('es-MX', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                </p>
+              </div>
+              <div className="row-cantidad">
+                <p>Total Anticipos: </p>
+                <p> ${abonosSum.toLocaleString('es-MX', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                </p>
+              </div>
+
+          </div>
+          {/* Folios */}
+          <div className="container-folios">
+            <div className="folios">
+              {/* Número de Remisión */}
+              <div className="row-cantidad">
+                <p>Folio Garantía: </p>
+                { order.garantia_number ? <p>#{order.garantia_number}</p> : null }
+              </div>
+              <div className="row-cantidad">
+                <p>Número Remisión: </p>
+                { order.remision_number ? <p>#{order.remision_number}</p> : null }
+              </div>
+
+            </div>
+
+            <div className="total">
+                <h1>Total ${totalFinal.toLocaleString('es-MX', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                </h1>
+            </div>
+          </div>
+      </div>
+
+      {/* Productos & Servicios Y botones de acción*/}
       <div className="container-productos">
         <h2>Productos & Servicios</h2>
+
         <div className="container-buttons">
+          {/* Agregar Producto */}
           <button onClick={openModal}>
             <img
               src="icons/plus.svg"
             />
           </button>
-
+          {/* Editar Productos */}
           <button
         
           onClick={openEditModal}>
@@ -915,14 +995,19 @@ const handleGenerateRemisionNumber = async () => {
               src="icons/edit.svg"
             />
           </button>
-          
+          {/* Anticipo */}
           <button
               onClick={openAbonarModal}
 
           >
             Anticipo
           </button>
-      
+          {/* Descuento */}
+          <button
+              onClick={openDiscountModal}   // <-- Agregar esta función
+            >
+              Descuento
+          </button>
         </div>
 
 
@@ -967,13 +1052,8 @@ const handleGenerateRemisionNumber = async () => {
       </tbody>
       </table>  
 
-      <div className="container-subtotal">
-      <h3>Subtotal Productos: $ {inspectionItems.reduce((acc, item) => acc + parseFloat(calculateSubtotal(item)), 0).toLocaleString('es-MX', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</h3>
-        
-      </div>
-      
 
-
+       {/* Historial de Pagos */}
       <div className="container-historial-de-pagos">
           {abonos.length > 0 && (
             <>
@@ -997,11 +1077,7 @@ const handleGenerateRemisionNumber = async () => {
                 </tbody>
               </table>
               
-              <div className="containerAbonosTotal">
-                <h3>
-                Subtotal Abonos: $ {abonosSum.toLocaleString('es-MX', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-                </h3>
-              </div>
+         
             </>
           )}
         </div>
@@ -1009,8 +1085,8 @@ const handleGenerateRemisionNumber = async () => {
       <div className="abonar"></div>
       </div>
 
-                {/* Mostrar el modal */}
-            <ModalProduct
+      {/* Mostrar el modal */}
+      <ModalProduct
               isOpen={isModalOpen}
               onClose={closeModal}
               orderId={orderId}
@@ -1019,7 +1095,7 @@ const handleGenerateRemisionNumber = async () => {
             />
 
             {/* Mostrar el modal de abonar */}
-            <ModalAbonar
+      <ModalAbonar
             isOpen={isAbonarModalOpen}
             onClose={closeAbonarModal}
             orderId={orderId}
@@ -1035,6 +1111,12 @@ const handleGenerateRemisionNumber = async () => {
             orderId={orderId}
             inspectionItems={order.inspectionItems}
             setOrder={setOrder}
+          />
+
+          <ModalDiscount
+            isOpen={isDiscountModalOpen}
+            onClose={closeDiscountModal}
+            orderId={orderId}
           />
     </div>
   );

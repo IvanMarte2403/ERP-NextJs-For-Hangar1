@@ -108,6 +108,12 @@ const OrderPDF = ({ order }) => {
     return acc + subtotal;
   }, 0);
 
+  const discountAmount = order.discount && order.discount.cantidad_dinero
+  ? parseFloat(order.discount.cantidad_dinero)
+  : 0;
+
+  const grandTotal = total + discountAmount;
+  
   return (
     <Document>
       <Page style={styles.page}>
@@ -238,13 +244,32 @@ const OrderPDF = ({ order }) => {
             )}
           </View>
 
-          {/* Total */}
-          <View style={{ flexDirection: 'row', borderTop: '1 solid black', paddingTop: 5}}>
-            <Text style={{ width: '75%', fontWeight: '700', textAlign: 'right', paddingRight: 10 }}>Total:</Text>
-            <Text style={{ width: '25%', fontWeight: 'bold', textAlign: 'left' }}>
+          {/* Subtotal */}
+          <View style={{ flexDirection: 'row', borderTop: '1 solid black', paddingTop: 10, marginTop: 40, width: '50%'}}>
+            <Text style={{ width: '75%', fontWeight: '700', textAlign: 'left', paddingRight: 10, fontSize: 10}}>Subtotal:</Text>
+            <Text style={{ width: '25%', fontWeight: 'bold', textAlign: 'left', fontSize: 10 }}>
               ${total.toFixed(2)}
             </Text>
           </View>
+
+          
+          {/* Descuentos */}
+          <View style={{ flexDirection: 'row', paddingTop: 10,width: '50%'}}>
+            <Text style={{ width: '75%', fontWeight: '700', textAlign: 'left', paddingRight: 10, fontSize: 10}}>Descuentos:</Text>
+            <Text style={{ width: '25%', fontWeight: 'bold', textAlign: 'left', fontSize: 10 }}>
+              ${discountAmount.toFixed(2)}
+            </Text>
+          </View>
+
+          {/* Total */}
+          <View style={{ flexDirection: 'row', paddingTop: 10,width: '50%'}}>
+            <Text style={{ width: '75%', fontWeight: '700', textAlign: 'left', paddingRight: 10, fontSize: 13}}>Total:</Text>
+            <Text style={{ width: '25%', fontWeight: 'bold', textAlign: 'left', fontSize: 12 }}>
+              ${grandTotal.toFixed(2)}
+            </Text>
+          </View>
+
+
 
           {/* Historial de Pagos */}
           <View style={{ marginTop: 20 }}>

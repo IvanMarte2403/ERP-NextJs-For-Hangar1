@@ -108,7 +108,7 @@ const CotizacionPDF = ({ order }) => {
   ? parseFloat(order.discount.cantidad_dinero)
   : 0;
 
-  const grandTotal = total + discountAmount;
+  const grandTotal = total - discountAmount;
 
   return (
     <Document>
@@ -130,7 +130,7 @@ const CotizacionPDF = ({ order }) => {
             <Image style={stylesPDF.imagesnSc} src="img/speedCenter.png" />
           </View>
         </View>
-
+        
         {/* UserName */}
         <View style={stylesPDF.containerNameUser}>
           <View style={stylesPDF.userView}>

@@ -668,69 +668,217 @@
   text-align: left;
 }
 
-.containerCheckin {
+.container-check-title {
   padding: var(--spacing-xl);
+  width: 100%;
 }
-
-.car-container {
-  background-color: rgba(0, 0, 0, 0.07);
-  padding: var(--spacing-xxl);
+.container-check-title .info-orden h1 {
+  font-size: var(--font-size-lg);
+}
+.container-check-title .container-revision {
+  width: 100%;
+  margin-top: var(--spacing-xxl);
+  box-shadow: 0 4px 4px rgba(0, 0, 0, 0.25);
+}
+.container-check-title .container-revision .nav-revision {
+  width: 100%;
   display: flex;
-  flex-direction: row;
-  justify-content: space-between;
-  border-radius: 1rem;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Sombra en la parte inferior */
-}
-.car-container .column {
-  width: 46%;
-}
-.car-container .column .title {
-  font-size: var(--font-size-mxxl);
-}
-.car-container .column .info-car {
   display: flex;
-  flex-direction: row;
+}
+.container-check-title .container-revision .nav-revision .block-revision {
+  background-color: #008CF2;
+  padding: var(--spacing-sm);
+  border-radius: 0.4rem 0 0 0.4rem;
+}
+.container-check-title .container-revision .nav-revision .block-revision p {
+  color: var(--color-secondary);
+}
+.container-check-title .container-revision .nav-revision .check-in {
+  background-color: #FCD331 !important;
+  border-radius: 0 0.4rem 0 0 !important;
+}
+.container-check-title .container-revision .container-revision-forms {
+  width: 100%;
+  padding: var(--spacing-lg);
+}
+.container-check-title .container-revision .container-revision-forms .title {
+  width: 100%;
+  display: flex;
   justify-content: space-between;
+  margin-bottom: var(--spacing-sm);
+}
+.container-check-title .container-revision .container-revision-forms .title h3 {
+  font-size: var(--font-size-md);
+}
+.container-check-title .container-revision .container-revision-forms .forms-check {
   margin-top: var(--spacing-md);
 }
-.car-container .column .info-car div {
+.container-check-title .container-revision .container-revision-forms .forms-check label {
+  display: flex;
+  margin-bottom: var(--spacing-sm);
+}
+.container-check-title .container-revision .container-revision-forms .forms-check label input {
+  all: unset;
+  margin-right: var(--spacing-sm);
+  background-color: var(--background-color-1) !important;
+  border: 2px solid #000;
+  padding: var(--spacing-sm);
+}
+.container-check-title .container-revision .container-revision-forms .container-input-text {
+  margin-top: var(--spacing-md);
+}
+.container-check-title .container-revision .container-revision-forms .container-input-text p {
+  margin-bottom: var(--spacing-sm);
+}
+.container-check-title .container-revision .container-revision-forms .container-input-text input {
+  all: unset;
+  background-color: var(--background-color-1);
+  border: 2px solid #000;
+}
+.container-check-title .container-revision .container-revision-forms .container-buttons {
+  margin-top: var(--spacing-lg);
+  display: flex;
+  width: 100%;
+  justify-content: flex-end;
+}
+.container-check-title .container-revision .container-revision-forms .container-buttons button {
+  all: unset;
+  cursor: pointer;
+  background-color: var(--background-color-2);
+  color: var(--color-secondary);
+  padding: var(--spacing-sm);
+  border-radius: 0.4rem;
+  font-size: var(--font-size-sm);
+}
+.container-check-title .container-problemas-vehiculo {
+  width: 100%;
+  box-shadow: 0 4px 4px rgba(0, 0, 0, 0.25);
+  margin-top: var(--spacing-lg);
+  padding: var(--spacing-lg);
+}
+.container-check-title .container-problemas-vehiculo .forms-problemas {
+  display: flex;
+  width: 60%;
+  align-items: center;
+  justify-content: space-between;
   margin-top: var(--spacing-lg);
 }
-.car-container .column .info-car div h3 {
-  font-weight: 400;
-  font-size: var(--font-size-xl);
-}
-.car-container .column .info-car div p {
+.container-check-title .container-problemas-vehiculo .forms-problemas .box-forms input {
+  background-color: var(--background-color-1);
   margin-top: var(--spacing-sm);
-  font-weight: 700;
 }
-.car-container .column .info-car .row-1 {
-  width: 45%;
+.container-check-title .container-problemas-vehiculo .forms-problemas .box-bottons button {
+  all: unset;
+  cursor: pointer;
+  background-color: var(--background-color-2);
+  color: var(--color-secondary);
+  padding: var(--spacing-sm);
+  border-radius: 0.4rem;
+  width: 100%;
+  text-align: center;
 }
-.car-container .column .info-car .row-2 {
-  width: 45%;
+.container-check-title .container-recomendaciones {
+  box-shadow: 0 4px 4px rgba(0, 0, 0, 0.25);
+  margin-top: var(--spacing-lg);
+  padding: var(--spacing-lg);
 }
-.car-container .column .container-toggle {
+.container-check-title .container-recomendaciones .container-columnas {
+  display: flex;
+  width: 100%;
+  justify-content: space-between;
+}
+.container-check-title .container-recomendaciones .container-columnas .container-column-recomendacion {
+  width: 22%;
+}
+.container-check-title .container-recomendaciones .container-columnas .container-column-recomendacion .box-recomendacion {
+  margin-top: var(--spacing-md);
   width: 100%;
   display: flex;
-  justify-content: flex-start;
+  justify-content: space-between;
+  align-items: center;
 }
-.car-container .column .container-toggle button {
-  all: unset;
-  background-color: #000;
-  padding: 1rem 2rem 1rem 2rem;
-  border-radius: 0.4rem;
-  color: #fff;
+.container-check-title .container-recomendaciones .container-columnas .container-column-recomendacion .box-recomendacion .inputs-recomendacion {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
 }
-.car-container .column .container-toggle button img {
-  margin-left: var(--spacing-md);
+.container-check-title .container-recomendaciones .container-columnas .container-column-recomendacion .box-recomendacion .titles-recomendacion p {
+  margin-left: var(--spacing-sm);
 }
-.car-container .column .container-car {
+.container-check-title .container-recomendaciones .container-columnas .container-column-recomendacion .box-recomendacion .inputs-recomendacion {
+  display: flex;
+  height: 100%;
+  width: 20%;
+}
+.container-check-title .container-recomendaciones .container-columnas .container-column-recomendacion .box-recomendacion .inputs-recomendacion .row-izq {
+  width: 50%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
+}
+.container-check-title .container-recomendaciones .container-columnas .container-column-recomendacion .box-recomendacion .inputs-recomendacion .row-izq p {
+  margin-bottom: var(--spacing-sm);
+}
+.container-check-title .container-recomendaciones .container-columnas .container-column-recomendacion .box-recomendacion .inputs-recomendacion .row-izq input {
+  margin-bottom: var(--spacing-sm);
+}
+.container-check-title .container-recomendaciones .container-columnas .container-column-recomendacion .box-recomendacion .inputs-recomendacion .row-der {
+  width: 50%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
+}
+.container-check-title .container-recomendaciones .container-columnas .container-column-recomendacion .box-recomendacion .inputs-recomendacion .row-der p {
+  margin-bottom: var(--spacing-sm);
+}
+.container-check-title .container-recomendaciones .container-columnas .container-column-recomendacion .box-recomendacion .inputs-recomendacion .row-der input {
+  margin-bottom: var(--spacing-sm);
+}
+.container-check-title .container-recomendaciones .container-columnas .container-column-recomendacion .box-texto {
+  display: flex;
+  flex-direction: column !important;
+  align-items: flex-start;
+}
+.container-check-title .container-recomendaciones .container-columnas .container-column-recomendacion .box-texto input {
+  margin-top: var(--spacing-md);
+  background-color: var(--background-color-1);
   width: 100%;
+}
+.container-check-title .container-recomendaciones .container-columnas .container-column-recomendacion .row-recomendacion {
+  display: flex;
+  width: 100%;
+  justify-content: space-between;
+  margin-bottom: var(--spacing-md);
+}
+.container-check-title .container-evidencias-graficas {
+  box-shadow: 0 4px 4px rgba(0, 0, 0, 0.25);
+  padding: var(--spacing-lg);
+  margin-top: var(--spacing-lg);
+}
+.container-check-title .container-evidencias-graficas .container-icono-camara {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
   margin-top: var(--spacing-xl);
+  margin-bottom: var(--spacing-xl);
 }
-.car-container .column .container-car img {
+.container-check-title .container-buttons {
+  margin-top: var(--spacing-lg);
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
   width: 100%;
+}
+.container-check-title .container-buttons button {
+  all: unset;
+  background-color: var(--background-color-2);
+  padding: var(--spacing-sm);
+  border-radius: 0.4rem;
+  color: var(--color-secondary);
+  font-size: var(--font-size-sm);
 }
 
 .recomendaciones-container {

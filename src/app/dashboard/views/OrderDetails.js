@@ -761,15 +761,14 @@ return (
       </div>
       {/* Checks Container  */}
       <div className="checks-container">
-          <Link
-            className="link"
-            href = '/CheckIn'
-          >
-            <p>
-              Check-in
-            </p>
-          </Link>
+        <Link
+          className="link"
+          href={`/CheckIn?orderId=${orderId}`}
+        >
+          <p>Check-in</p>
+        </Link>
       </div>
+
   
       {/* Container Orden */}
       <div className="container-orden">

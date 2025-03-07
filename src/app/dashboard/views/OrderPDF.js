@@ -78,7 +78,6 @@ Font.register({
 
 // Componente que genera el PDF
 const OrderPDF = ({ order }) => {
-  
   if (!order || !order.orderNumber) {
     return (
       <Document>
@@ -88,7 +87,9 @@ const OrderPDF = ({ order }) => {
       </Document>
     );
   }
+  
 
+ 
   // Función para calcular el subtotal y total incluyendo impuestos
   const calculateSubtotal = (item) => {
     const price = parseFloat(item.partUnitPrice) || 0;
@@ -111,7 +112,7 @@ const OrderPDF = ({ order }) => {
   ? parseFloat(order.discount.cantidad_dinero)
   : 0;
 
-  const grandTotal = total - discountAmount;
+  const grandTotal = total + discountAmount;
   
   return (
     <Document>
@@ -146,6 +147,7 @@ const OrderPDF = ({ order }) => {
         </View>
 
         {/* Datos de Usuario y Coche */}
+        
         
         <View style={stylesPDF.containerDatos}>
             {/* Usuario */}
@@ -194,6 +196,8 @@ const OrderPDF = ({ order }) => {
                   
             </View>
         </View>
+
+
 
         {/* Info Principal */}
         <View style={styles.section}>

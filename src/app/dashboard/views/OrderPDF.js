@@ -112,7 +112,7 @@ const OrderPDF = ({ order }) => {
   ? parseFloat(order.discount.cantidad_dinero)
   : 0;
 
-  const grandTotal = total + discountAmount;
+  const grandTotal = total - discountAmount;
   
   return (
     <Document>

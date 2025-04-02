@@ -56,7 +56,7 @@ const styles = StyleSheet.create({
     marginTop: 80,
   },
   productName: {
-    fontSize: 12,
+    fontSize: '9px',
   },
   productBrand: {
     fontSize: 10,
@@ -123,43 +123,35 @@ const RemisionPDF = ({ order }) => {
   return (
     <Document>
       <Page style={styles.page}>
-
         {/* Header Section */}
         <View style={stylesPDF.headerContainer}>
           <View style={stylesPDF.headerOrderNumberContainer}>
             <Text style={stylesPDF.textOrderNumber}>
               <Text style={stylesPDF.spanText}>Número de Órden/</Text> {order.orderNumber}
             </Text>
-
             {/* Texto extra indicando que es REMISIÓN */}
             <Text style={stylesPDF.textOrderNumber}>
               <Text style={stylesPDF.spanText}>Remisión</Text>
             </Text>
-
             <Text style={stylesPDF.textFecha}>
               {order.uploadTime
                 ? new Date(order.uploadTime).toLocaleDateString('es-MX')
                 : 'Fecha no disponible'}
             </Text>
           </View>
-
           <View style={stylesPDF.containerCategoriaImagen}>
             <Image style={stylesPDF.imagesnSc} src="img/speedCenter.png" />
           </View>
         </View>
                   
-        {/* UserName */}
-        <View style={stylesPDF.containerNameUser}>
-          <View style={stylesPDF.userView}>
-            <Image style={stylesPDF.imageUser} src="icons/user.png"/>  
-            <Text style={stylesPDF.firstName}>{`${order.firstName || ''} ${order.lastName || ''}`}</Text>
-          </View>
-        </View>
-
         {/* Datos de Usuario y Coche */}
         <View style={stylesPDF.containerDatos}>
           {/* Usuario */}
           <View style={stylesPDF.containerUsuario}>
+            <View style={stylesPDF.userView}>
+              <Image style={stylesPDF.imageUser} src="icons/user.png"/>  
+              <Text style={stylesPDF.firstName}>{`${order.firstName || ''} ${order.lastName || ''}`}</Text>
+            </View>
             <Text style={stylesPDF.infoText}>
               Telefono: {order.mobile || 'N/A'}
             </Text>
@@ -176,7 +168,6 @@ const RemisionPDF = ({ order }) => {
               Método de Pago: {order.paymentMethod || 'N/A'}
             </Text>
           </View>
-
           {/* Auto */}
           <View style={stylesPDF.containerCoche}>
             <View style={stylesPDF.carIconContainer}>
@@ -203,7 +194,7 @@ const RemisionPDF = ({ order }) => {
         {/* Info Principal */}
         <View style={styles.section}>
           {/* Productos */}
-          <View style={{ marginTop: 40, border: '2px solid #000', padding: '10px' }}>
+          <View style={{ marginTop: 10 }}>
             {/* Encabezados de la tabla */}
             <View style={{
               flexDirection: 'row',
@@ -215,7 +206,7 @@ const RemisionPDF = ({ order }) => {
               <Text style={[{ width: '13%', marginLeft: '2px' }, styles.titleTable]}>Costo</Text>
               <Text style={[{ width: '13%' }, styles.titleTable]}>Cantidad</Text>
               <Text style={[{ width: '13%' }, styles.titleTable]}>IVA</Text>
-              <Text style={[{ width: '10%' }, styles.titleTable]}>Subtotal</Text>
+              <Text style={[{ width: '23%' }, styles.titleTable]}>Subtotal</Text>
             </View>
 
             {/* Filas de productos */}
@@ -237,8 +228,8 @@ const RemisionPDF = ({ order }) => {
                       {'\n'}
                       <Text style={styles.productBrand}>{item.brand || 'N/A'}</Text>
                     </Text>
-                    <Text style={[{ width: '10%' }, styles.numberTable]}>${price.toFixed(2)}</Text>
-                    <Text style={[{ width: '13%', textAlign: 'left'}, styles.numberTable]}>{quantity}</Text>
+                    <Text style={[{ width: '13%' }, styles.numberTable]}>${price.toFixed(2)}</Text>
+                    <Text style={[{ width: '13%' }, styles.numberTable]}>{quantity}</Text>
                     <Text style={[{ width: '13%' }, styles.numberTable]}>${taxAmount.toFixed(2)}</Text>
                     <Text style={[{ width: '23%' }, styles.numberTable]}>${subtotal.toFixed(2)}</Text>
                   </View>
@@ -275,7 +266,7 @@ const RemisionPDF = ({ order }) => {
 
           {/* Historial de Pagos */}
           <View style={{ marginTop: 20 }}>
-            <Text style={{ fontSize: 14, fontWeight: 'bold', marginBottom: 10 }}>
+            <Text style={{ fontSize: 14, fontWeight: 'bold', marginBottom: 10, fontSize: '12px' }}>
               Anticipos
             </Text>
             {order.abonos && order.abonos.length > 0 ? (
@@ -312,7 +303,7 @@ const RemisionPDF = ({ order }) => {
                 ))}
               </>
             ) : (
-              <Text>No hay pagos registrados</Text>
+              <Text style={{fontSize: '9px'}}>No hay pagos registrados</Text>
             )}
           </View>
         </View>

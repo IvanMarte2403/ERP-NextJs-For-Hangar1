@@ -174,7 +174,7 @@ export default function Dashboard() {
             </div>
 
             {/* Block-2 */}
-            <div className="block">
+            <div className="block">b
                 <img src="icons/dashboard/ventasPrime.png"/>
                 <h3>Ventas Mensuales</h3>
                   <p>

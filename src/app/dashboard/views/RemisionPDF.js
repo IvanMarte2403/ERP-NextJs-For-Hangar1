@@ -264,7 +264,7 @@ const RemisionPDF = ({ order }) => {
             </Text>
           </View>
 
-          {/* Historial de Pagos */}
+          {/* Historial de Pagos */}  
           <View style={{ marginTop: 20 }}>
             <Text style={{ fontSize: 14, fontWeight: 'bold', marginBottom: 10, fontSize: '12px' }}>
               Anticipos

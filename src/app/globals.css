@@ -20,32 +20,34 @@
   --background-color-2: #000;
   --background-color-3: #000;
 
-      /* Tamaños de fuente */
-      --font-size-xs: 0.75rem; /* 12px */
-      --font-size-sm: 0.875rem; /* 14px */
-      --font-size-md: 1rem; /* 16px */
-      --font-size-lg: 1.125rem; /* 18px */
-      --font-size-xl: 1.25rem; /* 20px */
-      --font-size-xxl: 1.5rem; /* 24px */
-      --font-size-sxxl: 1.9rem; /* 24px */
-      --font-size-mxxl: 2.5rem;
-      --font-size-xxxl: 3rem; /* 32px */
-      --font-size-xxxxl: 4rem; /* 48px */
-      --font-size-span: 5rem;
+   
+  --font-size-xs: 0.63vw; /* 12px */
+  --font-size-sm: 0.73vw; /* 14px */
+  --font-size-md: 0.83vw; /* 16px */
+  --font-size-lg: 0.94vw; /* 18px */
+  --font-size-xl: 1.04vw; /* 20px */
+  --font-size-xxl: 1.25vw; /* 24px */
+  --font-size-mxxl: 1.67vw; /* 32px */
+  --font-size-sxxl: 2.08vw; /* 40px */
+  --font-size-xxxl: 2.50vw; /* 48px */
+  --font-size-xxxxl: 3.33vw; /* 64px */
+  --font-size-span: 4.17vw; /* 80px */
+
 
   
 
-
-      /* Espaciados */
-      --spacing-xs: 0.25rem; /* 4px */
-      --spacing-sm: 0.5rem; /* 8px */
-      --spacing-md: 1rem; /* 16px */
-      --spacing-lg: 1.5rem; /* 24px */
-      --spacing-xl: 2rem; /* 32px */
-      --spacing-mxl: 2.4rem;
-      --spacing-xxl: 4rem; /* 48px */
-      --spacing-xxxl: 8rem; /* 48px */
-      --spacing-xxxxl: 12rem; /* 48px */
+      /* Espaciados en vw (viewport de 1440px) */
+      --spacing-xs: 0.28vw;  /* ~4px */
+      --spacing-sm: 0.56vw;  /* ~8px */
+      --spacing-md: 1.11vw;  /* ~16px */
+      --spacing-lg: 1.67vw;  /* ~24px */
+      --spacing-xl: 2.22vw;  /* ~32px */
+      --spacing-xxl: 4.44vw;  /* ~64px */
+      --spacing-sxxl: 5vw;    /* ~72px */
+      --spacing-xxxl: 8.89vw;  /* ~128px */
+      --spacing-xxxxl: 13.33vw; /* ~192px */
+      --radius-md: 1.11vw;    /* ~16px */
+      --radius-sm: 0.44vw;    /* ~6.4px */
 }
 
 @media (prefers-color-scheme: dark) {

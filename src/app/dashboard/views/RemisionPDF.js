@@ -62,6 +62,16 @@ const styles = StyleSheet.create({
     fontSize: 10,
     color: '#555',
   },
+  // Nuevos estilos para la tabla
+  titleTable: {
+    fontSize: 10,
+    fontWeight: 'bold',
+    textAlign: 'left',
+  },
+  numberTable: {
+    fontSize: 10,
+    textAlign: 'right',
+  },
 });
 
 Font.register({
@@ -105,8 +115,8 @@ const RemisionPDF = ({ order }) => {
   }, 0);
 
   const discountAmount = order.discount && order.discount.cantidad_dinero
-  ? parseFloat(order.discount.cantidad_dinero)
-  : 0;
+    ? parseFloat(order.discount.cantidad_dinero)
+    : 0;
 
   const grandTotal = total - discountAmount;
 
@@ -142,8 +152,7 @@ const RemisionPDF = ({ order }) => {
         <View style={stylesPDF.containerNameUser}>
           <View style={stylesPDF.userView}>
             <Image style={stylesPDF.imageUser} src="icons/user.png"/>  
-            <Text style={stylesPDF.firstName}>{`${order.firstName || ''} ${order.lastName || ''}`}
-            </Text>
+            <Text style={stylesPDF.firstName}>{`${order.firstName || ''} ${order.lastName || ''}`}</Text>
           </View>
         </View>
 
@@ -151,24 +160,18 @@ const RemisionPDF = ({ order }) => {
         <View style={stylesPDF.containerDatos}>
           {/* Usuario */}
           <View style={stylesPDF.containerUsuario}>
-            {/* Telefono */}
             <Text style={stylesPDF.infoText}>
               Telefono: {order.mobile || 'N/A'}
             </Text>
-            {/* Correo */}
             <Text style={stylesPDF.infoText}>
               Telefono: prueba@hangar1.com.mx
             </Text>
-            {/* Asesor */}
             <Text style={stylesPDF.infoText}>
               Asesor: {order.inCharge}
             </Text>
-            
-            {/* Folio de Remisión */}
             <Text style={stylesPDF.infoText}>
               Folio de Remisión: {order.remision_number || 'N/A'}
             </Text>
-
             <Text style={stylesPDF.infoText}>
               Método de Pago: {order.paymentMethod || 'N/A'}
             </Text>
@@ -200,7 +203,7 @@ const RemisionPDF = ({ order }) => {
         {/* Info Principal */}
         <View style={styles.section}>
           {/* Productos */}
-          <View style={{ marginTop: 40, border:'2px solid #000', padding: '10px'}}>
+          <View style={{ marginTop: 40, border: '2px solid #000', padding: '10px' }}>
             {/* Encabezados de la tabla */}
             <View style={{
               flexDirection: 'row',
@@ -208,11 +211,11 @@ const RemisionPDF = ({ order }) => {
               paddingBottom: 5,
               justifyContent: 'space-between'
             }}>
-              <Text style={{ width: '28%', fontWeight: 'bold', textAlign: 'left' }}>Producto</Text>
-              <Text style={{ width: '13%', fontWeight: 'bold', textAlign: 'left' }}>Costo</Text>
-              <Text style={{ width: '13%', fontWeight: 'bold', textAlign: 'left' }}>Cantidad</Text>
-              <Text style={{ width: '13%', fontWeight: 'bold', textAlign: 'left' }}>IVA</Text>
-              <Text style={{ width: '23%', fontWeight: 'bold', textAlign: 'left' }}>Subtotal</Text>
+              <Text style={[{ width: '28%' }, styles.titleTable]}>Producto</Text>
+              <Text style={[{ width: '13%', marginLeft: '2px' }, styles.titleTable]}>Costo</Text>
+              <Text style={[{ width: '13%' }, styles.titleTable]}>Cantidad</Text>
+              <Text style={[{ width: '13%' }, styles.titleTable]}>IVA</Text>
+              <Text style={[{ width: '10%' }, styles.titleTable]}>Subtotal</Text>
             </View>
 
             {/* Filas de productos */}
@@ -234,10 +237,10 @@ const RemisionPDF = ({ order }) => {
                       {'\n'}
                       <Text style={styles.productBrand}>{item.brand || 'N/A'}</Text>
                     </Text>
-                    <Text style={{ width: '13%' }}>${price.toFixed(2)}</Text>
-                    <Text style={{ width: '13%' }}>{quantity}</Text>
-                    <Text style={{ width: '13%' }}>${taxAmount.toFixed(2)}</Text>
-                    <Text style={{ width: '23%' }}>${subtotal.toFixed(2)}</Text>
+                    <Text style={[{ width: '10%' }, styles.numberTable]}>${price.toFixed(2)}</Text>
+                    <Text style={[{ width: '13%', textAlign: 'left'}, styles.numberTable]}>{quantity}</Text>
+                    <Text style={[{ width: '13%' }, styles.numberTable]}>${taxAmount.toFixed(2)}</Text>
+                    <Text style={[{ width: '23%' }, styles.numberTable]}>${subtotal.toFixed(2)}</Text>
                   </View>
                 );
               })
@@ -246,30 +249,29 @@ const RemisionPDF = ({ order }) => {
             )}
           </View>
 
-       {/* Subtotal */}
-                <View style={{ flexDirection: 'row', borderTop: '1 solid black', paddingTop: 10, marginTop: 40, width: '50%'}}>
-                  <Text style={{ width: '75%', fontWeight: '700', textAlign: 'left', paddingRight: 10, fontSize: 10}}>Subtotal:</Text>
-                  <Text style={{ width: '25%', fontWeight: 'bold', textAlign: 'left', fontSize: 10 }}>
-                    ${total.toFixed(2)}
-                  </Text>
-                </View>
+          {/* Subtotal */}
+          <View style={{ flexDirection: 'row', borderTop: '1 solid black', paddingTop: 10, marginTop: 40, width: '50%' }}>
+            <Text style={{ width: '75%', fontWeight: '700', textAlign: 'left', paddingRight: 10, fontSize: 10 }}>Subtotal:</Text>
+            <Text style={[{ width: '25%', fontWeight: 'bold', textAlign: 'left', fontSize: 10 }, styles.numberTable]}>
+              ${total.toFixed(2)}
+            </Text>
+          </View>
       
-                
-                {/* Descuentos */}
-                <View style={{ flexDirection: 'row', paddingTop: 10,width: '50%'}}>
-                  <Text style={{ width: '75%', fontWeight: '700', textAlign: 'left', paddingRight: 10, fontSize: 10}}>Descuentos:</Text>
-                  <Text style={{ width: '25%', fontWeight: 'bold', textAlign: 'left', fontSize: 10 }}>
-                    ${discountAmount.toFixed(2)}
-                  </Text>
-                </View>
+          {/* Descuentos */}
+          <View style={{ flexDirection: 'row', paddingTop: 10, width: '50%' }}>
+            <Text style={{ width: '75%', fontWeight: '700', textAlign: 'left', paddingRight: 10, fontSize: 10 }}>Descuentos:</Text>
+            <Text style={[{ width: '25%', fontWeight: 'bold', textAlign: 'left', fontSize: 10 }, styles.numberTable]}>
+              ${discountAmount.toFixed(2)}
+            </Text>
+          </View>
       
-                {/* Total */}
-                <View style={{ flexDirection: 'row', paddingTop: 10,width: '50%'}}>
-                  <Text style={{ width: '75%', fontWeight: '700', textAlign: 'left', paddingRight: 10, fontSize: 13}}>Total:</Text>
-                  <Text style={{ width: '25%', fontWeight: 'bold', textAlign: 'left', fontSize: 12 }}>
-                    ${grandTotal.toFixed(2)}
-                  </Text>
-                </View>
+          {/* Total */}
+          <View style={{ flexDirection: 'row', paddingTop: 10, width: '50%' }}>
+            <Text style={{ width: '75%', fontWeight: '700', textAlign: 'left', paddingRight: 10, fontSize: 13 }}>Total:</Text>
+            <Text style={[{ width: '25%', fontWeight: 'bold', textAlign: 'left', fontSize: 12 }, styles.numberTable]}>
+              ${grandTotal.toFixed(2)}
+            </Text>
+          </View>
 
           {/* Historial de Pagos */}
           <View style={{ marginTop: 20 }}>
@@ -286,13 +288,13 @@ const RemisionPDF = ({ order }) => {
                     paddingBottom: 5,
                   }}
                 >
-                  <Text style={{ width: '33%', fontWeight: 'bold', textAlign: 'left' }}>
+                  <Text style={[{ width: '33%' }, styles.titleTable]}>
                     Cantidad
                   </Text>
-                  <Text style={{ width: '33%', fontWeight: 'bold', textAlign: 'left' }}>
+                  <Text style={[{ width: '33%' }, styles.titleTable]}>
                     Método de Pago
                   </Text>
-                  <Text style={{ width: '34%', fontWeight: 'bold', textAlign: 'left' }}>
+                  <Text style={[{ width: '34%' }, styles.titleTable]}>
                     Fecha
                   </Text>
                 </View>
@@ -301,7 +303,7 @@ const RemisionPDF = ({ order }) => {
                     key={index}
                     style={{ flexDirection: 'row', marginBottom: 5, marginTop: 5 }}
                   >
-                    <Text style={{ width: '33%' }}>${abono.cantidad_abono}</Text>
+                    <Text style={[{ width: '33%' }, styles.numberTable]}>${abono.cantidad_abono}</Text>
                     <Text style={{ width: '33%' }}>{abono.metodo_pago}</Text>
                     <Text style={{ width: '34%' }}>
                       {new Date(abono.fecha_abono).toLocaleDateString('es-MX')}

@@ -31,7 +31,7 @@ const stylesPDF = StyleSheet.create({
     // OrderNumber
 
     textOrderNumber:{
-        fontSize: 20,
+        fontSize: 10,
         fontWeight: '800',
         fontFamily: 'Inter'
     },
@@ -75,56 +75,65 @@ const stylesPDF = StyleSheet.create({
         flexDirection: 'row',
         justifyContent: 'flex-start',
         width: '100%',
-        marginTop: '40px',
+        marginTop: '20px', 
     },
     imageUser:{
-        width: '10px',
-        height: '13px',
+        width: '9px',
+        height: '10px',
         marginRight: '9px',
     },
     firstName:{
-        fontSize: '15px',
+        fontSize: '10px',
     },  
     userView:{
         width: '40%',
         flexDirection: 'row',
         alignItems: 'center',
-        marginLeft: '10px',
+        marginBottom: '4px',
     },
     containerDatos:{
         flexDirection: 'row',
         justifyContent: 'space-between',
-        marginTop: '20px',
+        marginTop: '7px',
     },
     containerUsuario:{
         width: '49%',
-        padding: '16px',
+        padding: '5px',
     },
     infoText:{
-        fontSize: '12px',
+        fontSize: '9px',
         marginBottom: '5px',
     },
     // Car Info
     carIconContainer:{
         width:'40%',
-        justifyContent: 'space-evenly',
         flexDirection:'row',
         alignItems: 'center',
-        marginBottom: '10px',
+        marginBottom: '3px',
     },
     carIcon:{
-        width: '13px',
-        height: '10px',
+        width: '11px',
+        height: '8px',
         marginRight: '8px',
     },
     containerCoche:{
-        padding: '16px',
+        padding: '5px',
         width: '49%',
-        backgroundColor: '#DFDFDF',
         borderRadius: '3px',
-    }
+    },
 
-
+    //Table 
+    
+    titleTable:{
+        fontSize: '15px'
+    },
+    numberTable:{
+        fontSize: '10px',
+        textAlign: 'left',
+    },
+    titleAbonos:{
+        fontSize: '10px'
+    },
 
 
 

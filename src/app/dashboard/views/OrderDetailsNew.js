@@ -10,23 +10,21 @@ import { getClientInformation } from '../../../../services/ClientInformation';
 import { getAllClients } from '../../../../services/ClientsDatabase';
 import { createOrder } from '../../../../services/CreateOrder';
 import { getAuth } from "firebase/auth";
-import { doc, getDoc, collection, query, where, getDocs } from "firebase/firestore";
+import { doc, collection, query, where, getDocs } from "firebase/firestore";
 import { db } from "../../../../lib/firebase";
 
 export default function OrderDetailsNew({ setSelectedOrderId, setView }) {
-
   const [fecha, setFecha] = useState('');
 
   const [isUserAssigned, setIsUserAssigned] = useState(false);
   const [clientInfo, setClientInfo] = useState(null);
-  const [dailyCount, setDailyCount] = useState(1);
   const [orderNumber, setOrderNumber] = useState('');
 
   // --- Modal ---
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   // ---------- CAMPOS EXISTENTES ----------
-  const [brand, setBrand] = useState('');          // Antes se usaba "model" para la marca
+  const [brand, setBrand] = useState('');          
   const [year, setYear] = useState('');
   const [taller, setTaller] = useState('');
   const [inCharge, setInCharge] = useState('');
@@ -37,32 +35,17 @@ export default function OrderDetailsNew({ setSelectedOrderId, setView }) {
   const [color, setColor] = useState('');
 
   // ---------- NUEVOS CAMPOS ----------
-  const [model, setModel] = useState('');                // (Obligatorio)
-  const [motor, setMotor] = useState('');                // (Obligatorio)
-  const [vin, setVin] = useState('');                    // (Opcional)
+  const [model, setModel] = useState('');                 // (Obligatorio)
+  const [motor, setMotor] = useState('');                 // (Obligatorio)
+  const [vin, setVin] = useState('');                     // (Opcional)
   const [mechanic_assigment, setMechanicAssigment] = useState(''); // (Obligatorio)
 
-  // Verifica si ya existe el número de orden
-  async function checkIfOrderExists(orderNum) {
-    const ordersRef = collection(db, "orders");
-    const q = query(ordersRef, where("orderNumber", "==", orderNum));
-    const querySnapshot = await getDocs(q);
-    return !querySnapshot.empty;
-  }
+  // ---------- CLIENTES ----------
+  const [allClients, setAllClients] = useState([]);
+  const [filteredClients, setFilteredClients] = useState([]);
+  const [searchTerm, setSearchTerm] = useState("");
 
-  // Función para abrir el modal
-  const openModal = () => {
-    setIsModalOpen(true);
-    document.querySelector('.container-crud')?.classList.add('main-blur');
-  };
-
-  // Función para cerrar el modal
-  const closeModal = () => {
-    setIsModalOpen(false);
-    document.querySelector('.container-crud')?.classList.remove('main-blur');
-  };
-
-  // Establece la fecha actual al cargar
+  // ---- OBTENER FECHA ACTUAL ----
   useEffect(() => {
     const now = new Date();
     // Formato YYYY-MM-DDTHH:MM
@@ -70,7 +53,7 @@ export default function OrderDetailsNew({ setSelectedOrderId, setView }) {
     setFecha(formattedNow);
   }, []);
 
-  // Generar número de orden único
+  // ---- GENERAR ORDER NUMBER UNICO ----
   useEffect(() => {
     async function generateUniqueOrderNumber() {
       const auth = getAuth();
@@ -86,44 +69,49 @@ export default function OrderDetailsNew({ setSelectedOrderId, setView }) {
         }
       }
 
-      if (fecha) {
-        const currentDateObj = new Date(fecha);
-        const yearStr = currentDateObj.getFullYear().toString().slice(-2);
-        const monthStr = (currentDateObj.getMonth() + 1).toString().padStart(2, '0');
-        const dayStr = currentDateObj.getDate().toString().padStart(2, '0');
+      if (!fecha) return;
 
-        let randomSequence;
-        let formattedOrderNumber;
-        let exists = true;
+      const currentDateObj = new Date(fecha);
+      const yearStr = currentDateObj.getFullYear().toString().slice(-2);
+      const monthStr = (currentDateObj.getMonth() + 1).toString().padStart(2, '0');
+      const dayStr = currentDateObj.getDate().toString().padStart(2, '0');
 
-        while (exists) {
-          randomSequence = Math.floor(Math.random() * 100).toString().padStart(2, '0');
-          formattedOrderNumber = `${advisorNumber}${yearStr}${monthStr}${dayStr}${randomSequence}`;
-          exists = await checkIfOrderExists(formattedOrderNumber);
-          if (!exists) {
-            setOrderNumber(formattedOrderNumber);
-          }
+      let randomSequence;
+      let formattedOrderNumber;
+      let exists = true;
+
+      while (exists) {
+        randomSequence = Math.floor(Math.random() * 100).toString().padStart(2, '0');
+        formattedOrderNumber = `${advisorNumber}${yearStr}${monthStr}${dayStr}${randomSequence}`;
+        exists = await checkIfOrderExists(formattedOrderNumber);
+        if (!exists) {
+          setOrderNumber(formattedOrderNumber);
         }
       }
     }
     generateUniqueOrderNumber();
   }, [fecha]);
 
-  // Cuando se guarda un nuevo cliente desde el Modal
-  const handleClientSaved = async (clientId) => {
-    closeModal();
-    const clientData = await getClientInformation(clientId);
-    if (clientData) {
-      setClientInfo(clientData);
-      setIsUserAssigned(true);
-    }
+  // Verifica si ya existe el número de orden
+  async function checkIfOrderExists(orderNum) {
+    const ordersRef = collection(db, "orders");
+    const q = query(ordersRef, where("orderNumber", "==", orderNum));
+    const querySnapshot = await getDocs(q);
+    return !querySnapshot.empty;
+  }
+
+  // --- Modal ---
+  const openModal = () => {
+    setIsModalOpen(true);
+    document.querySelector('.container-crud')?.classList.add('main-blur');
   };
 
-  // --- Carga y Filtrado de Clientes ---
-  const [allClients, setAllClients] = useState([]);
-  const [filteredClients, setFilteredClients] = useState([]);
-  const [searchTerm, setSearchTerm] = useState("");
+  const closeModal = () => {
+    setIsModalOpen(false);
+    document.querySelector('.container-crud')?.classList.remove('main-blur');
+  };
 
+  // --- Cargar Clientes en Caché ---
   useEffect(() => {
     const fetchClients = async () => {
       const clients = await getAllClients();
@@ -132,15 +120,14 @@ export default function OrderDetailsNew({ setSelectedOrderId, setView }) {
     fetchClients();
   }, []);
 
+  // --- Filtrar Clientes ---
   useEffect(() => {
     if (searchTerm) {
+      const lower = searchTerm.toLowerCase();
       const results = allClients.filter(client => {
         const clientName = client.nombre ? client.nombre.toLowerCase() : '';
         const clientEmail = client.correo ? client.correo.toLowerCase() : '';
-        return (
-          clientName.includes(searchTerm.toLowerCase()) ||
-          clientEmail.includes(searchTerm.toLowerCase())
-        );
+        return clientName.includes(lower) || clientEmail.includes(lower);
       });
       setFilteredClients(results);
     } else {
@@ -156,7 +143,16 @@ export default function OrderDetailsNew({ setSelectedOrderId, setView }) {
     }
   };
 
-  // Crear Orden
+  const handleClientSaved = async (clientId) => {
+    closeModal();
+    const clientData = await getClientInformation(clientId);
+    if (clientData) {
+      setClientInfo(clientData);
+      setIsUserAssigned(true);
+    }
+  };
+
+  // --- CREAR ORDEN ---
   const handleCreateOrder = async () => {
     // Validación de campos obligatorios
     if (
@@ -197,8 +193,8 @@ export default function OrderDetailsNew({ setSelectedOrderId, setView }) {
       inspectionItems: [],
       uploadTime: fecha,
 
-      // Campos antiguos (sin cambios):
-      brand,            // Marca
+      // Campos antiguos
+      brand,
       year,
       categoria,
       taller,
@@ -208,10 +204,10 @@ export default function OrderDetailsNew({ setSelectedOrderId, setView }) {
       color,
       inCharge,
 
-      // Campos nuevos:
-      model,            // Modelo
-      motor,            // Motor
-      vin,              // VIN (opcional, puede ir vacío)
+      // Campos nuevos
+      model,
+      motor,
+      vin,
       mechanic_assigment
     };
 
@@ -337,14 +333,30 @@ export default function OrderDetailsNew({ setSelectedOrderId, setView }) {
             </div>
           </div>
 
-          {/* Categoría / Color */}
+          {/* Categoría de Coche / Color */}
           <div className="row-forms">
             <div className="input">
               <p>Categoría de Coche</p>
-              <input
-                type="text"
-                onChange={(e) => setCategoria(e.target.value)}
-              />
+              <select onChange={(e) => setCategoria(e.target.value)}>
+                <option value="">Selecciona una categoría</option>
+                <option value="Hot Hatches Turbo">Hot Hatches Turbo</option>
+                <option value="Muscle Cars">Muscle Cars</option>
+                <option value="4x4 Off Road">4x4 Off Road</option>
+                <option value="Hatch Back">Hatch Back</option>
+                <option value="Sedan/Coupe Turbo">Sedan/Coupe Turbo</option>
+                <option value="Sedan/Coupe Premium">Sedan/Coupe Premium</option>
+                <option value="Deportivo">Deportivo</option>
+                <option value="Carreras">Carreras</option>
+                <option value="Exótico">Exótico</option>
+                <option value="Blindado">Blindado</option>
+                <option value="Clásico">Clásico</option>
+                <option value="Cross Over">Cross Over</option>
+                <option value="Pick Up">Pick Up</option>
+                <option value="Mini Van">Mini Van</option>
+                <option value="Suv">Suv</option>
+                <option value="Suv Europea">Suv Europea</option>
+                <option value="Moto">Moto</option>
+              </select>
             </div>
             <div className="input">
               <p>Color</p>
@@ -403,17 +415,24 @@ export default function OrderDetailsNew({ setSelectedOrderId, setView }) {
           <div className="row-forms">
             <div className="input">
               <p>Taller Asignado</p>
-              <input
-                type="text"
+              <select
                 onChange={(e) => setTaller(e.target.value)}
-              />
+              >
+                <option value="">Selecciona Taller</option>
+                <option value="H1">H1</option>
+                <option value="H2">H2</option>
+                <option value="H3">H3</option>
+              </select>
             </div>
             <div className="input">
               <p>Asesor Asignado</p>
-              <input
-                type="text"
+              <select
                 onChange={(e) => setInCharge(e.target.value)}
-              />
+              >
+                <option value="">Selecciona Asesor</option>
+                <option value="Cristian Abarca">Cristian Abarca</option>
+                <option value="Jorge Sanchez">Jorge Sanchez</option>
+              </select>
             </div>
           </div>
 
@@ -421,10 +440,25 @@ export default function OrderDetailsNew({ setSelectedOrderId, setView }) {
           <div className="row-forms">
             <div className="input">
               <p>Mecánico Asignado</p>
-              <input
-                type="text"
+              <select
                 onChange={(e) => setMechanicAssigment(e.target.value)}
-              />
+                value={mechanic_assigment}
+              >
+                <option value="">Selecciona Mecánico</option>
+                {inCharge === "Cristian Abarca" && (
+                  <>
+                    <option value="Alvaro German">Alvaro German</option>
+                    <option value="carlos Cruz">Carlos Cruz</option>
+                    <option value="Alejandro Barragan">Alejandro Barragan</option>
+                  </>
+                )}
+                {inCharge === "Jorge Sanchez" && (
+                  <>
+                    <option value="Luiyi Ariel Cartela Flores">Luiyi Ariel Cartela Flores</option>
+                    <option value="Erick Roberto Rangel Lozada">Erick Roberto Rangel Lozada</option>
+                  </>
+                )}
+              </select>
             </div>
             <div className="input">
               <p>Fecha & Hora</p>

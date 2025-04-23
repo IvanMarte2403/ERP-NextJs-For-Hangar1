@@ -1,0 +1,74 @@
+.checkin-container{
+    width: 100%;
+    padding: var(--spacing-xxl);
+    padding-top: 0;
+
+    .container-evidencias-graficas{
+        width: 100%;
+        box-shadow: 0 1rem 2rem rgba(0, 0, 0, 0.1);
+        border-radius: 0.5rem;
+        padding: var(--spacing-md);
+        margin-top: var(--spacing-md);
+        .row-evidencias{
+            display: flex;
+            width: 100%;
+            justify-content: space-between;
+            margin-bottom: var(--spacing-xl);
+
+            .container-evidencia{
+                width: 45%;
+                display: flex;
+                justify-content: space-between;
+                box-shadow: 0 1rem 2rem rgba(0, 0, 0, 0.1);
+                padding: var(--spacing-md);
+                border-radius: 0.9rem;
+                .container-left{
+                    width: 49%;
+                    display: flex;
+                    justify-content: center;
+                    align-items: center;
+                    img{
+                        width: 70%;
+                    }
+                }
+
+                .container-right{
+                    width: 49%;
+                    h3{
+                        font-size: var(--font-size-lg);
+                        margin-bottom: var(--spacing-md);
+                    }
+                    p{
+                        font-size: var(--font-size-sm);
+                    }
+
+                    .container-update{
+                        width: 100%;
+                        display: flex;
+                        justify-content: center;
+                        align-items: center;
+                        margin-top: var(--spacing-md);
+                        cursor: pointer;
+                        .cube{
+                            background-color: #D9D9D9;
+                            border-radius: 0.5rem;
+                            display: flex;
+                            flex-direction: column;
+                            justify-content: center;
+                            align-items: center;
+                            padding: var(--spacing-md);
+                            img{
+                                width: 20%;
+                            }
+                            p{
+                                font-size: var(--font-size-sm);
+                                margin-top: var(--spacing-md);
+                            }
+                        }
+                    }
+                    
+                }
+            }
+        }
+    }
+}

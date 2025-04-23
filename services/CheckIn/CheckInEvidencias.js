@@ -1,37 +1,70 @@
-// src/app/dashboard/check-in/CheckIn-Evidencias.js
-
-import { storage } from "../../lib/firebase";
-import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
-
-/**
- * Sube un video de evidencia a Firebase Storage en la ruta:
- * Check-in/CheckIn_{orderId}_{tipo}/
- * @param {string} orderId - ID de la orden.
- * @param {"frontal"|"trasera"|"lateral"|"tablero"} type - Tipo de evidencia.
- * @param {File} file - Archivo de video a subir.
- * @returns {Promise<string>} - URL de descarga del archivo.
- */
-export const uploadEvidence = async (orderId, type, file) => {
-  const folderMap = {
-    frontal: `CheckIn_${orderId}_frontal`,
-    trasera: `CheckIn_${orderId}_trasera`,
-    lateral: `CheckIn_${orderId}_lateral`,
-    tablero: `CheckIn_${orderId}_tablero`,
+// src/services/CheckIn-Evidencias.js
+import {
+    ref,
+    uploadBytesResumable,
+    getDownloadURL,
+  } from "firebase/storage";
+  import { storage } from "../../lib/firebase";
+  
+  /**
+   * Sube un video de evidencia al Storage.
+   *
+   * @param {string|number} orderId   - Id de la orden.
+   * @param {"lateral"|"frontal"|"trasera"|"tablero"} evidenceType
+   * @param {File} file               - Archivo de video (mp4, mov, etc.).
+   * @param {(percent:number)=>void}  onProgress        - Callback opcional de avance.
+   * @returns {Promise<string>}       - URL de descarga del archivo subido.
+   */
+  export const uploadCheckInEvidence = async (
+    orderId,
+    evidenceType,
+    file,
+    onProgress = () => {}
+  ) => {
+    console.log("=== Iniciando uploadCheckInEvidence ===");
+    console.log("orderId:", orderId);
+    console.log("evidenceType:", evidenceType);
+    console.log("file.name:", file.name, "size:", file.size);
+  
+    try {
+      // 1) Construir la ruta
+      const folderPath = `Check-in/CheckIn_${orderId}_${evidenceType}`;
+      const fileRef = ref(storage, `${folderPath}/${file.name}`);
+      console.log("Storage path:", fileRef.fullPath);
+  
+      // 2) Lanzar la subida
+      const uploadTask = uploadBytesResumable(fileRef, file);
+      console.log("UploadTask creado, esperando eventos…");
+  
+      // 3) Envolver en Promise para esperar resultado
+      return await new Promise((resolve, reject) => {
+        uploadTask.on(
+          "state_changed",
+          (snap) => {
+            // Progreso
+            const pct = (snap.bytesTransferred / snap.totalBytes) * 100;
+            onProgress(Math.round(pct));
+            console.log(
+              `Progreso ${evidenceType}: ${pct.toFixed(1)}% (${snap.bytesTransferred}/${snap.totalBytes})`
+            );
+          },
+          (err) => {
+            // Error
+            console.error("🔥 Error en uploadBytesResumable:", err);
+            reject(err);
+          },
+          async () => {
+            // Éxito
+            const url = await getDownloadURL(uploadTask.snapshot.ref);
+            console.log("✅ Subida terminada. Download URL:", url);
+            resolve(url);
+          }
+        );
+      });
+    } catch (err) {
+      // Capturamos errores inesperados (p.ej. reglas, falta de conexión)
+      console.error("❌ Error catch general en uploadCheckInEvidence:", err);
+      throw err;
+    }
   };
-
-  const folderName = folderMap[type];
-  if (!folderName) {
-    throw new Error(`Tipo de evidencia inválido: ${type}`);
-  }
-
-  // Referencia al archivo dentro de Storage
-  const fileRef = ref(storage, `Check-in/${folderName}/${file.name}`);
-
-  // Subir el archivo
-  const snapshot = await uploadBytes(fileRef, file);
-
-  // Obtener la URL pública de descarga
-  const downloadURL = await getDownloadURL(snapshot.ref);
-
-  return downloadURL;
-};
+  

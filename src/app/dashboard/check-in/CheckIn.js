@@ -1,162 +1,156 @@
 // src/app/dashboard/check-in/CheckIn.js
 "use client";
 
-import { useState } from "react";
-import { uploadEvidence } from "../../../../services/CheckIn/CheckInEvidencias";
+import { useRef, useState } from "react";
+import { uploadCheckInEvidence } from "../../../../services/CheckIn/CheckInEvidencias"; // Ajusta la ruta relativa
 
 export default function CheckIn({ orderId }) {
-  const [uploading, setUploading] = useState(false);
+  /* ----------- estado para avance de subida ----------- */
+  const [progress, setProgress] = useState({
+    frontal: 0,
+    trasera: 0,
+    lateral: 0,
+    tablero: 0,
+  });
 
-  const handleUpload = async (event, type) => {
-    const file = event.target.files[0];
+  /* ----------- refs de inputs ----------- */
+  const fileInputs = {
+    frontal: useRef(null),
+    trasera: useRef(null),
+    lateral: useRef(null),
+    tablero: useRef(null),
+  };
+
+  /* ----------- helpers ----------- */
+  const openFileDialog = (type) => fileInputs[type].current?.click();
+
+  const handleFileChange = async (type, e) => {
+    const file = e.target.files[0];
     if (!file) return;
+
     try {
-      setUploading(true);
-      const url = await uploadEvidence(orderId, type, file);
-      console.log("Evidencia subida (URL):", url);
-      // Aquí puedes guardar la URL en Firestore si lo deseas
-    } catch (error) {
-      console.error("Error subiendo evidencia:", error);
+      await uploadCheckInEvidence(
+        orderId,
+        type,
+        file,
+        (pct) => setProgress((p) => ({ ...p, [type]: pct }))
+      );
+      alert("Evidencia subida correctamente ✅");
+    } catch {
+      alert("❌ Hubo un problema al subir la evidencia");
     } finally {
-      setUploading(false);
+      // Limpiar el input para permitir volver a escoger el mismo archivo si se quiere
+      e.target.value = "";
+      setProgress((p) => ({ ...p, [type]: 0 }));
     }
   };
 
+  /* ----------- UI ----------- */
   return (
     <div className="checkin-container">
       <h2>Check-in Orden #{orderId}</h2>
 
+      {/* ---------- Evidencias gráficas ---------- */}
       <div className="container-evidencias-graficas">
+        {/* ----- Fila 1 ----- */}
         <div className="row-evidencias">
-          {/* Parte Frontal */}
-          <div className="container-evidencia">
-            <div className="container-left">
-              <img src="check-in/eg-1.svg" alt="" />
-            </div>
-            <div className="container-right">
-              <h3>Parte Frontal</h3>
-              <p>
-                Graba claramente el frente del coche, capturando detalles como cofre,
-                parrilla, faros, defensa, emblema, matrícula y parabrisas...
-              </p>
-              <div className="container-update">
-                <label className="cube">
-                  <input
-                    type="file"
-                    accept="video/*"
-                    style={{ display: "none" }}
-                    onChange={(e) => handleUpload(e, "frontal")}
-                  />
-                  {uploading ? (
-                    <p>Subiendo...</p>
-                  ) : (
-                    <>
-                      <img src="check-in/camera.svg" alt="" />
-                      <p>Subir Evidencia</p>
-                    </>
-                  )}
-                </label>
-              </div>
-            </div>
-          </div>
+          {/* Frontal */}
+          <EvidenciaCard
+            img="check-in/eg-1.svg"
+            titulo="Parte Frontal"
+            descripcion="Graba claramente el frente del coche, capturando..."
+            onUpload={() => openFileDialog("frontal")}
+            progress={progress.frontal}
+          />
+          <input
+            type="file"
+            accept="video/*"
+            hidden
+            ref={fileInputs.frontal}
+            onChange={(e) => handleFileChange("frontal", e)}
+          />
 
-          {/* Parte Trasera */}
-          <div className="container-evidencia">
-            <div className="container-left">
-              <img src="check-in/eg-2.svg" alt="" />
-            </div>
-            <div className="container-right">
-              <h3>Parte Trasera</h3>
-              <p>
-                Graba cuidadosamente la parte trasera del coche, mostrando claramente
-                la tapa del maletero, defensa, luces traseras...              
-              </p>
-              <div className="container-update">
-                <label className="cube">
-                  <input
-                    type="file"
-                    accept="video/*"
-                    style={{ display: "none" }}
-                    onChange={(e) => handleUpload(e, "trasera")}
-                  />
-                  {uploading ? (
-                    <p>Subiendo...</p>
-                  ) : (
-                    <>
-                      <img src="check-in/camera.svg" alt="" />
-                      <p>Subir Evidencia</p>
-                    </>
-                  )}
-                </label>
-              </div>
-            </div>
-          </div>
+          {/* Trasera */}
+          <EvidenciaCard
+            img="check-in/eg-2.svg"
+            titulo="Parte Trasera"
+            descripcion="Graba cuidadosamente la parte trasera del coche..."
+            onUpload={() => openFileDialog("trasera")}
+            progress={progress.trasera}
+          />
+          <input
+            type="file"
+            accept="video/*"
+            hidden
+            ref={fileInputs.trasera}
+            onChange={(e) => handleFileChange("trasera", e)}
+          />
         </div>
 
+        {/* ----- Fila 2 ----- */}
         <div className="row-evidencias">
-          {/* Lado Piloto/Copiloto */}
-          <div className="container-evidencia">
-            <div className="container-left">
-              <img src="check-in/eg-3.svg" alt="" />
-            </div>
-            <div className="container-right">
-              <h3>Lado Piloto/Copiloto</h3>
-              <p>
-                Graba cuidadosamente ambos laterales del coche (izquierdo y derecho),
-                mostrando puertas, espejos, ventanas...
-              </p>
-              <div className="container-update">
-                <label className="cube">
-                  <input
-                    type="file"
-                    accept="video/*"
-                    style={{ display: "none" }}
-                    onChange={(e) => handleUpload(e, "lateral")}
-                  />
-                  {uploading ? (
-                    <p>Subiendo...</p>
-                  ) : (
-                    <>
-                      <img src="check-in/camera.svg" alt="" />
-                      <p>Subir Evidencia</p>
-                    </>
-                  )}
-                </label>
-              </div>
-            </div>
-          </div>
+          {/* Lateral */}
+          <EvidenciaCard
+            img="check-in/eg-3.svg"
+            titulo="Lado Piloto/Copiloto"
+            descripcion="Graba cuidadosamente ambos laterales del coche..."
+            onUpload={() => openFileDialog("lateral")}
+            progress={progress.lateral}
+          />
+          <input
+            type="file"
+            accept="video/*"
+            hidden
+            ref={fileInputs.lateral}
+            onChange={(e) => handleFileChange("lateral", e)}
+          />
 
           {/* Tablero */}
-          <div className="container-evidencia">
-            <div className="container-left">
-              <img src="check-in/eg-4.svg" alt="" />
-            </div>
-            <div className="container-right">
-              <h3>Tablero - Motor Andando</h3>
-              <p>
-                Graba cuidadosamente el interior, mostrando tablero, volante,
-                asientos, cinturones, paneles...
-              </p>
-              <div className="container-update">
-                <label className="cube">
-                  <input
-                    type="file"
-                    accept="video/*"
-                    style={{ display: "none" }}
-                    onChange={(e) => handleUpload(e, "tablero")}
-                  />
-                  {uploading ? (
-                    <p>Subiendo...</p>
-                  ) : (
-                    <>
-                      <img src="check-in/camera.svg" alt="" />
-                      <p>Subir Evidencia</p>
-                    </>
-                  )}
-                </label>
-              </div>
-            </div>
+          <EvidenciaCard
+            img="check-in/eg-4.svg"
+            titulo="Tablero - Motor Andando"
+            descripcion="Graba cuidadosamente el interior del vehículo..."
+            onUpload={() => openFileDialog("tablero")}
+            progress={progress.tablero}
+          />
+          <input
+            type="file"
+            accept="video/*"
+            hidden
+            ref={fileInputs.tablero}
+            onChange={(e) => handleFileChange("tablero", e)}
+          />
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* ======================================================
+  Tarjeta reutilizable para cada evidencia
+  ======================================================*/
+function EvidenciaCard({ img, titulo, descripcion, onUpload, progress }) {
+  return (
+    <div className="container-evidencia">
+      {/* Lado izquierdo */}
+      <div className="container-left">
+        <img src={img} alt={titulo} />
+      </div>
+
+      {/* Lado derecho */}
+      <div className="container-right">
+        <h3>{titulo}</h3>
+        <p>{descripcion}</p>
+
+        <div className="container-update">
+          <div className="cube" onClick={onUpload}>
+            <img src="check-in/camera.svg" alt="" />
+            <p>Subir Evidencia</p>
           </div>
+          {progress > 0 && progress < 100 && (
+            <span className="upload-progress">{progress}%</span>
+          )}
+          {progress === 100 && <span className="upload-done">✓</span>}
         </div>
       </div>
     </div>

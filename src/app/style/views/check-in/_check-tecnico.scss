@@ -4,7 +4,7 @@
     padding-top: 0;
     .title{
         margin-top: var(--spacing-md);
-        
+
     }
     .row-input-problem{
         width: 100%;
@@ -48,6 +48,16 @@
             border-radius: 0.4rem;
             cursor: pointer;
         } 
+        }
+    }
+
+    .container-table-list{
+        margin-top: var(--spacing-xxl);
+        table{
+            width: 100%;
+            thead{
+                text-align: left;
+            }
         }
     }
 }

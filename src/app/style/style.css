@@ -1882,4 +1882,13 @@
   padding: var(--spacing-md);
   border-radius: 0.4rem;
   cursor: pointer;
+}
+.check-tecnico-container .container-table-list {
+  margin-top: var(--spacing-xxl);
+}
+.check-tecnico-container .container-table-list table {
+  width: 100%;
+}
+.check-tecnico-container .container-table-list table thead {
+  text-align: left;
 }/*# sourceMappingURL=style.css.map */

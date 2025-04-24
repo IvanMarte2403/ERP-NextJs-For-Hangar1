@@ -17,12 +17,15 @@ import ModalEditProduct from "./Modal/EditProduct";
 import ModalDiscount from "./Modal/ModalDiscount";
 
 import CheckIn from "../check-in/CheckIn"; 
+import CheckTecnico from "../check-in/CheckTecnico";
 
 export default function OrderDetails({ orderId, isNewOrder, userEmail }) {
   console.log("OrderDetails");
 
-  /* ---------- NUEVO: estado para mostrar Check-in ---------- */
+  /* ----------  estado para mostrar Check-in ---------- */
   const [showCheckIn, setShowCheckIn] = useState(false);
+  const [showCheckTecnico, setShowCheckTecnico] = useState(false);
+
 
   /* ---------- Estados existentes ---------- */
   const [pdfReady, setPdfReady] = useState(false);
@@ -341,8 +344,13 @@ export default function OrderDetails({ orderId, isNewOrder, userEmail }) {
   }, [order, abonosSum]);
 
   if (showCheckIn) {
-    /* ---------- NUEVO: sustituir .content por CheckIn ---------- */
+
+    /* ----------  sustituir .content por CheckIn ---------- */
     return <CheckIn orderId={orderId} />;
+  }
+
+  if (showCheckTecnico) {
+    return <CheckTecnico orderId={orderId} />;
   }
 
   if (!order) {
@@ -599,6 +607,10 @@ export default function OrderDetails({ orderId, isNewOrder, userEmail }) {
         <div className="checks-container">
           <button className="link" onClick={() => setShowCheckIn(true)}>
             <p>Check-in</p>
+          </button>
+          {/* Check Tecnico */}
+          <button className="link" onClick={() => setShowCheckTecnico(true)}>
+            <p>Check-Tecnico</p>
           </button>
         </div>
 

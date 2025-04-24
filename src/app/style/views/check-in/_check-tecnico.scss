@@ -1,0 +1,53 @@
+.check-tecnico-container{
+    width: 100%;
+    padding: var(--spacing-xxl);
+    padding-top: 0;
+    .title{
+        margin-top: var(--spacing-md);
+        
+    }
+    .row-input-problem{
+        width: 100%;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-top: var(--spacing-xl);
+        // Input
+        .input{
+            display: flex;
+            flex-direction: column;
+            p{
+                font-size: var(--font-size-md);
+            }
+            input{
+                all: unset;
+                border: 0.09rem solid #000;
+                border-radius: 0.2rem;
+                margin-top: var(--spacing-sm);
+                padding: var(--spacing-sm);
+                font-size: var(--font-size-sm);
+                width: 100%;
+            }
+        }
+
+        // Buttons
+
+        .buttons{
+            width: 20%;
+            height: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+           button{
+            all: unset;
+            background-color: var(--background-color-2);
+            align-items: center;
+            color: var(--color-secondary);
+            font-size: var(--font-size-md);
+            padding: var(--spacing-md);
+            border-radius: 0.4rem;
+            cursor: pointer;
+        } 
+        }
+    }
+}

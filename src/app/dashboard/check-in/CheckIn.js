@@ -2,7 +2,7 @@
 "use client";
 
 import { useRef, useState } from "react";
-import { uploadCheckInEvidence } from "../../../../services/CheckIn/CheckInEvidencias"; // Ajusta la ruta relativa
+import { uploadCheckInEvidence } from "../../../../services/CheckIn/CheckInEvidencias"; 
 
 export default function CheckIn({ orderId }) {
   /* ----------- estado para avance de subida ----------- */
@@ -121,7 +121,11 @@ export default function CheckIn({ orderId }) {
             onChange={(e) => handleFileChange("tablero", e)}
           />
         </div>
+
+
       </div>
+
+      
     </div>
   );
 }

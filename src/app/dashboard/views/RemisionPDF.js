@@ -1,3 +1,4 @@
+// RemisionPDF.js
 import React from 'react';
 import { Page, Text, View, Document, StyleSheet, Image, Font } from '@react-pdf/renderer';
 import stylesPDF from './OrderPDFStyles';
@@ -84,6 +85,18 @@ Font.register({
   ],
 });
 
+/* ---------- Util ---------- */
+/**
+ * Convierte una fecha ISO (YYYY-MM-DD o YYYY-MM-DDTHH:mm:ss) a «DD/MM/AAAA»
+ * sin aplicar la zona horaria del navegador para evitar desfasar un día.
+ */
+const formatIsoDate = (iso = '') => {
+  if (!iso) return 'N/A';
+  const [year, month, day] = iso.slice(0, 10).split('-');
+  if (!year || !month || !day) return iso;
+  return `${day}/${month}/${year}`;
+};
+
 // Componente que genera el PDF de REMISIÓN
 const RemisionPDF = ({ order }) => {
   if (!order || !order.orderNumber) {
@@ -153,10 +166,10 @@ const RemisionPDF = ({ order }) => {
               <Text style={stylesPDF.firstName}>{`${order.firstName || ''} ${order.lastName || ''}`}</Text>
             </View>
             <Text style={stylesPDF.infoText}>
-              Telefono: {order.mobile || 'N/A'}
+              Teléfono: {order.mobile || 'N/A'}
             </Text>
             <Text style={stylesPDF.infoText}>
-              Telefono: prueba@hangar1.com.mx
+              Teléfono: prueba@hangar1.com.mx
             </Text>
             <Text style={stylesPDF.infoText}>
               Asesor: {order.inCharge}
@@ -172,8 +185,9 @@ const RemisionPDF = ({ order }) => {
           <View style={stylesPDF.containerCoche}>
             <View style={stylesPDF.carIconContainer}>
               <Image style={stylesPDF.carIcon} src="icons/car.png" />
+              {/* brand + model */}
               <Text style={stylesPDF.infoText}>
-                {order.brand || ''}
+                {`${order.brand || ''}${order.model ? ' ' + order.model : ''}`}
               </Text>
             </View>
             <Text style={stylesPDF.infoText}>
@@ -294,10 +308,11 @@ const RemisionPDF = ({ order }) => {
                     key={index}
                     style={{ flexDirection: 'row', marginBottom: 5, marginTop: 5 }}
                   >
-                    <Text style={[{ width: '33%' }, styles.numberTable]}>${abono.cantidad_abono}</Text>
+                    {/* cantidad alineada a la izquierda */}
+                    <Text style={{ width: '33%' }}>${abono.cantidad_abono}</Text>
                     <Text style={{ width: '33%' }}>{abono.metodo_pago}</Text>
                     <Text style={{ width: '34%' }}>
-                      {new Date(abono.fecha_abono).toLocaleDateString('es-MX')}
+                      {formatIsoDate(abono.fecha_abono)}
                     </Text>
                   </View>
                 ))}

@@ -1,3 +1,4 @@
+// OrderPDF.js
 import React from 'react';
 import { Page, Text, View, Document, StyleSheet, Image, Font } from '@react-pdf/renderer';
 import stylesPDF from './OrderPDFStyles';
@@ -83,6 +84,18 @@ Font.register({
     { src: '/fonts/Inter.ttf', fontWeight: '800' }, // Extra Bold
   ],
 });
+
+/* ---------- Util ---------- */
+/**
+ * Convierte una fecha ISO (YYYY-MM-DD o YYYY-MM-DDTHH:mm:ss) a «DD/MM/AAAA»
+ * sin aplicar zona horaria, evitando el desfase de un día.
+ */
+const formatIsoDate = (iso = '') => {
+  if (!iso) return 'N/A';
+  const [year, month, day] = iso.slice(0, 10).split('-');
+  if (!year || !month || !day) return iso;
+  return `${day}/${month}/${year}`;
+};
 
 // Componente que genera el PDF
 const OrderPDF = ({ order }) => {
@@ -173,8 +186,9 @@ const OrderPDF = ({ order }) => {
           <View style={stylesPDF.containerCoche}>
             <View style={stylesPDF.carIconContainer}>
               <Image style={stylesPDF.carIcon} src="icons/car.png" />
+              {/* brand + model */}
               <Text style={stylesPDF.infoText}>
-                {`${order.brand || ''}`}
+                {`${order.brand || ''}${order.model ? ' ' + order.model : ''}`}
               </Text>
             </View>
             <Text style={stylesPDF.infoText}>
@@ -196,7 +210,7 @@ const OrderPDF = ({ order }) => {
         <View style={styles.section}>
           {/* Productos */}
           <View style={{ marginTop: 8 }}>
-            {/* Encabezados de la tabla actualizados */}
+            {/* Encabezados de la tabla */}
             <View style={{
               flexDirection: 'row',
               borderBottom: '1 solid black',
@@ -204,12 +218,12 @@ const OrderPDF = ({ order }) => {
             }}>
               <Text style={[{ width: '34%' }, styles.titleTable]}>Producto</Text>
               <Text style={[{ width: '16%', marginLeft: '20px' }, styles.titleTable]}>Costo</Text>
-              <Text style={[{ width: '21%', }, styles.titleTable]}>Cantidad</Text>
+              <Text style={[{ width: '21%' }, styles.titleTable]}>Cantidad</Text>
               <Text style={[{ width: '23%' }, styles.titleTable]}>IVA</Text>
               <Text style={[{ width: '13%' }, styles.titleTable]}>Subtotal</Text>
             </View>
 
-            {/* Filas de productos actualizadas */}
+            {/* Filas de productos */}
             {order.inspectionItems && order.inspectionItems.length > 0 ? (
               order.inspectionItems.map((item, index) => {
                 const price = parseFloat(item.partUnitPrice) || 0;
@@ -291,10 +305,12 @@ const OrderPDF = ({ order }) => {
                     key={index}
                     style={{ flexDirection: 'row', marginBottom: 5, marginTop: 5 }}
                   >
-                    <Text style={[{ width: '33%' }, styles.numberTable]}>${abono.cantidad_abono}</Text>
+                    <Text style={{ width: '33%' }}>
+                      ${abono.cantidad_abono}
+                    </Text>
                     <Text style={{ width: '33%' }}>{abono.metodo_pago}</Text>
                     <Text style={{ width: '34%' }}>
-                      {new Date(abono.fecha_abono).toLocaleDateString('es-MX')}
+                      {formatIsoDate(abono.fecha_abono)}
                     </Text>
                   </View>
                 ))}

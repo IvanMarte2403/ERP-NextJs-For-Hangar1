@@ -157,8 +157,6 @@ const CotizacionPDF = ({ order }) => {
             <Text style={stylesPDF.infoText}>
               Asesor: {order.inCharge}
             </Text>
-
-            {/* NOTA: Eliminamos la línea de "Folio Garantía" */}
             
             <Text style={stylesPDF.infoText}>
               Método de Pago: {order.paymentMethod || 'N/A'}
@@ -169,8 +167,9 @@ const CotizacionPDF = ({ order }) => {
           <View style={stylesPDF.containerCoche}>
             <View style={stylesPDF.carIconContainer}>
               <Image style={stylesPDF.carIcon} src="icons/car.png" />
+              {/* ---- Cambio: brand + model ---- */}
               <Text style={stylesPDF.infoText}>
-                {order.brand || ''}
+                {`${order.brand || ''}${order.model ? ' ' + order.model : ''}`}
               </Text>
             </View>
             <Text style={stylesPDF.infoText}>
@@ -254,33 +253,31 @@ const CotizacionPDF = ({ order }) => {
             )}
           </View>
 
-              {/* Subtotal */}
-                  <View style={{ flexDirection: 'row', borderTop: '1 solid black', paddingTop: 10, marginTop: 40, width: '50%'}}>
-                    <Text style={{ width: '75%', fontWeight: '700', textAlign: 'left', paddingRight: 10, fontSize: 10}}>Subtotal:</Text>
-                    <Text style={{ width: '25%', fontWeight: 'bold', textAlign: 'left', fontSize: 10 }}>
-                      ${total.toFixed(2)}
-                    </Text>
-                  </View>
-        
-                  
-                  {/* Descuentos */}
-                  <View style={{ flexDirection: 'row', paddingTop: 10,width: '50%'}}>
-                    <Text style={{ width: '75%', fontWeight: '700', textAlign: 'left', paddingRight: 10, fontSize: 10}}>Descuentos:</Text>
-                    <Text style={{ width: '25%', fontWeight: 'bold', textAlign: 'left', fontSize: 10 }}>
-                      ${discountAmount.toFixed(2)}
-                    </Text>
-                  </View>
-        
-                  {/* Total */}
-                  <View style={{ flexDirection: 'row', paddingTop: 10,width: '50%'}}>
-                    <Text style={{ width: '75%', fontWeight: '700', textAlign: 'left', paddingRight: 10, fontSize: 13}}>Total:</Text>
-                    <Text style={{ width: '25%', fontWeight: 'bold', textAlign: 'left', fontSize: 12 }}>
-                      ${grandTotal.toFixed(2)}
-                    </Text>
-                  </View>
-        
-
-          {/* NOTA: Eliminamos completamente la sección de "Historial de Pagos" */}
+          {/* Subtotal */}
+          <View style={{ flexDirection: 'row', borderTop: '1 solid black', paddingTop: 10, marginTop: 40, width: '50%'}}>
+            <Text style={{ width: '75%', fontWeight: '700', textAlign: 'left', paddingRight: 10, fontSize: 10}}>Subtotal:</Text>
+            <Text style={{ width: '25%', fontWeight: 'bold', textAlign: 'left', fontSize: 10 }}>
+              ${total.toFixed(2)}
+            </Text>
+          </View>
+  
+          {/* Descuentos */}
+          <View style={{ flexDirection: 'row', paddingTop: 10,width: '50%'}}>
+            <Text style={{ width: '75%', fontWeight: '700', textAlign: 'left', paddingRight: 10, fontSize: 10}}>Descuentos:</Text>
+            <Text style={{ width: '25%', fontWeight: 'bold', textAlign: 'left', fontSize: 10 }}>
+              ${discountAmount.toFixed(2)}
+            </Text>
+          </View>
+  
+          {/* Total */}
+          <View style={{ flexDirection: 'row', paddingTop: 10,width: '50%'}}>
+            <Text style={{ width: '75%', fontWeight: '700', textAlign: 'left', paddingRight: 10, fontSize: 13}}>Total:</Text>
+            <Text style={{ width: '25%', fontWeight: 'bold', textAlign: 'left', fontSize: 12 }}>
+              ${grandTotal.toFixed(2)}
+            </Text>
+          </View>
+  
+          {/* NOTA: eliminado Historial de Pagos */}
         </View>
 
         <Text style={styles.footer}>Firma Cliente</Text>

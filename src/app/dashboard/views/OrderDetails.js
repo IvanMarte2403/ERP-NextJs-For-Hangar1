@@ -19,13 +19,15 @@ import ModalDiscount from "./Modal/ModalDiscount";
 import CheckIn from "../check-in/CheckIn"; 
 import CheckTecnico from "../check-in/CheckTecnico";
 
+// --- Nuevo componente Historial de Pagos ---
+import HistorialPagos from "../views/OrderDetails/historialPagos";
+
 export default function OrderDetails({ orderId, isNewOrder, userEmail }) {
   console.log("OrderDetails");
 
   /* ----------  estado para mostrar Check-in ---------- */
   const [showCheckIn, setShowCheckIn] = useState(false);
   const [showCheckTecnico, setShowCheckTecnico] = useState(false);
-
 
   /* ---------- Estados existentes ---------- */
   const [pdfReady, setPdfReady] = useState(false);
@@ -878,38 +880,9 @@ export default function OrderDetails({ orderId, isNewOrder, userEmail }) {
           </tbody>
         </table>
 
-        {/* ---------------- Historial de Pagos ---------------- */}
-        <div className="container-historial-de-pagos">
-          {abonos.length > 0 && (
-            <>
-              <h3>Historial de Pagos</h3>
-              <table>
-                <thead>
-                  <tr>
-                    <th>Cantidad</th>
-                    <th>Método de Pago</th>
-                    <th>Fecha</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {abonos.map((abono, index) => (
-                    <tr key={index}>
-                      <td>
-                        $
-                        {parseFloat(abono.cantidad_abono).toLocaleString("es-MX", {
-                          minimumFractionDigits: 2,
-                          maximumFractionDigits: 2,
-                        })}
-                      </td>
-                      <td>{abono.metodo_pago}</td>
-                      <td>{new Date(abono.fecha_abono).toLocaleDateString()}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </>
-          )}
-        </div>
+        {/* ---------------- Historial de Pagos (nuevo componente) ---------------- */}
+        <HistorialPagos abonos={abonos} />
+
       </div>
 
       {/* ---------------- Modales ---------------- */}

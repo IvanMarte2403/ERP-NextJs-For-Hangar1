@@ -702,6 +702,7 @@
 
 .container-historial-de-pagos {
   width: 100%;
+  margin-top: var(--spacing-xl);
 }
 .container-historial-de-pagos table {
   width: 80%;

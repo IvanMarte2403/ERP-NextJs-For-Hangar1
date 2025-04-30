@@ -1,3 +1,4 @@
+// AnticiposPDF.js
 import React from 'react';
 import { Page, Text, View, Document, StyleSheet, Image, Font } from '@react-pdf/renderer';
 import stylesPDF from './OrderPDFStyles';
@@ -43,17 +44,15 @@ const styles = StyleSheet.create({
     fontSize: 12,
     padding: 5,
   },
-  cellFolio: {
-    width: '20%',
-  },
+  // Proporciones sin columna Folio
   cellCantidad: {
-    width: '25%',
+    width: '33%',
   },
   cellMetodo: {
-    width: '30%',
+    width: '34%',
   },
   cellFecha: {
-    width: '25%',
+    width: '33%',
   },
 });
 
@@ -65,6 +64,17 @@ Font.register({
     { src: '/fonts/Inter.ttf', fontWeight: '700' },
   ],
 });
+
+/**
+ * Convierte una fecha ISO (YYYY-MM-DD o YYYY-MM-DDTHH:mm:ss)
+ * a "DD/MM/AAAA" sin aplicar zona horaria.
+ */
+const formatIsoDate = (iso = '') => {
+  if (!iso) return 'N/A';
+  const [year, month, day] = iso.slice(0, 10).split('-');
+  if (!year || !month || !day) return iso;
+  return `${day}/${month}/${year}`;
+};
 
 // Componente que genera el PDF de Anticipos
 const AnticiposPDF = ({ order }) => {
@@ -89,12 +99,10 @@ const AnticiposPDF = ({ order }) => {
             </Text>
             <Text style={stylesPDF.textFecha}>
               {order.uploadTime
-                ? new Date(order.uploadTime).toLocaleDateString('es-MX')
+                ? formatIsoDate(order.uploadTime)
                 : 'Fecha no disponible'}
             </Text>
           </View>
-
-          {/* Logo o imagen */}
           <View style={stylesPDF.containerCategoriaImagen}>
             <Image style={stylesPDF.imagesnSc} src="img/speedCenter.png" />
           </View>
@@ -135,7 +143,7 @@ const AnticiposPDF = ({ order }) => {
             <View style={stylesPDF.carIconContainer}>
               <Image style={stylesPDF.carIcon} src="icons/car.png" />
               <Text style={stylesPDF.infoText}>
-                {order.brand || ''}
+                {`${order.brand || ''}${order.model ? ' ' + order.model : ''}`}
               </Text>
             </View>
             <Text style={stylesPDF.infoText}>
@@ -158,7 +166,6 @@ const AnticiposPDF = ({ order }) => {
           {order.abonos && order.abonos.length > 0 ? (
             <>
               <View style={styles.tableHeader}>
-                <Text style={[styles.tableCell, styles.cellFolio]}>Folio</Text>
                 <Text style={[styles.tableCell, styles.cellCantidad]}>Cantidad</Text>
                 <Text style={[styles.tableCell, styles.cellMetodo]}>Método de Pago</Text>
                 <Text style={[styles.tableCell, styles.cellFecha]}>Fecha</Text>
@@ -166,9 +173,6 @@ const AnticiposPDF = ({ order }) => {
 
               {order.abonos.map((abono, index) => (
                 <View key={index} style={styles.tableRow}>
-                  <Text style={[styles.tableCell, styles.cellFolio]}>
-                    {abono.folio || 'N/A'}
-                  </Text>
                   <Text style={[styles.tableCell, styles.cellCantidad]}>
                     ${abono.cantidad_abono}
                   </Text>
@@ -176,7 +180,7 @@ const AnticiposPDF = ({ order }) => {
                     {abono.metodo_pago}
                   </Text>
                   <Text style={[styles.tableCell, styles.cellFecha]}>
-                    {new Date(abono.fecha_abono).toLocaleDateString('es-MX')}
+                    {formatIsoDate(abono.fecha_abono)}
                   </Text>
                 </View>
               ))}
@@ -184,7 +188,7 @@ const AnticiposPDF = ({ order }) => {
           ) : (
             <Text>No hay pagos registrados</Text>
           )}
-        </View>   
+        </View>
 
         {/* Pie de página */}
         <Text style={styles.footer}>Firma Cliente</Text>

@@ -14,7 +14,7 @@
             width: 100%;
             justify-content: space-between;
             margin-bottom: var(--spacing-xl);
-
+            // Container Evidencia
             .container-evidencia{
                 width: 45%;
                 display: flex;
@@ -67,6 +67,27 @@
                         }
                     }
                     
+                }
+
+                .container-update{
+                    display: flex;
+                    justify-content: center;
+                    align-items: center;
+                    flex-direction: column;
+                    width: 100%;
+                    p{
+                        font-size: var(--font-size-sm);
+                        margin-top: var(--spacing-md);
+                    }
+                    video{
+                        width: 100%;
+                    }
+
+                    h3{
+                        text-align: left;
+                        width: 100%;
+                        margin-bottom: var(--spacing-md);
+                    }
                 }
             }
         }

@@ -1835,6 +1835,25 @@
   font-size: var(--font-size-sm);
   margin-top: var(--spacing-md);
 }
+.checkin-container .container-evidencias-graficas .row-evidencias .container-evidencia .container-update {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  width: 100%;
+}
+.checkin-container .container-evidencias-graficas .row-evidencias .container-evidencia .container-update p {
+  font-size: var(--font-size-sm);
+  margin-top: var(--spacing-md);
+}
+.checkin-container .container-evidencias-graficas .row-evidencias .container-evidencia .container-update video {
+  width: 100%;
+}
+.checkin-container .container-evidencias-graficas .row-evidencias .container-evidencia .container-update h3 {
+  text-align: left;
+  width: 100%;
+  margin-bottom: var(--spacing-md);
+}
 
 .check-tecnico-container {
   width: 100%;

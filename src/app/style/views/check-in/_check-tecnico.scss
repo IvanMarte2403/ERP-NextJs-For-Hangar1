@@ -16,6 +16,7 @@
         .input{
             display: flex;
             flex-direction: column;
+            width:15%;
             p{
                 font-size: var(--font-size-md);
             }
@@ -26,8 +27,22 @@
                 margin-top: var(--spacing-sm);
                 padding: var(--spacing-sm);
                 font-size: var(--font-size-sm);
-                width: 100%;
+
             }
+            // Semaforo
+            .container-semaforo{
+                display: flex;
+                justify-content: space-between;
+                margin-top: var(--spacing-md);
+                width: 40%;
+                align-items: center;
+                img{
+                    cursor: pointer;
+                }
+            }
+
+       
+
         }
 
         // Buttons
@@ -61,3 +76,86 @@
         }
     }
 }
+
+
+// Dropdown List de los problemas
+
+/* estilos para el dropdown minimalista en Problema */
+/* Padre del input + dropdown */
+.row-input-problem .input {
+    position: relative;
+  }
+  
+  /* dropdown minimalista */
+  .dropdown-list {
+    position: absolute;      /* relativo al .input */
+    top: 100%;               /* justo debajo del input */
+    width: 100% !important;
+    left: 0;
+    margin-top: var(--spacing-sm);
+    padding: 0;
+    list-style: none;
+    background-color: var(--background-color-4);
+    width: 100%;
+    max-height: 40vh;
+    overflow-y: auto;
+    border-radius: var(--radius-sm);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    z-index: 10;
+    transition: opacity 0.2s ease-in-out;
+  
+    /* Firefox */
+    scrollbar-width: thin;
+    scrollbar-color: #ccc var(--background-color-4);
+  }
+  
+  /* WebKit (Chrome, Safari) */
+  .dropdown-list::-webkit-scrollbar {
+    width: 0.5rem;
+  }
+  
+  .dropdown-list::-webkit-scrollbar-track {
+    background: var(--background-color-4);
+  }
+  
+  .dropdown-list::-webkit-scrollbar-thumb {
+    background-color: #ccc;
+    border-radius: 0.5rem;
+  }
+  
+  .dropdown-list li {
+    font-size: var(--font-size-md);
+    padding: var(--spacing-sm);
+    cursor: pointer;
+    border-bottom: 1px solid var(--background-color-1);
+    transition: background-color 0.2s ease-in-out;
+  }
+  
+  .dropdown-list li:last-child {
+    border-bottom: none;
+  }
+  
+  .dropdown-list li:hover {
+    background-color: var(--background-color-1);
+  }
+  
+
+  .tabla-diagnosticos{
+    margin-top: var(--spacing-md);
+    table{
+      width: 100%;
+      margin-top: var(--spacing-md);
+      tr{
+        text-align: left;
+      }
+      
+      td{
+        padding-bottom: var(--spacing-sm);
+      }   
+
+      th{
+        padding-bottom: var(--spacing-sm);
+      }
+ 
+    }
+  }

@@ -19,6 +19,14 @@
   --background-color-1: #FFFF;
   --background-color-2: #000;
   --background-color-3: #000;
+  --background-color-4: #eeee;
+
+  
+  --scrollbar-track: #f0f0f0;
+  --scrollbar-thumb: #bbb;
+  --scrollbar-thumb-hover: #999;
+  
+  
 
    
   --font-size-xs: 0.63vw; /* 12px */

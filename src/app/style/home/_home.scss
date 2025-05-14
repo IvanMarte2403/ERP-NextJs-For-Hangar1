@@ -8,23 +8,27 @@
 .nav-bar-home{
     width: 8%;
     min-height: 100vh;
-    padding: var(--spacing-sm);
     background-color: var(--background-color-2);
 
     .container-image{
         width: 100%;
         margin-top: var(--spacing-md);
+        border-bottom: 0.04rem solid var(--color-secondary);
+        padding: var(--spacing-sm);
+
         img{
-            width: 100%;
+            width: 100%;    
         }
     }
 
     .container-nav{
         color: var(--color-secondary);
+        padding: var(--spacing-sm);
+
         ul{
             width: 100%;
             display: flex;
-            flex-direction: column;
+            flex-direction:  column;
             align-items: center;
             margin-top: var(--spacing-xl    );
 
@@ -44,6 +48,7 @@
                 img{
                     color: var(--color-secondary);
                     margin-right: var(--spacing-sm);
+                    width: 15%;
                 }
             }
         }

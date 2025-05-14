@@ -150,18 +150,20 @@
 .nav-bar-home {
   width: 8%;
   min-height: 100vh;
-  padding: var(--spacing-sm);
   background-color: var(--background-color-2);
 }
 .nav-bar-home .container-image {
   width: 100%;
   margin-top: var(--spacing-md);
+  border-bottom: 0.04rem solid var(--color-secondary);
+  padding: var(--spacing-sm);
 }
 .nav-bar-home .container-image img {
   width: 100%;
 }
 .nav-bar-home .container-nav {
   color: var(--color-secondary);
+  padding: var(--spacing-sm);
 }
 .nav-bar-home .container-nav ul {
   width: 100%;
@@ -186,6 +188,7 @@
 .nav-bar-home .container-nav ul li img {
   color: var(--color-secondary);
   margin-right: var(--spacing-sm);
+  width: 15%;
 }
 
 .home-container {

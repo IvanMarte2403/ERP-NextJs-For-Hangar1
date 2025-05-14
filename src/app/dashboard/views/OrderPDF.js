@@ -3,103 +3,41 @@ import React from 'react';
 import { Page, Text, View, Document, StyleSheet, Image, Font } from '@react-pdf/renderer';
 import stylesPDF from './OrderPDFStyles';
 
-// Estilos para el PDF
+/* ---------- Estilos internos ---------- */
 const styles = StyleSheet.create({
-  page: {
-    padding: 30,
-    fontFamily: 'Inter',
-  },
-  title: {
-    fontSize: 18,
-    marginBottom: 10,
-    textAlign: 'center',
-  },
-  section: {
-    marginBottom: 10,
-    padding: 10,
-    fontSize: 12,
-  },
-  text: {
-    marginBottom: 5,
-  },
-  footer: {
-    fontSize: 10,
-    textAlign: 'center',
-    marginTop: 50,
-  },
-  headerContainer: {
-    width: '100%',
-    justifyContent: 'space-between',
-    flexDirection: 'row',
-    marginTop: 40,
-  },
-  headerColumn: {
-    width: '55%',
-  },
-  headerColumn2: {
-    width: '30%',
-  },
-  textInfo: {
-    fontSize: 12,
-    textAlign: 'right',
-    fontWeight: 'bold',
-  },
-  rowHeader: {
-    width: '100%',
-    justifyContent: 'space-between',
-    flexDirection: 'row',
-    marginTop: 15,
-  },
-  spanText: {
-    fontWeight: 800,
-  },
-  asesorContainer: {
-    marginTop: 80,
-  },
-  productName: {
-    fontSize: 9,
-  },
-  productBrand: {
-    fontSize: 9,
-    color: '#555',
-  },
-  // Nuevos estilos para la tabla
-  titleTable: {
-    fontSize: 10,
-    fontWeight: 'bold',
-    textAlign: 'left',
-  },
-  numberTable: {
-    fontSize: 10,
-    textAlign: 'right',
-  },
+  page: { padding: 30, fontFamily: 'Inter' },
+  section: { marginBottom: 10, padding: 10, fontSize: 12 },
+  footer: { fontSize: 10, textAlign: 'center', marginTop: 50 },
+  productName: { fontSize: 9, textAlign: 'left', paddingRight: 5 },
+  productBrand: { fontSize: 9, color: '#555', textAlign: 'left' },
+  titleTableLeft: { fontSize: 10, fontWeight: 'bold', textAlign: 'left' },
+  titleTableRight: { fontSize: 10, fontWeight: 'bold', textAlign: 'right' },
+  numberTable: { fontSize: 10, textAlign: 'right' },
 });
 
+/* Registro tipografía */
 Font.register({
   family: 'Inter',
   fonts: [
-    { src: '/fonts/Inter.ttf', fontWeight: '100' }, // Thin
-    { src: '/fonts/Inter.ttf', fontWeight: '400' }, // Regular
-    { src: '/fonts/Inter.ttf', fontWeight: '700' }, // Bold
-    { src: '/fonts/Inter.ttf', fontWeight: '800' }, // Extra Bold
+    { src: '/fonts/Inter.ttf', fontWeight: '100' },
+    { src: '/fonts/Inter.ttf', fontWeight: '400' },
+    { src: '/fonts/Inter.ttf', fontWeight: '700' },
+    { src: '/fonts/Inter.ttf', fontWeight: '800' },
   ],
 });
 
-/* ---------- Util ---------- */
-/**
- * Convierte una fecha ISO (YYYY-MM-DD o YYYY-MM-DDTHH:mm:ss) a «DD/MM/AAAA»
- * sin aplicar zona horaria, evitando el desfase de un día.
- */
+/* ---------- Utilidades ---------- */
 const formatIsoDate = (iso = '') => {
   if (!iso) return 'N/A';
-  const [year, month, day] = iso.slice(0, 10).split('-');
-  if (!year || !month || !day) return iso;
-  return `${day}/${month}/${year}`;
+  const [y, m, d] = iso.slice(0, 10).split('-');
+  return `${d}/${m}/${y}`;
 };
+const formatCurrency = (v = 0) =>
+  `$${(+v).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
 
-// Componente que genera el PDF
+/* ---------- Componente PDF ---------- */
 const OrderPDF = ({ order }) => {
-  if (!order || !order.orderNumber) {
+  if (!order?.orderNumber) {
     return (
       <Document>
         <Page style={styles.page}>
@@ -108,140 +46,91 @@ const OrderPDF = ({ order }) => {
       </Document>
     );
   }
-  
-  // Función para calcular el subtotal y total incluyendo impuestos
+
   const calculateSubtotal = (item) => {
     const price = parseFloat(item.partUnitPrice) || 0;
     const quantity = parseInt(item.quantity) || 0;
-    const impuestos = item.impuestos === "16" ? 0.16 : 0;
-    const taxAmount = price * quantity * impuestos;
-    const subtotal = price * quantity + taxAmount;
-    return {
-      taxAmount,
-      subtotal,
-    };
+    const taxRate = item.impuestos === '16' ? 0.16 : 0;
+    const costWithVAT = price * (1 + taxRate);
+    const subtotal = costWithVAT * quantity;
+    return { costWithVAT, subtotal };
   };
 
-  const total = order.inspectionItems.reduce((acc, item) => {
-    const { subtotal } = calculateSubtotal(item);
-    return acc + subtotal;
-  }, 0);
-
-  const discountAmount = order.discount && order.discount.cantidad_dinero
-    ? parseFloat(order.discount.cantidad_dinero)
-    : 0;
-
+  const total = order.inspectionItems.reduce((acc, i) => acc + calculateSubtotal(i).subtotal, 0);
+  const discountAmount = order.discount?.cantidad_dinero ? +order.discount.cantidad_dinero : 0;
   const grandTotal = total - discountAmount;
-  
+
   return (
     <Document>
       <Page style={styles.page}>
-        {/* Header Section */}
+        {/* Encabezado */}
         <View style={stylesPDF.headerContainer}>
           <View style={stylesPDF.headerOrderNumberContainer}>
             <Text style={stylesPDF.textOrderNumber}>
               <Text style={stylesPDF.spanText}>Número de Órden/</Text> {order.orderNumber}
             </Text>
             <Text style={stylesPDF.textFecha}>
-              {order.uploadTime
-                ? new Date(order.uploadTime).toLocaleDateString('es-MX')
-                : 'Fecha no disponible'}
+              {order.uploadTime ? new Date(order.uploadTime).toLocaleDateString('es-MX') : 'Fecha no disponible'}
             </Text>
           </View>
           <View style={stylesPDF.containerCategoriaImagen}>
             <Image style={stylesPDF.imagesnSc} src="img/speedCenter.png" />
           </View>
         </View>
-                  
-        {/* Datos de Usuario y Coche */}
+
+        {/* Datos Cliente / Coche */}
         <View style={stylesPDF.containerDatos}>
-          {/* Usuario */}
           <View style={stylesPDF.containerUsuario}>
             <View style={stylesPDF.userView}>
-              <Image style={stylesPDF.imageUser} src="icons/user.png"/>  
-              <Text style={stylesPDF.firstName}>
-                {`${order.firstName || ''} ${order.lastName || ''}`}
-              </Text> 
+              <Image style={stylesPDF.imageUser} src="icons/user.png" />
+              <Text style={stylesPDF.firstName}>{`${order.firstName || ''} ${order.lastName || ''}`}</Text>
             </View>
-            {/* Teléfono */}
-            <Text style={stylesPDF.infoText}>
-              Telefono: {order.mobile || 'N/A'}
-            </Text>
-            {/* Correo */}
-            <Text style={stylesPDF.infoText}>
-              Correo: prueba@hangar1.com.mx 
-            </Text>
-            {/* Asesor */}
-            <Text style={stylesPDF.infoText}>
-              Asesor: {order.inCharge}
-            </Text>
-            <Text style={stylesPDF.infoText}>
-              Folio Garantía: {order.garantia_number}
-            </Text>
-            <Text style={stylesPDF.infoText}>
-              Método de Pago: {order.paymentMethod || 'N/A'}
-            </Text>
+            <Text style={stylesPDF.infoText}>Telefono: {order.mobile || 'N/A'}</Text>
+            <Text style={stylesPDF.infoText}>Correo: prueba@hangar1.com.mx</Text>
+            <Text style={stylesPDF.infoText}>Asesor: {order.inCharge}</Text>
+            <Text style={stylesPDF.infoText}>Folio Garantía: {order.garantia_number}</Text>
+            <Text style={stylesPDF.infoText}>Método de Pago: {order.paymentMethod || 'N/A'}</Text>
           </View>
-          {/* Auto */}
           <View style={stylesPDF.containerCoche}>
             <View style={stylesPDF.carIconContainer}>
               <Image style={stylesPDF.carIcon} src="icons/car.png" />
-              {/* brand + model */}
-              <Text style={stylesPDF.infoText}>
-                {`${order.brand || ''}${order.model ? ' ' + order.model : ''}`}
-              </Text>
+              <Text style={stylesPDF.infoText}>{`${order.brand || ''}${order.model ? ' ' + order.model : ''}`}</Text>
             </View>
-            <Text style={stylesPDF.infoText}>
-              Color: {order.color || 'N/A'}               
-            </Text>
-            <Text style={stylesPDF.infoText}>
-              Placa: {order.placa_coche || 'N/A'}
-            </Text>
-            <Text style={stylesPDF.infoText}>
-              Kilometraje: {order.kilometros || 'N/A'}
-            </Text>
-            <Text style={stylesPDF.infoText}>
-              Año: {order.year || ''}
-            </Text>
+            <Text style={stylesPDF.infoText}>Color: {order.color || 'N/A'}</Text>
+            <Text style={stylesPDF.infoText}>Placa: {order.placa_coche || 'N/A'}</Text>
+            <Text style={stylesPDF.infoText}>Kilometraje: {order.kilometros || 'N/A'}</Text>
+            <Text style={stylesPDF.infoText}>Año: {order.year || ''}</Text>
           </View>
         </View>
 
-        {/* Info Principal */}
+        {/* Tabla de Productos */}
         <View style={styles.section}>
-          {/* Productos */}
-          <View style={{ marginTop: 8 }}>
-            {/* Encabezados de la tabla */}
-            <View style={{
-              flexDirection: 'row',
-              borderBottom: '1 solid black',
-              paddingBottom: 5,
-            }}>
-              <Text style={[{ width: '34%' }, styles.titleTable]}>Producto</Text>
-              <Text style={[{ width: '16%', marginLeft: '20px' }, styles.titleTable]}>Costo</Text>
-              <Text style={[{ width: '21%' }, styles.titleTable]}>Cantidad</Text>
-              <Text style={[{ width: '23%' }, styles.titleTable]}>IVA</Text>
-              <Text style={[{ width: '13%' }, styles.titleTable]}>Subtotal</Text>
+          <View>
+            {/* Encabezados */}
+            <View style={{ flexDirection: 'row', borderBottom: '1 solid black', paddingBottom: 5 }}>
+              <Text style={[{ width: '35%' }, styles.titleTableLeft]}>Producto</Text>
+              <Text style={[{ width: '20%' }, styles.titleTableLeft]}>Marca</Text>
+              <Text style={[{ width: '10%' }, styles.titleTableRight]}>Costo</Text>
+              <Text style={[{ width: '18%' }, styles.titleTableRight]}>Cantidad</Text>
+              <Text style={[{ width: '18%' }, styles.titleTableRight]}>Subtotal</Text>
             </View>
 
-            {/* Filas de productos */}
-            {order.inspectionItems && order.inspectionItems.length > 0 ? (
-              order.inspectionItems.map((item, index) => {
-                const price = parseFloat(item.partUnitPrice) || 0;
+            {/* Filas */}
+            {order.inspectionItems?.length ? (
+              order.inspectionItems.map((item, idx) => {
+                const { costWithVAT, subtotal } = calculateSubtotal(item);
                 const quantity = parseInt(item.quantity) || 0;
-                const impuestos = item.impuestos === "16" ? 0.16 : 0;
-                const { taxAmount, subtotal } = calculateSubtotal(item);
-
                 return (
-                  <View key={index} style={{ flexDirection: 'row', marginBottom: 10, marginTop: 5, justifyContent: 'space-between' }}>
-                    <Text style={{ width: '28%' }}>
-                      <Text style={styles.productName}>{item.inspectionItemName}</Text>
-                      {'\n'}
-                      <Text style={styles.productBrand}>{item.brand || 'N/A'}</Text>
+                  <View key={idx} style={{ flexDirection: 'row', marginVertical: 5 }}>
+                    <Text style={{ width: '35%', fontSize: 9, textAlign: 'left', paddingRight: 5 }}>
+                      {item.inspectionItemName}
                     </Text>
-                    <Text style={[{ width: '13%' }, styles.numberTable]}>${price.toFixed(2)}</Text>
-                    <Text style={[{ width: '7%' }, styles.numberTable]}>{quantity}</Text>
-                    <Text style={[{ width: '13%' }, styles.numberTable]}>${taxAmount.toFixed(2)}</Text>
-                    <Text style={[{ width: '23%' }, styles.numberTable]}>${subtotal.toFixed(2)}</Text>
+                    <Text style={{ width: '20%', fontSize: 9, textAlign: 'left' }}>
+                      {item.brand || 'N/A'}
+                    </Text>
+                    <Text style={[{ width: '15%' }, styles.numberTable]}>{formatCurrency(costWithVAT)}</Text>
+                    <Text style={[{ width: '12%' }, styles.numberTable]}>{quantity}</Text>
+                    <Text style={[{ width: '18%' }, styles.numberTable]}>{formatCurrency(subtotal)}</Text>
                   </View>
                 );
               })
@@ -250,68 +139,35 @@ const OrderPDF = ({ order }) => {
             )}
           </View>
 
-          {/* Subtotal */}
+          {/* Totales */}
           <View style={{ flexDirection: 'row', borderTop: '1 solid black', paddingTop: 10, marginTop: 40, width: '50%' }}>
-            <Text style={{ width: '75%', fontWeight: '700', textAlign: 'left', paddingRight: 10, fontSize: 10 }}>Subtotal:</Text>
-            <Text style={[{ width: '25%', fontWeight: 'bold', textAlign: 'left', fontSize: 10 }, styles.numberTable]}>
-              ${total.toFixed(2)}
-            </Text>
+            <Text style={{ width: '75%', fontWeight: '700', paddingRight: 10, fontSize: 10 }}>Subtotal:</Text>
+            <Text style={[{ width: '25%' }, styles.numberTable]}>{formatCurrency(total)}</Text>
           </View>
-
-          {/* Descuentos */}
           <View style={{ flexDirection: 'row', paddingTop: 10, width: '50%' }}>
-            <Text style={{ width: '75%', fontWeight: '700', textAlign: 'left', paddingRight: 10, fontSize: 10 }}>Descuentos:</Text>
-            <Text style={[{ width: '25%', fontWeight: 'bold', textAlign: 'left', fontSize: 10 }, styles.numberTable]}>
-              ${discountAmount.toFixed(2)}
-            </Text>
+            <Text style={{ width: '75%', fontWeight: '700', paddingRight: 10, fontSize: 10 }}>Descuentos:</Text>
+            <Text style={[{ width: '25%' }, styles.numberTable]}>{formatCurrency(discountAmount)}</Text>
           </View>
-
-          {/* Total */}
           <View style={{ flexDirection: 'row', paddingTop: 10, width: '50%' }}>
-            <Text style={{ width: '75%', fontWeight: '700', textAlign: 'left', paddingRight: 10, fontSize: 13 }}>Total:</Text>
-            <Text style={[{ width: '25%', fontWeight: 'bold', textAlign: 'left', fontSize: 12 }, styles.numberTable]}>
-              ${grandTotal.toFixed(2)}
-            </Text>
+            <Text style={{ width: '75%', fontWeight: '700', paddingRight: 10, fontSize: 13 }}>Total:</Text>
+            <Text style={[{ width: '25%' }, styles.numberTable]}>{formatCurrency(grandTotal)}</Text>
           </View>
 
-          {/* Historial de Pagos */}
+          {/* Anticipos */}
           <View style={{ marginTop: 20 }}>
-            <Text style={{ fontSize: '10px', fontWeight: 'bold', marginBottom: 10 }}>
-              Anticipos
-            </Text>
-            {order.abonos && order.abonos.length > 0 ? (
+            <Text style={{ fontSize: 10, fontWeight: 'bold', marginBottom: 10 }}>Anticipos</Text>
+            {order.abonos?.length ? (
               <>
-                {/* Encabezados de la tabla */}
-                <View
-                  style={{
-                    flexDirection: 'row',
-                    borderBottom: '1 solid black',
-                    paddingBottom: 5,
-                  }}
-                >
-                  <Text style={[{ width: '33%' }, styles.titleTable]}>
-                    Cantidad
-                  </Text>
-                  <Text style={[{ width: '33%' }, styles.titleTable]}>
-                    Método de Pago
-                  </Text>
-                  <Text style={[{ width: '34%' }, styles.titleTable]}>
-                    Fecha
-                  </Text>
+                <View style={{ flexDirection: 'row', borderBottom: '1 solid black', paddingBottom: 5 }}>
+                  <Text style={[{ width: '33%' }, styles.titleTableLeft]}>Cantidad</Text>
+                  <Text style={[{ width: '33%' }, styles.titleTableLeft]}>Método de Pago</Text>
+                  <Text style={[{ width: '34%' }, styles.titleTableLeft]}>Fecha</Text>
                 </View>
-                {/* Filas de pagos */}
-                {order.abonos.map((abono, index) => (
-                  <View
-                    key={index}
-                    style={{ flexDirection: 'row', marginBottom: 5, marginTop: 5 }}
-                  >
-                    <Text style={{ width: '33%' }}>
-                      ${abono.cantidad_abono}
-                    </Text>
-                    <Text style={{ width: '33%' }}>{abono.metodo_pago}</Text>
-                    <Text style={{ width: '34%' }}>
-                      {formatIsoDate(abono.fecha_abono)}
-                    </Text>
+                {order.abonos.map((a, i) => (
+                  <View key={i} style={{ flexDirection: 'row', marginVertical: 5 }}>
+                    <Text style={{ width: '33%' }}>{formatCurrency(a.cantidad_abono)}</Text>
+                    <Text style={{ width: '33%' }}>{a.metodo_pago}</Text>
+                    <Text style={{ width: '34%' }}>{formatIsoDate(a.fecha_abono)}</Text>
                   </View>
                 ))}
               </>

@@ -1,6 +1,7 @@
 // OrderPDF.js
 import React from 'react';
 import { Page, Text, View, Document, StyleSheet, Image, Font } from '@react-pdf/renderer';
+import { Html } from 'react-pdf-html';
 import stylesPDF from './OrderPDFStyles';
 
 /* ---------- Estilos internos ---------- */
@@ -8,8 +9,6 @@ const styles = StyleSheet.create({
   page: { padding: 30, fontFamily: 'Inter' },
   section: { marginBottom: 10, padding: 10, fontSize: 12 },
   footer: { fontSize: 10, textAlign: 'center', marginTop: 50 },
-  productName: { fontSize: 9, textAlign: 'left', paddingRight: 5 },
-  productBrand: { fontSize: 9, color: '#555', textAlign: 'left' },
   titleTableLeft: { fontSize: 10, fontWeight: 'bold', textAlign: 'left' },
   titleTableRight: { fontSize: 10, fontWeight: 'bold', textAlign: 'right' },
   numberTable: { fontSize: 10, textAlign: 'right' },
@@ -60,6 +59,43 @@ const OrderPDF = ({ order }) => {
   const discountAmount = order.discount?.cantidad_dinero ? +order.discount.cantidad_dinero : 0;
   const grandTotal = total - discountAmount;
 
+  /* ---------- Construcción de la tabla mediante HTML ---------- */
+  const tableRowsHtml =
+    order.inspectionItems?.map((item) => {
+      const { costWithVAT } = calculateSubtotal(item);
+      const quantity = parseInt(item.quantity) || 0;
+      return `
+        <tr style="padding-top:8px">
+          <td style="width:12%;text-align:center;">${quantity}</td>
+          <td style="width:28%;text-align:left;padding-right:5px;">${item.inspectionItemName}</td>
+          <td style="width:24%;text-align:left;padding-right:5px;">${item.characteristics || item.caracteristicas || ''}</td>
+          <td style="width:20%;text-align:left;">${item.brand || 'N/A'}</td>
+          <td style="width:16%;text-align:left;">${formatCurrency(costWithVAT)}</td>
+        </tr>
+      `;
+    }).join('') || '';
+
+  const tableHtml = `
+    <table style="width:100%;border-collapse:collapse;font-size:9px;">
+      <thead>
+        <tr>
+          <th style="width:12%;text-align:left;font-size:10px;font-weight:bold;border-bottom:1px solid #000;padding-bottom:5px;">Cantidad</th>
+          <th style="width:28%;text-align:left;font-size:10px;font-weight:bold;border-bottom:1px solid #000;padding-bottom:5px;">Producto</th>
+          <th style="width:24%;text-align:left;font-size:10px;font-weight:bold;border-bottom:1px solid #000;padding-bottom:5px;">Características</th>
+          <th style="width:20%;text-align:left;font-size:10px;font-weight:bold;border-bottom:1px solid #000;padding-bottom:5px;">Marca</th>
+          <th style="width:16%;text-align:left;font-size:10px;font-weight:bold;border-bottom:1px solid #000;padding-bottom:5px;">Costo</th>
+        </tr>
+      </thead>
+      <tbody>
+        ${
+          order.inspectionItems?.length
+            ? tableRowsHtml
+            : '<tr><td colspan="5" style="text-align:left;padding-top:5px;">No hay productos o servicios asociados</td></tr>'
+        }
+      </tbody>
+    </table>
+  `;
+
   return (
     <Document>
       <Page style={styles.page}>
@@ -74,7 +110,7 @@ const OrderPDF = ({ order }) => {
             </Text>
           </View>
           <View style={stylesPDF.containerCategoriaImagen}>
-            <Image style={stylesPDF.imagesnSc} src="img/speedCenter.png" />
+            <Image style={stylesPDF.imagenSc} src="img/speedCenter.png" />
           </View>
         </View>
 
@@ -103,41 +139,9 @@ const OrderPDF = ({ order }) => {
           </View>
         </View>
 
-        {/* Tabla de Productos */}
+        {/* Tabla de Productos (HTML) */}
         <View style={styles.section}>
-          <View>
-            {/* Encabezados */}
-            <View style={{ flexDirection: 'row', borderBottom: '1 solid black', paddingBottom: 5 }}>
-              <Text style={[{ width: '35%' }, styles.titleTableLeft]}>Producto</Text>
-              <Text style={[{ width: '20%' }, styles.titleTableLeft]}>Marca</Text>
-              <Text style={[{ width: '10%' }, styles.titleTableRight]}>Costo</Text>
-              <Text style={[{ width: '18%' }, styles.titleTableRight]}>Cantidad</Text>
-              <Text style={[{ width: '18%' }, styles.titleTableRight]}>Subtotal</Text>
-            </View>
-
-            {/* Filas */}
-            {order.inspectionItems?.length ? (
-              order.inspectionItems.map((item, idx) => {
-                const { costWithVAT, subtotal } = calculateSubtotal(item);
-                const quantity = parseInt(item.quantity) || 0;
-                return (
-                  <View key={idx} style={{ flexDirection: 'row', marginVertical: 5 }}>
-                    <Text style={{ width: '35%', fontSize: 9, textAlign: 'left', paddingRight: 5 }}>
-                      {item.inspectionItemName}
-                    </Text>
-                    <Text style={{ width: '20%', fontSize: 9, textAlign: 'left' }}>
-                      {item.brand || 'N/A'}
-                    </Text>
-                    <Text style={[{ width: '15%' }, styles.numberTable]}>{formatCurrency(costWithVAT)}</Text>
-                    <Text style={[{ width: '12%' }, styles.numberTable]}>{quantity}</Text>
-                    <Text style={[{ width: '18%' }, styles.numberTable]}>{formatCurrency(subtotal)}</Text>
-                  </View>
-                );
-              })
-            ) : (
-              <Text>No hay productos o servicios asociados</Text>
-            )}
-          </View>
+          <Html>{tableHtml}</Html>
 
           {/* Totales */}
           <View style={{ flexDirection: 'row', borderTop: '1 solid black', paddingTop: 10, marginTop: 40, width: '50%' }}>
@@ -149,7 +153,7 @@ const OrderPDF = ({ order }) => {
             <Text style={[{ width: '25%' }, styles.numberTable]}>{formatCurrency(discountAmount)}</Text>
           </View>
           <View style={{ flexDirection: 'row', paddingTop: 10, width: '50%' }}>
-            <Text style={{ width: '75%', fontWeight: '700', paddingRight: 10, fontSize: 13 }}>Total:</Text>
+            <Text style={{ width: '75%', fontWeight: '700', paddingRight: 10, fontSize: 10 }}>Total:</Text>
             <Text style={[{ width: '25%' }, styles.numberTable]}>{formatCurrency(grandTotal)}</Text>
           </View>
 
@@ -165,9 +169,9 @@ const OrderPDF = ({ order }) => {
                 </View>
                 {order.abonos.map((a, i) => (
                   <View key={i} style={{ flexDirection: 'row', marginVertical: 5 }}>
-                    <Text style={{ width: '33%' }}>{formatCurrency(a.cantidad_abono)}</Text>
-                    <Text style={{ width: '33%' }}>{a.metodo_pago}</Text>
-                    <Text style={{ width: '34%' }}>{formatIsoDate(a.fecha_abono)}</Text>
+                    <Text style={{ width: '33%', fontSize: 10 }}>{formatCurrency(a.cantidad_abono)}</Text>
+                    <Text style={{ width: '33%', fontSize: 10}}>{a.metodo_pago}</Text>
+                    <Text style={{ width: '34%', fontSize: 10 }}>{formatIsoDate(a.fecha_abono)}</Text>
                   </View>
                 ))}
               </>

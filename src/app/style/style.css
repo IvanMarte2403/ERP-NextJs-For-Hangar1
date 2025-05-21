@@ -1863,140 +1863,111 @@
   padding: var(--spacing-xxl);
   padding-top: 0;
 }
-.check-tecnico-container .title {
-  margin-top: var(--spacing-md);
-}
-.check-tecnico-container .row-input-problem {
+.check-tecnico-container .container-check-main {
   width: 100%;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-top: var(--spacing-xl);
 }
-.check-tecnico-container .row-input-problem .input {
+.check-tecnico-container .container-check-main .container-forms {
+  background-color: var(--background-color-1);
+  border: 0.1rem solid #d9d9d9;
+  width: 100%;
+  border-radius: 0.5rem;
+  padding: var(--spacing-xl);
+  margin-bottom: var(--spacing-lg);
+}
+.check-tecnico-container .container-check-main .container-forms .container-form {
+  width: 100%;
+}
+.check-tecnico-container .container-check-main .container-forms .container-form .container-title h1 {
+  font-size: var(--font-size-xl);
+}
+.check-tecnico-container .container-check-main .container-forms .container-form .container-inputs {
+  margin-top: var(--spacing-md);
   display: flex;
   flex-direction: column;
-  width: 15%;
 }
-.check-tecnico-container .row-input-problem .input p {
-  font-size: var(--font-size-md);
+.check-tecnico-container .container-check-main .container-forms .container-form .container-inputs .input-check {
+  width: 30%;
 }
-.check-tecnico-container .row-input-problem .input input {
-  all: unset;
-  border: 0.09rem solid #000;
-  border-radius: 0.2rem;
+.check-tecnico-container .container-check-main .container-forms .container-form .container-inputs .input-check .title {
+  display: flex;
+  align-items: center;
+}
+.check-tecnico-container .container-check-main .container-forms .container-form .container-inputs .input-check .title img {
+  width: 5%;
+}
+.check-tecnico-container .container-check-main .container-forms .container-form .container-inputs .input-check .title h1 {
+  font-size: var(--font-size-lg);
+}
+.check-tecnico-container .container-check-main .container-forms .container-form .container-inputs .input-check .container-cube-check {
+  height: 10vw;
+}
+.check-tecnico-container .container-check-main .container-forms .container-form .container-inputs .input-check .container-cube-check .container-check {
   margin-top: var(--spacing-sm);
-  padding: var(--spacing-sm);
-  font-size: var(--font-size-sm);
-}
-.check-tecnico-container .row-input-problem .input .container-semaforo {
+  height: 100%;
+  background-color: rgba(217, 217, 217, 0.2);
+  padding: var(--spacing-md);
+  border-radius: 0.5rem;
   display: flex;
   justify-content: space-between;
-  margin-top: var(--spacing-md);
-  width: 40%;
   align-items: center;
 }
-.check-tecnico-container .row-input-problem .input .container-semaforo img {
-  cursor: pointer;
-}
-.check-tecnico-container .row-input-problem .buttons {
-  width: 20%;
+.check-tecnico-container .container-check-main .container-forms .container-form .container-inputs .input-check .container-cube-check .container-check .input-text {
   height: 100%;
-  display: flex;
-  justify-content: center;
-  align-items: center;
+  width: 60%;
 }
-.check-tecnico-container .row-input-problem .buttons button {
-  all: unset;
-  background-color: var(--background-color-2);
-  align-items: center;
-  color: var(--color-secondary);
-  font-size: var(--font-size-md);
-  padding: var(--spacing-md);
-  border-radius: 0.4rem;
-  cursor: pointer;
+.check-tecnico-container .container-check-main .container-forms .container-form .container-inputs .input-check .container-cube-check .container-check .input-text p {
+  font-size: var(--font-size-lg);
 }
-.check-tecnico-container .container-table-list {
-  margin-top: var(--spacing-xxl);
-}
-.check-tecnico-container .container-table-list table {
-  width: 100%;
-}
-.check-tecnico-container .container-table-list table thead {
-  text-align: left;
-}
-
-/* estilos para el dropdown minimalista en Problema */
-/* Padre del input + dropdown */
-.row-input-problem .input {
-  position: relative;
-}
-
-/* dropdown minimalista */
-.dropdown-list {
-  position: absolute; /* relativo al .input */
-  top: 100%; /* justo debajo del input */
-  width: 100% !important;
-  left: 0;
-  margin-top: var(--spacing-sm);
-  padding: 0;
-  list-style: none;
-  background-color: var(--background-color-4);
-  width: 100%;
-  max-height: 40vh;
-  overflow-y: auto;
-  border-radius: var(--radius-sm);
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-  z-index: 10;
-  transition: opacity 0.2s ease-in-out;
-  /* Firefox */
-  scrollbar-width: thin;
-  scrollbar-color: #ccc var(--background-color-4);
-}
-
-/* WebKit (Chrome, Safari) */
-.dropdown-list::-webkit-scrollbar {
-  width: 0.5rem;
-}
-
-.dropdown-list::-webkit-scrollbar-track {
-  background: var(--background-color-4);
-}
-
-.dropdown-list::-webkit-scrollbar-thumb {
-  background-color: #ccc;
-  border-radius: 0.5rem;
-}
-
-.dropdown-list li {
-  font-size: var(--font-size-md);
-  padding: var(--spacing-sm);
-  cursor: pointer;
-  border-bottom: 1px solid var(--background-color-1);
-  transition: background-color 0.2s ease-in-out;
-}
-
-.dropdown-list li:last-child {
-  border-bottom: none;
-}
-
-.dropdown-list li:hover {
+.check-tecnico-container .container-check-main .container-forms .container-form .container-inputs .input-check .container-cube-check .container-check .input-text input {
   background-color: var(--background-color-1);
-}
-
-.tabla-diagnosticos {
-  margin-top: var(--spacing-md);
-}
-.tabla-diagnosticos table {
+  border-radius: 0.2rem;
+  margin-top: var(--spacing-sm);
   width: 100%;
+  padding: var(--spacing-sm);
+  border: 0.1rem solid rgba(0, 0, 0, 0.2);
+}
+.check-tecnico-container .container-check-main .container-forms .container-form .container-inputs .input-check .container-cube-check .container-check .container-semaforo {
+  width: 70%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
   margin-top: var(--spacing-md);
 }
-.tabla-diagnosticos table tr {
-  text-align: left;
+.check-tecnico-container .container-check-main .container-forms .container-form .container-inputs .input-check .container-cube-check .container-check .container-semaforo img {
+  width: 20%;
+  cursor: pointer;
 }
-.tabla-diagnosticos table td {
-  padding-bottom: var(--spacing-sm);
+.check-tecnico-container .container-check-main .container-forms .container-form .container-inputs .input-check .container-cube-check .container-cantidad {
+  height: 100%;
+  width: 25%;
+  display: flex;
+  align-items: center;
+  flex-direction: column;
 }
-.tabla-diagnosticos table th {
-  padding-bottom: var(--spacing-sm);
+.check-tecnico-container .container-check-main .container-forms .container-form .container-inputs .input-check .container-cube-check .container-cantidad p {
+  font-size: var(--font-size-lg);
+  text-align: center;
+  width: 100%;
+}
+.check-tecnico-container .container-check-main .container-forms .container-form .container-inputs .input-check .container-cube-check .container-cantidad input {
+  background-color: var(--background-color-1);
+  margin-top: var(--spacing-sm);
+  border-radius: 0.2rem;
+  padding: var(--spacing-sm);
+  width: 70%;
+  border: 0.1rem solid rgba(0, 0, 0, 0.2);
+}
+.check-tecnico-container .container-check-main .container-forms .container-form .container-inputs .input-check .container-cube-check .container-add {
+  width: 10%;
+}
+.check-tecnico-container .container-check-main .container-forms .container-form .container-inputs .input-check .container-cube-check .container-add img {
+  width: 100%;
+  cursor: pointer;
+}
+.check-tecnico-container .container-check-main .container-forms .container-form .container-inputs .row-inputs {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: var(--spacing-lg);
 }/*# sourceMappingURL=style.css.map */

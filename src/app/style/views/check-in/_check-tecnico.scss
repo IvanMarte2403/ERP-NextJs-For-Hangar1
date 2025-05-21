@@ -136,4 +136,21 @@
 
 
  }
+
+ .container-check-button{
+    width: 100%;
+    display: flex;
+    justify-content:flex-end;
+    button{
+      all: unset;
+      cursor: pointer;
+      background-color: var(--background-color-2);
+      color: var(--color-secondary);
+      padding: var(--spacing-sm);
+      width: 10%;
+      font-size: var(--font-size-md);
+      text-align: center;
+      border-radius: 0.5rem;
+    }
+ }
 }

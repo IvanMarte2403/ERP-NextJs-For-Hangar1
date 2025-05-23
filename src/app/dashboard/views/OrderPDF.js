@@ -1,7 +1,7 @@
 // OrderPDF.js
 import React from 'react';
 import { Page, Text, View, Document, StyleSheet, Image, Font } from '@react-pdf/renderer';
-import { Html } from 'react-pdf-html';
+import { Html } from 'react-pdf-html';  
 import stylesPDF from './OrderPDFStyles';
 
 /* ---------- Estilos internos ---------- */
@@ -10,11 +10,10 @@ const styles = StyleSheet.create({
   section: { marginBottom: 10, padding: 10, fontSize: 12 },
   footer: { fontSize: 10, textAlign: 'center', marginTop: 50 },
   titleTableLeft: { fontSize: 10, fontWeight: 'bold', textAlign: 'left' },
-  titleTableRight: { fontSize: 10, fontWeight: 'bold', textAlign: 'right' },
   numberTable: { fontSize: 10, textAlign: 'right' },
 });
 
-/* Registro tipografía */
+/* ---------- Tipografía ---------- */
 Font.register({
   family: 'Inter',
   fonts: [
@@ -46,44 +45,56 @@ const OrderPDF = ({ order }) => {
     );
   }
 
-  const calculateSubtotal = (item) => {
-    const price = parseFloat(item.partUnitPrice) || 0;
+  /* ---------- Cálculos ---------- */
+  const calculateItem = (item) => {
+    const price = parseFloat(item.partUnitPrice) || 0;       // sin IVA
     const quantity = parseInt(item.quantity) || 0;
     const taxRate = item.impuestos === '16' ? 0.16 : 0;
-    const costWithVAT = price * (1 + taxRate);
-    const subtotal = costWithVAT * quantity;
-    return { costWithVAT, subtotal };
+    const iva = price * taxRate;
+    const subtotal = price * quantity;
+    const ivaTotal = iva * quantity;
+    return { price, subtotal, ivaTotal };
   };
 
-  const total = order.inspectionItems.reduce((acc, i) => acc + calculateSubtotal(i).subtotal, 0);
-  const discountAmount = order.discount?.cantidad_dinero ? +order.discount.cantidad_dinero : 0;
-  const grandTotal = total - discountAmount;
+  let subtotalNoVAT = 0;
+  let ivaTotal = 0;
 
-  /* ---------- Construcción de la tabla mediante HTML ---------- */
+  order.inspectionItems.forEach((i) => {
+    const calc = calculateItem(i);
+    subtotalNoVAT += calc.subtotal;
+    ivaTotal += calc.ivaTotal;
+  });
+
+  const discountAmount = order.discount?.cantidad_dinero ? +order.discount.cantidad_dinero : 0;
+  const grandTotal = subtotalNoVAT + ivaTotal + discountAmount; // según indicaciones
+
+  /* ---------- Construcción Tabla ---------- */
   const tableRowsHtml =
-    order.inspectionItems?.map((item) => {
-      const { costWithVAT } = calculateSubtotal(item);
-      const quantity = parseInt(item.quantity) || 0;
-      return `
+    order.inspectionItems
+      ?.map((item) => {
+        const { price, subtotal } = calculateItem(item);
+        const quantity = parseInt(item.quantity) || 0;
+        return `
         <tr style="padding-top:8px">
           <td style="width:12%;text-align:center;">${quantity}</td>
-          <td style="width:28%;text-align:left;padding-right:5px;">${item.inspectionItemName}</td>
-          <td style="width:24%;text-align:left;padding-right:5px;">${item.characteristics || item.caracteristicas || ''}</td>
+          <td style="width:36%;text-align:left;padding-right:5px;">${item.inspectionItemName}</td>
           <td style="width:20%;text-align:left;">${item.brand || 'N/A'}</td>
-          <td style="width:16%;text-align:left;">${formatCurrency(costWithVAT)}</td>
+          <td style="width:16%;text-align:left;">${formatCurrency(price)}</td>
+          <td style="width:16%;text-align:left;">${formatCurrency(subtotal)}</td>
         </tr>
       `;
-    }).join('') || '';
+      })
+      .join('') || '';
 
   const tableHtml = `
     <table style="width:100%;border-collapse:collapse;font-size:9px;">
       <thead>
         <tr>
           <th style="width:12%;text-align:left;font-size:10px;font-weight:bold;border-bottom:1px solid #000;padding-bottom:5px;">Cantidad</th>
-          <th style="width:28%;text-align:left;font-size:10px;font-weight:bold;border-bottom:1px solid #000;padding-bottom:5px;">Producto</th>
-          <th style="width:24%;text-align:left;font-size:10px;font-weight:bold;border-bottom:1px solid #000;padding-bottom:5px;">Características</th>
+          <th style="width:36%;text-align:left;font-size:10px;font-weight:bold;border-bottom:1px solid #000;padding-bottom:5px;">Producto</th>
           <th style="width:20%;text-align:left;font-size:10px;font-weight:bold;border-bottom:1px solid #000;padding-bottom:5px;">Marca</th>
           <th style="width:16%;text-align:left;font-size:10px;font-weight:bold;border-bottom:1px solid #000;padding-bottom:5px;">Costo</th>
+          <th style="width:16%;text-align:left;font-size:10px;font-weight:bold;border-bottom:1px solid #000;padding-bottom:5px;">Subtotal</th>
         </tr>
       </thead>
       <tbody>
@@ -96,6 +107,7 @@ const OrderPDF = ({ order }) => {
     </table>
   `;
 
+  /* ---------- Render ---------- */
   return (
     <Document>
       <Page style={styles.page}>
@@ -130,7 +142,9 @@ const OrderPDF = ({ order }) => {
           <View style={stylesPDF.containerCoche}>
             <View style={stylesPDF.carIconContainer}>
               <Image style={stylesPDF.carIcon} src="icons/car.png" />
-              <Text style={stylesPDF.infoText}>{`${order.brand || ''}${order.model ? ' ' + order.model : ''}`}</Text>
+              <Text style={stylesPDF.infoText}>{`${order.brand || ''}${
+                order.model ? ' ' + order.model : ''
+              }`}</Text>
             </View>
             <Text style={stylesPDF.infoText}>Color: {order.color || 'N/A'}</Text>
             <Text style={stylesPDF.infoText}>Placa: {order.placa_coche || 'N/A'}</Text>
@@ -139,22 +153,28 @@ const OrderPDF = ({ order }) => {
           </View>
         </View>
 
-        {/* Tabla de Productos (HTML) */}
+        {/* Tabla Productos */}
         <View style={styles.section}>
           <Html>{tableHtml}</Html>
 
           {/* Totales */}
-          <View style={{ flexDirection: 'row', borderTop: '1 solid black', paddingTop: 10, marginTop: 40, width: '50%' }}>
-            <Text style={{ width: '75%', fontWeight: '700', paddingRight: 10, fontSize: 10 }}>Subtotal:</Text>
-            <Text style={[{ width: '25%' }, styles.numberTable]}>{formatCurrency(total)}</Text>
+          <View style={{ flexDirection: 'row', borderTop: '1 solid black', paddingTop: 10, marginTop: 40, width: '60%' }}>
+            <Text style={{ width: '70%', fontWeight: '700', paddingRight: 10, fontSize: 10 }}>
+              Subtotal sin IVA:
+            </Text>
+            <Text style={[{ width: '30%' }, styles.numberTable]}>{formatCurrency(subtotalNoVAT)}</Text>
           </View>
-          <View style={{ flexDirection: 'row', paddingTop: 10, width: '50%' }}>
-            <Text style={{ width: '75%', fontWeight: '700', paddingRight: 10, fontSize: 10 }}>Descuentos:</Text>
-            <Text style={[{ width: '25%' }, styles.numberTable]}>{formatCurrency(discountAmount)}</Text>
+          <View style={{ flexDirection: 'row', paddingTop: 10, width: '60%' }}>
+            <Text style={{ width: '70%', fontWeight: '700', paddingRight: 10, fontSize: 10 }}>Descuentos:</Text>
+            <Text style={[{ width: '30%' }, styles.numberTable]}>{formatCurrency(discountAmount)}</Text>
           </View>
-          <View style={{ flexDirection: 'row', paddingTop: 10, width: '50%' }}>
-            <Text style={{ width: '75%', fontWeight: '700', paddingRight: 10, fontSize: 10 }}>Total:</Text>
-            <Text style={[{ width: '25%' }, styles.numberTable]}>{formatCurrency(grandTotal)}</Text>
+          <View style={{ flexDirection: 'row', paddingTop: 10, width: '60%' }}>
+            <Text style={{ width: '70%', fontWeight: '700', paddingRight: 10, fontSize: 10 }}>Impuestos (IVA):</Text>
+            <Text style={[{ width: '30%' }, styles.numberTable]}>{formatCurrency(ivaTotal)}</Text>
+          </View>
+          <View style={{ flexDirection: 'row', paddingTop: 10, width: '60%' }}>
+            <Text style={{ width: '70%', fontWeight: '700', paddingRight: 10, fontSize: 10 }}>Total:</Text>
+            <Text style={[{ width: '30%' }, styles.numberTable]}>{formatCurrency(grandTotal)}</Text>
           </View>
 
           {/* Anticipos */}
@@ -170,7 +190,7 @@ const OrderPDF = ({ order }) => {
                 {order.abonos.map((a, i) => (
                   <View key={i} style={{ flexDirection: 'row', marginVertical: 5 }}>
                     <Text style={{ width: '33%', fontSize: 10 }}>{formatCurrency(a.cantidad_abono)}</Text>
-                    <Text style={{ width: '33%', fontSize: 10}}>{a.metodo_pago}</Text>
+                    <Text style={{ width: '33%', fontSize: 10 }}>{a.metodo_pago}</Text>
                     <Text style={{ width: '34%', fontSize: 10 }}>{formatIsoDate(a.fecha_abono)}</Text>
                   </View>
                 ))}

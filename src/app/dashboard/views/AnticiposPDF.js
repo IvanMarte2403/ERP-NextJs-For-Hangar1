@@ -1,10 +1,10 @@
 // AnticiposPDF.js
 import React from 'react';
 import { Page, Text, View, Document, StyleSheet, Image, Font } from '@react-pdf/renderer';
-import { Html } from 'react-pdf-html';
+import { Html } from 'react-pdf-html';          // ← import correcto
 import stylesPDF from './OrderPDFStyles';
 
-// Estilos base del PDF
+/* ---------- Estilos internos ---------- */
 const styles = StyleSheet.create({
   page: { padding: 30, fontFamily: 'Inter' },
   title: { fontSize: 18, marginBottom: 10, textAlign: 'center', fontWeight: 'bold' },
@@ -12,7 +12,7 @@ const styles = StyleSheet.create({
   footer: { fontSize: 10, textAlign: 'center', marginTop: 50 },
 });
 
-// Registrar tipografía
+/* ---------- Tipografía ---------- */
 Font.register({
   family: 'Inter',
   fonts: [
@@ -21,16 +21,14 @@ Font.register({
   ],
 });
 
-/**
- * Convierte una fecha ISO a DD/MM/AAAA.
- */
+/* ---------- Utilidades ---------- */
 const formatIsoDate = (iso = '') => {
   if (!iso) return 'N/A';
   const [y, m, d] = iso.slice(0, 10).split('-');
   return `${d}/${m}/${y}`;
 };
 
-// Componente PDF de Anticipos
+/* ---------- Componente PDF ---------- */
 const AnticiposPDF = ({ order }) => {
   if (!order?.orderNumber) {
     return (
@@ -42,7 +40,7 @@ const AnticiposPDF = ({ order }) => {
     );
   }
 
-  /* ---------- Construcción de la tabla mediante HTML ---------- */
+  /* ---------- Tabla Anticipos ---------- */
   const tableRowsHtml =
     order.abonos
       ?.map(
@@ -75,6 +73,7 @@ const AnticiposPDF = ({ order }) => {
     </table>
   `;
 
+  /* ---------- Render ---------- */
   return (
     <Document>
       <Page style={styles.page}>
@@ -114,7 +113,9 @@ const AnticiposPDF = ({ order }) => {
           <View style={stylesPDF.containerCoche}>
             <View style={stylesPDF.carIconContainer}>
               <Image style={stylesPDF.carIcon} src="icons/car.png" />
-              <Text style={stylesPDF.infoText}>{`${order.brand || ''}${order.model ? ' ' + order.model : ''}`}</Text>
+              <Text style={stylesPDF.infoText}>{`${order.brand || ''}${
+                order.model ? ' ' + order.model : ''
+              }`}</Text>
             </View>
             <Text style={stylesPDF.infoText}>Color: {order.color || 'N/A'}</Text>
             <Text style={stylesPDF.infoText}>Placa: {order.placa_coche || 'N/A'}</Text>
@@ -123,7 +124,7 @@ const AnticiposPDF = ({ order }) => {
           </View>
         </View>
 
-        {/* Tabla de Anticipos */}
+        {/* Tabla Anticipos */}
         <View style={styles.section}>
           <Html>{tableHtml}</Html>
         </View>

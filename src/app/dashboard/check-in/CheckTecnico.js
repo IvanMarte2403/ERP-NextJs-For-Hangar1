@@ -3,31 +3,52 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { saveCheckTecnicoForms } from "../../../../services/CheckTecnico/saveCheckTecnicoForms";
 import { getCheckTecnicoForms } from "../../../../services/CheckTecnico/getCheckTecnicoForms";
+import ModalCheck from "../../dashboard/check-in/components/ModalCheck";
 
 export default function CheckTecnico({ orderId }) {
   /* ─── Estados auxiliares ─── */
   const [saving, setSaving] = useState(false);
   const [saveMessage, setSaveMessage] = useState("");
 
+  /* ─── Estado del modal ─── */
+  const [modalOpen, setModalOpen] = useState(false);
+  const [modalTitle, setModalTitle] = useState("");
+
   /* ─── Utilidades DOM ─── */
   const qs = (sel, el = document) => el.querySelector(sel);
   const qsa = (sel, el = document) => Array.from(el.querySelectorAll(sel));
 
-  /* ─── Registrar clics en los semáforos ─── */
-  const attachSemaforoListeners = useCallback(() => {
+  /* ─────────────────────────────────────────────── */
+  /* Registrar clics en semáforos y add.svg          */
+  /* ─────────────────────────────────────────────── */
+  const attachListeners = useCallback(() => {
+    /* Semáforos */
     qsa(".container-semaforo img").forEach((img, idx) => {
-      img.addEventListener("click", () => {
+      img.onclick = () => {
         const container = img.closest(".input-check");
         if (!container) return;
-        container.dataset.status = idx; // 0, 1, 2
+        container.dataset.status = idx;
         qsa(".container-semaforo img", container).forEach((sib, i) => {
           sib.style.opacity = i === idx ? 1 : 0.4;
         });
-      });
+      };
+    });
+
+    /* Iconos add */
+    qsa(".container-add img").forEach((img) => {
+      img.onclick = () => {
+        const ic = img.closest(".input-check");
+        if (!ic) return;
+        const title = qs(".title h1", ic)?.textContent.trim() || "";
+        setModalTitle(title);
+        setModalOpen(true);
+      };
     });
   }, []);
 
-  /* ─── Obtener y rellenar formularios ─── */
+  /* ─────────────────────────────────────────────── */
+  /* Rellenar campos con datos guardados             */
+  /* ─────────────────────────────────────────────── */
   const populateForms = useCallback(async () => {
     try {
       const { forms = [] } = await getCheckTecnicoForms(orderId);
@@ -64,13 +85,17 @@ export default function CheckTecnico({ orderId }) {
     }
   }, [orderId]);
 
-  /* ─── Efectos ─── */
+  /* ─────────────────────────────────────────────── */
+  /* Efecto de montaje                               */
+  /* ─────────────────────────────────────────────── */
   useEffect(() => {
-    attachSemaforoListeners();
+    attachListeners();
     populateForms();
-  }, [attachSemaforoListeners, populateForms]);
+  }, [attachListeners, populateForms]);
 
-  /* ─── Guardar datos ─── */
+  /* ─────────────────────────────────────────────── */
+  /* Guardar                                         */
+  /* ─────────────────────────────────────────────── */
   const handleGuardar = async () => {
     try {
       setSaving(true);
@@ -101,117 +126,576 @@ export default function CheckTecnico({ orderId }) {
 
       await saveCheckTecnicoForms(orderId, valid);
       setSaveMessage("Datos guardados correctamente.");
-      await populateForms(); // refrescar vista
+      await populateForms();
     } catch (err) {
       console.error("[handleGuardar] Error:", err);
       setSaveMessage(err.message || "Error al guardar.");
     } finally {
       setSaving(false);
+      setModalOpen(false);
     }
   };
 
-  /* ─── UI Completa ─── */
+  /* ─────────────────────────────────────────────── */
+  /* UI COMPLETA                                     */
+  /* ─────────────────────────────────────────────── */
   return (
-    <div className="check-tecnico-container">
-      {/* Check Forms */}
-      <div className="container-check-main">
-        {/* Forms Check - Turbo Paint */}
-        <div className="container-forms">
-          {/* Container Forms */}
-          <div className="container-form">
-            {/* Title */}
-            <div className="container-title">
-              <h1>Turbo Paint</h1>
-            </div>
+    <>
+      <div className="check-tecnico-container">
+        {/* Check Forms */}
+        <div className="container-check-main">
+          {/* --------------- Turbo Paint --------------- */}
+          <div className="container-forms">
+            <div className="container-form">
+              <div className="container-title">
+                <h1>Turbo Paint</h1>
+              </div>
+              <div className="container-inputs">
+                <div className="row-inputs">
+                  {/* Fascias */}
+                  <div className="input-check">
+                    <div className="title">
+                      <img src="check_tecnico/iconos/title-icon-1.svg" alt="" />
+                      <h1>Fascias</h1>
+                    </div>
+                    <div className="container-cube-check">
+                      <div className="container-check">
+                        <div className="input-text">
+                          <p>Lugar</p>
+                          <input type="text" />
+                          <div className="container-semaforo">
+                            <img src="check_tecnico/semaforo/red.svg" alt="" />
+                            <img src="check_tecnico/semaforo/yellow.svg" alt="" />
+                            <img src="check_tecnico/semaforo/green.svg" alt="" />
+                          </div>
+                        </div>
+                        <div className="container-cantidad">
+                          <p>Cantidad</p>
+                          <input type="text" />
+                        </div>
+                        <div className="container-add">
+                          <img src="check_tecnico/add.svg" alt="" />
+                        </div>
+                      </div>
+                    </div>
+                  </div>
 
-            <div className="container-inputs">
-              <div className="row-inputs">
-                {/* Input - Fascia*/}
-                <div className="input-check">
-                  {/* Title */}
-                  <div className="title">
-                    <img src="check_tecnico/iconos/title-icon-1.svg" alt="" />
-                    <h1>Fascias</h1>
-                  </div>
-                  {/* Cube Check */}
-                  <div className="container-cube-check">
-                    <div className="container-check">
-                      {/* Input Text */}
-                      <div className="input-text">
-                        <p>Lugar</p>
-                        <input type="text" />
-                        <div className="container-semaforo">
-                          <img src="check_tecnico/semaforo/red.svg" alt="" />
-                          <img src="check_tecnico/semaforo/yellow.svg" alt="" />
-                          <img src="check_tecnico/semaforo/green.svg" alt="" />
+                  {/* Rines */}
+                  <div className="input-check">
+                    <div className="title">
+                      <img src="check_tecnico/iconos/title-icon-1.svg" alt="" />
+                      <h1>Rines</h1>
+                    </div>
+                    <div className="container-cube-check">
+                      <div className="container-check">
+                        <div className="input-text">
+                          <p>Lugar</p>
+                          <input type="text" />
+                          <div className="container-semaforo">
+                            <img src="check_tecnico/semaforo/red.svg" alt="" />
+                            <img src="check_tecnico/semaforo/yellow.svg" alt="" />
+                            <img src="check_tecnico/semaforo/green.svg" alt="" />
+                          </div>
+                        </div>
+                        <div className="container-cantidad">
+                          <p>Cantidad</p>
+                          <input type="text" />
+                        </div>
+                        <div className="container-add">
+                          <img src="check_tecnico/add.svg" alt="" />
                         </div>
                       </div>
-                      {/* Cantidad Input */}
-                      <div className="container-cantidad">
-                        <p>Cantidad</p>
-                        <input type="text" />
-                      </div>
-                      {/* Cantidad + */}
-                      <div className="container-add">
-                        <img src="check_tecnico/add.svg" alt="" />
+                    </div>
+                  </div>
+
+                  {/* Piezas Extras */}
+                  <div className="input-check">
+                    <div className="title">
+                      <img src="check_tecnico/iconos/title-icon-1.svg" alt="" />
+                      <h1>Piezas Extras</h1>
+                    </div>
+                    <div className="container-cube-check">
+                      <div className="container-check">
+                        <div className="input-text">
+                          <p>Lugar</p>
+                          <input type="text" />
+                          <div className="container-semaforo">
+                            <img src="check_tecnico/semaforo/red.svg" alt="" />
+                            <img src="check_tecnico/semaforo/yellow.svg" alt="" />
+                            <img src="check_tecnico/semaforo/green.svg" alt="" />
+                          </div>
+                        </div>
+                        <div className="container-cantidad">
+                          <p>Cantidad</p>
+                          <input type="text" />
+                        </div>
+                        <div className="container-add">
+                          <img src="check_tecnico/add.svg" alt="" />
+                        </div>
                       </div>
                     </div>
                   </div>
                 </div>
-                {/* Input - Rines*/}
-                <div className="input-check">
-                  {/* Title */}
-                  <div className="title">
-                    <img src="check_tecnico/iconos/title-icon-1.svg" alt="" />
-                    <h1>Rines</h1>
-                  </div>
-                  {/* Cube Check */}
-                  <div className="container-cube-check">
-                    <div className="container-check">
-                      <div className="input-text">
-                        <p>Lugar</p>
-                        <input type="text" />
-                        <div className="container-semaforo">
-                          <img src="check_tecnico/semaforo/red.svg" alt="" />
-                          <img src="check_tecnico/semaforo/yellow.svg" alt="" />
-                          <img src="check_tecnico/semaforo/green.svg" alt="" />
+              </div>
+            </div>
+          </div>
+
+          {/* --------------- Revisión & Servicio --------------- */}
+          <div className="container-forms">
+            <div className="container-form">
+              <div className="container-title">
+                <h1>Revisión & Servicio</h1>
+              </div>
+
+              <div className="container-inputs">
+                {/* Row 1 */}
+                <div className="row-inputs">
+                  {/* Bujías */}
+                  <div className="input-check">
+                    <div className="title">
+                      <img src="check_tecnico/iconos/title-icon-1.svg" alt="" />
+                      <h1>Bujías</h1>
+                    </div>
+                    <div className="container-cube-check">
+                      <div className="container-check">
+                        <div className="input-text">
+                          <p>Lugar</p>
+                          <input type="text" />
+                          <div className="container-semaforo">
+                            <img src="check_tecnico/semaforo/red.svg" alt="" />
+                            <img src="check_tecnico/semaforo/yellow.svg" alt="" />
+                            <img src="check_tecnico/semaforo/green.svg" alt="" />
+                          </div>
+                        </div>
+                        <div className="container-cantidad">
+                          <p>Cantidad</p>
+                          <input type="text" />
+                        </div>
+                        <div className="container-add">
+                          <img src="check_tecnico/add.svg" alt="" />
                         </div>
                       </div>
-                      <div className="container-cantidad">
-                        <p>Cantidad</p>
-                        <input type="text" />
+                    </div>
+                  </div>
+
+                  {/* Filtros de Aire */}
+                  <div className="input-check">
+                    <div className="title">
+                      <img src="check_tecnico/iconos/title-icon-1.svg" alt="" />
+                      <h1>Filtros de Aire</h1>
+                    </div>
+                    <div className="container-cube-check">
+                      <div className="container-check">
+                        <div className="input-text">
+                          <p>Lugar</p>
+                          <input type="text" />
+                          <div className="container-semaforo">
+                            <img src="check_tecnico/semaforo/red.svg" alt="" />
+                            <img src="check_tecnico/semaforo/yellow.svg" alt="" />
+                            <img src="check_tecnico/semaforo/green.svg" alt="" />
+                          </div>
+                        </div>
+                        <div className="container-cantidad">
+                          <p>Cantidad</p>
+                          <input type="text" />
+                        </div>
+                        <div className="container-add">
+                          <img src="check_tecnico/add.svg" alt="" />
+                        </div>
                       </div>
-                      <div className="container-add">
-                        <img src="check_tecnico/add.svg" alt="" />
+                    </div>
+                  </div>
+
+                  {/* Refrigerante/Anticongelante */}
+                  <div className="input-check">
+                    <div className="title">
+                      <img src="check_tecnico/iconos/title-icon-1.svg" alt="" />
+                      <h1>Refrigerante/Anticongelante</h1>
+                    </div>
+                    <div className="container-cube-check">
+                      <div className="container-check">
+                        <div className="input-text">
+                          <p>Lugar</p>
+                          <input type="text" />
+                          <div className="container-semaforo">
+                            <img src="check_tecnico/semaforo/red.svg" alt="" />
+                            <img src="check_tecnico/semaforo/yellow.svg" alt="" />
+                            <img src="check_tecnico/semaforo/green.svg" alt="" />
+                          </div>
+                        </div>
+                        <div className="container-cantidad">
+                          <p>Cantidad</p>
+                          <input type="text" />
+                        </div>
+                        <div className="container-add">
+                          <img src="check_tecnico/add.svg" alt="" />
+                        </div>
                       </div>
                     </div>
                   </div>
                 </div>
-                {/* Piezas Extras*/}
-                <div className="input-check">
-                  {/* Title */}
-                  <div className="title">
-                    <img src="check_tecnico/iconos/title-icon-1.svg" alt="" />
-                    <h1>Piezas Extras</h1>
-                  </div>
-                  {/* Cube Check */}
-                  <div className="container-cube-check">
-                    <div className="container-check">
-                      <div className="input-text">
-                        <p>Lugar</p>
-                        <input type="text" />
-                        <div className="container-semaforo">
-                          <img src="check_tecnico/semaforo/red.svg" alt="" />
-                          <img src="check_tecnico/semaforo/yellow.svg" alt="" />
-                          <img src="check_tecnico/semaforo/green.svg" alt="" />
+
+                {/* Row 2 */}
+                <div className="row-inputs">
+                  {/* Plumas LimpiaParabrisas */}
+                  <div className="input-check">
+                    <div className="title">
+                      <img src="check_tecnico/iconos/title-icon-1.svg" alt="" />
+                      <h1>Plumas LimpiaParabrisas</h1>
+                    </div>
+                    <div className="container-cube-check">
+                      <div className="container-check">
+                        <div className="input-text">
+                          <p>Lugar</p>
+                          <input type="text" />
+                          <div className="container-semaforo">
+                            <img src="check_tecnico/semaforo/red.svg" alt="" />
+                            <img src="check_tecnico/semaforo/yellow.svg" alt="" />
+                            <img src="check_tecnico/semaforo/green.svg" alt="" />
+                          </div>
+                        </div>
+                        <div className="container-cantidad">
+                          <p>Cantidad</p>
+                          <input type="text" />
+                        </div>
+                        <div className="container-add">
+                          <img src="check_tecnico/add.svg" alt="" />
                         </div>
                       </div>
-                      <div className="container-cantidad">
-                        <p>Cantidad</p>
-                        <input type="text" />
+                    </div>
+                  </div>
+
+                  {/* Líquido Limpiaparabrisas */}
+                  <div className="input-check">
+                    <div className="title">
+                      <img src="check_tecnico/iconos/title-icon-1.svg" alt="" />
+                      <h1>Líquido Limpiaparabrisas</h1>
+                    </div>
+                    <div className="container-cube-check">
+                      <div className="container-check">
+                        <div className="input-text">
+                          <p>Lugar</p>
+                          <input type="text" />
+                          <div className="container-semaforo">
+                            <img src="check_tecnico/semaforo/red.svg" alt="" />
+                            <img src="check_tecnico/semaforo/yellow.svg" alt="" />
+                            <img src="check_tecnico/semaforo/green.svg" alt="" />
+                          </div>
+                        </div>
+                        <div className="container-cantidad">
+                          <p>Cantidad</p>
+                          <input type="text" />
+                        </div>
+                        <div className="container-add">
+                          <img src="check_tecnico/add.svg" alt="" />
+                        </div>
                       </div>
-                      <div className="container-add">
-                        <img src="check_tecnico/add.svg" alt="" />
+                    </div>
+                  </div>
+
+                  {/* Bandas */}
+                  <div className="input-check">
+                    <div className="title">
+                      <img src="check_tecnico/iconos/title-icon-1.svg" alt="" />
+                      <h1>Bandas</h1>
+                    </div>
+                    <div className="container-cube-check">
+                      <div className="container-check">
+                        <div className="input-text">
+                          <p>Lugar</p>
+                          <input type="text" />
+                          <div className="container-semaforo">
+                            <img src="check_tecnico/semaforo/red.svg" alt="" />
+                            <img src="check_tecnico/semaforo/yellow.svg" alt="" />
+                            <img src="check_tecnico/semaforo/green.svg" alt="" />
+                          </div>
+                        </div>
+                        <div className="container-cantidad">
+                          <p>Cantidad</p>
+                          <input type="text" />
+                        </div>
+                        <div className="container-add">
+                          <img src="check_tecnico/add.svg" alt="" />
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Row 3 */}
+                <div className="row-inputs">
+                  {/* Mangueras */}
+                  <div className="input-check">
+                    <div className="title">
+                      <img src="check_tecnico/iconos/title-icon-1.svg" alt="" />
+                      <h1>Mangueras</h1>
+                    </div>
+                    <div className="container-cube-check">
+                      <div className="container-check">
+                        <div className="input-text">
+                          <p>Lugar</p>
+                          <input type="text" />
+                          <div className="container-semaforo">
+                            <img src="check_tecnico/semaforo/red.svg" alt="" />
+                            <img src="check_tecnico/semaforo/yellow.svg" alt="" />
+                            <img src="check_tecnico/semaforo/green.svg" alt="" />
+                          </div>
+                        </div>
+                        <div className="container-cantidad">
+                          <p>Cantidad</p>
+                          <input type="text" />
+                        </div>
+                        <div className="container-add">
+                          <img src="check_tecnico/add.svg" alt="" />
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* --------------- Frenos --------------- */}
+          <div className="container-forms">
+            <div className="container-form">
+              <div className="container-title">
+                <h1>Frenos</h1>
+              </div>
+
+              <div className="container-inputs">
+                <div className="row-inputs">
+                  {/* Balatas */}
+                  <div className="input-check">
+                    <div className="title">
+                      <img src="check_tecnico/iconos/title-icon-1.svg" alt="" />
+                      <h1>Balatas</h1>
+                    </div>
+                    <div className="container-cube-check">
+                      <div className="container-check">
+                        <div className="input-text">
+                          <p>Lugar</p>
+                          <input type="text" />
+                          <div className="container-semaforo">
+                            <img src="check_tecnico/semaforo/red.svg" alt="" />
+                            <img src="check_tecnico/semaforo/yellow.svg" alt="" />
+                            <img src="check_tecnico/semaforo/green.svg" alt="" />
+                          </div>
+                        </div>
+                        <div className="container-cantidad">
+                          <p>Cantidad</p>
+                          <input type="text" />
+                        </div>
+                        <div className="container-add">
+                          <img src="check_tecnico/add.svg" alt="" />
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Discos */}
+                  <div className="input-check">
+                    <div className="title">
+                      <img src="check_tecnico/iconos/title-icon-1.svg" alt="" />
+                      <h1>Discos</h1>
+                    </div>
+                    <div className="container-cube-check">
+                      <div className="container-check">
+                        <div className="input-text">
+                          <p>Lugar</p>
+                          <input type="text" />
+                          <div className="container-semaforo">
+                            <img src="check_tecnico/semaforo/red.svg" alt="" />
+                            <img src="check_tecnico/semaforo/yellow.svg" alt="" />
+                            <img src="check_tecnico/semaforo/green.svg" alt="" />
+                          </div>
+                        </div>
+                        <div className="container-cantidad">
+                          <p>Cantidad</p>
+                          <input type="text" />
+                        </div>
+                        <div className="container-add">
+                          <img src="check_tecnico/add.svg" alt="" />
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Líquido de Frenos */}
+                  <div className="input-check">
+                    <div className="title">
+                      <img src="check_tecnico/iconos/title-icon-1.svg" alt="" />
+                      <h1>Líquido de Frenos</h1>
+                    </div>
+                    <div className="container-cube-check">
+                      <div className="container-check">
+                        <div className="input-text">
+                          <p>Lugar</p>
+                          <input type="text" />
+                          <div className="container-semaforo">
+                            <img src="check_tecnico/semaforo/red.svg" alt="" />
+                            <img src="check_tecnico/semaforo/yellow.svg" alt="" />
+                            <img src="check_tecnico/semaforo/green.svg" alt="" />
+                          </div>
+                        </div>
+                        <div className="container-cantidad">
+                          <p>Cantidad</p>
+                          <input type="text" />
+                        </div>
+                        <div className="container-add">
+                          <img src="check_tecnico/add.svg" alt="" />
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* --------------- Suspensión --------------- */}
+          <div className="container-forms">
+            <div className="container-form">
+              <div className="container-title">
+                <h1>Suspensión</h1>
+              </div>
+
+              <div className="container-inputs">
+                <div className="row-inputs">
+                  {/* Amortiguadores */}
+                  <div className="input-check">
+                    <div className="title">
+                      <img src="check_tecnico/iconos/title-icon-1.svg" alt="" />
+                      <h1>Amortiguadores</h1>
+                    </div>
+                    <div className="container-cube-check">
+                      <div className="container-check">
+                        <div className="input-text">
+                          <p>Lugar</p>
+                          <input type="text" />
+                          <div className="container-semaforo">
+                            <img src="check_tecnico/semaforo/red.svg" alt="" />
+                            <img src="check_tecnico/semaforo/yellow.svg" alt="" />
+                            <img src="check_tecnico/semaforo/green.svg" alt="" />
+                          </div>
+                        </div>
+                        <div className="container-cantidad">
+                          <p>Cantidad</p>
+                          <input type="text" />
+                        </div>
+                        <div className="container-add">
+                          <img src="check_tecnico/add.svg" alt="" />
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Partes de Suspensión y Dirección */}
+                  <div className="input-check">
+                    <div className="title">
+                      <img src="check_tecnico/iconos/title-icon-1.svg" alt="" />
+                      <h1>Partes de Suspensión y Dirección</h1>
+                    </div>
+                    <div className="container-cube-check">
+                      <div className="container-check">
+                        <div className="input-text">
+                          <p>Lugar</p>
+                          <input type="text" />
+                          <div className="container-semaforo">
+                            <img src="check_tecnico/semaforo/red.svg" alt="" />
+                            <img src="check_tecnico/semaforo/yellow.svg" alt="" />
+                            <img src="check_tecnico/semaforo/green.svg" alt="" />
+                          </div>
+                        </div>
+                        <div className="container-cantidad">
+                          <p>Cantidad</p>
+                          <input type="text" />
+                        </div>
+                        <div className="container-add">
+                          <img src="check_tecnico/add.svg" alt="" />
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* --------------- Neumáticos --------------- */}
+          <div className="container-forms">
+            <div className="container-form">
+              <div className="container-title">
+                <h1>Neumáticos</h1>
+              </div>
+
+              <div className="container-inputs">
+                <div className="row-inputs">
+                  {/* Neumáticos */}
+                  <div className="input-check">
+                    <div className="title">
+                      <img src="check_tecnico/iconos/title-icon-1.svg" alt="" />
+                      <h1>Neumáticos</h1>
+                    </div>
+                    <div className="container-cube-check">
+                      <div className="container-check">
+                        <div className="input-text">
+                          <p>Lugar</p>
+                          <input type="text" />
+                          <div className="container-semaforo">
+                            <img src="check_tecnico/semaforo/red.svg" alt="" />
+                            <img src="check_tecnico/semaforo/yellow.svg" alt="" />
+                            <img src="check_tecnico/semaforo/green.svg" alt="" />
+                          </div>
+                        </div>
+                        <div className="container-cantidad">
+                          <p>Cantidad</p>
+                          <input type="text" />
+                        </div>
+                        <div className="container-add">
+                          <img src="check_tecnico/add.svg" alt="" />
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* --------------- Extras --------------- */}
+          <div className="container-forms">
+            <div className="container-form">
+              <div className="container-title">
+                <h1>Extras</h1>
+              </div>
+
+              <div className="container-inputs">
+                <div className="row-inputs">
+                  {/* Extras */}
+                  <div className="input-check">
+                    <div className="title">
+                      <img src="check_tecnico/iconos/title-icon-1.svg" alt="" />
+                      <h1>Extras</h1>
+                    </div>
+                    <div className="container-cube-check">
+                      <div className="container-check">
+                        <div className="input-text">
+                          <p>Lugar</p>
+                          <input type="text" />
+                          <div className="container-semaforo">
+                            <img src="check_tecnico/semaforo/red.svg" alt="" />
+                            <img src="check_tecnico/semaforo/yellow.svg" alt="" />
+                            <img src="check_tecnico/semaforo/green.svg" alt="" />
+                          </div>
+                        </div>
+                        <div className="container-cantidad">
+                          <p>Cantidad</p>
+                          <input type="text" />
+                        </div>
+                        <div className="container-add">
+                          <img src="check_tecnico/add.svg" alt="" />
+                        </div>
                       </div>
                     </div>
                   </div>
@@ -221,482 +705,25 @@ export default function CheckTecnico({ orderId }) {
           </div>
         </div>
 
-        {/* Revisión Servicio*/}
-        <div className="container-forms">
-          <div className="container-form">
-            {/* Title */}
-            <div className="container-title">
-              <h1>Revisión & Servicio</h1>
-            </div>
-
-            <div className="container-inputs">
-              {/* Row Input 1 */}
-              <div className="row-inputs">
-                {/* Input - Bujías*/}
-                <div className="input-check">
-                  {/* Title */}
-                  <div className="title">
-                    <img src="check_tecnico/iconos/title-icon-1.svg" alt="" />
-                    <h1>Bujías</h1>
-                  </div>
-                  {/* Cube Check */}
-                  <div className="container-cube-check">
-                    <div className="container-check">
-                      <div className="input-text">
-                        <p>Lugar</p>
-                        <input type="text" />
-                        <div className="container-semaforo">
-                          <img src="check_tecnico/semaforo/red.svg" alt="" />
-                          <img src="check_tecnico/semaforo/yellow.svg" alt="" />
-                          <img src="check_tecnico/semaforo/green.svg" alt="" />
-                        </div>
-                      </div>
-                      <div className="container-cantidad">
-                        <p>Cantidad</p>
-                        <input type="text" />
-                      </div>
-                      <div className="container-add">
-                        <img src="check_tecnico/add.svg" alt="" />
-                      </div>
-                    </div>
-                  </div>
-                </div>
-                {/* Input - Filtros de Aire*/}
-                <div className="input-check">
-                  <div className="title">
-                    <img src="check_tecnico/iconos/title-icon-1.svg" alt="" />
-                    <h1>Filtros de Aire</h1>
-                  </div>
-                  <div className="container-cube-check">
-                    <div className="container-check">
-                      <div className="input-text">
-                        <p>Lugar</p>
-                        <input type="text" />
-                        <div className="container-semaforo">
-                          <img src="check_tecnico/semaforo/red.svg" alt="" />
-                          <img src="check_tecnico/semaforo/yellow.svg" alt="" />
-                          <img src="check_tecnico/semaforo/green.svg" alt="" />
-                        </div>
-                      </div>
-                      <div className="container-cantidad">
-                        <p>Cantidad</p>
-                        <input type="text" />
-                      </div>
-                      <div className="container-add">
-                        <img src="check_tecnico/add.svg" alt="" />
-                      </div>
-                    </div>
-                  </div>
-                </div>
-                {/* Refrigerante/Anticongelante*/}
-                <div className="input-check">
-                  <div className="title">
-                    <img src="check_tecnico/iconos/title-icon-1.svg" alt="" />
-                    <h1>Refrigerante/Anticongelante</h1>
-                  </div>
-                  <div className="container-cube-check">
-                    <div className="container-check">
-                      <div className="input-text">
-                        <p>Lugar</p>
-                        <input type="text" />
-                        <div className="container-semaforo">
-                          <img src="check_tecnico/semaforo/red.svg" alt="" />
-                          <img src="check_tecnico/semaforo/yellow.svg" alt="" />
-                          <img src="check_tecnico/semaforo/green.svg" alt="" />
-                        </div>
-                      </div>
-                      <div className="container-cantidad">
-                        <p>Cantidad</p>
-                        <input type="text" />
-                      </div>
-                      <div className="container-add">
-                        <img src="check_tecnico/add.svg" alt="" />
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              {/* Row Input 2 */}
-              <div className="row-inputs">
-                {/* Input - Plumas Limpiaparabrisas*/}
-                <div className="input-check">
-                  <div className="title">
-                    <img src="check_tecnico/iconos/title-icon-1.svg" alt="" />
-                    <h1>Plumas LimpiaParabrisas </h1>
-                  </div>
-                  <div className="container-cube-check">
-                    <div className="container-check">
-                      <div className="input-text">
-                        <p>Lugar</p>
-                        <input type="text" />
-                        <div className="container-semaforo">
-                          <img src="check_tecnico/semaforo/red.svg" alt="" />
-                          <img src="check_tecnico/semaforo/yellow.svg" alt="" />
-                          <img src="check_tecnico/semaforo/green.svg" alt="" />
-                        </div>
-                      </div>
-                      <div className="container-cantidad">
-                        <p>Cantidad</p>
-                        <input type="text" />
-                      </div>
-                      <div className="container-add">
-                        <img src="check_tecnico/add.svg" alt="" />
-                      </div>
-                    </div>
-                  </div>
-                </div>
-                {/* Input - Líquido Limpiaparabrisas*/}
-                <div className="input-check">
-                  <div className="title">
-                    <img src="check_tecnico/iconos/title-icon-1.svg" alt="" />
-                    <h1>Líquido Limpiaparabrisas</h1>
-                  </div>
-                  <div className="container-cube-check">
-                    <div className="container-check">
-                      <div className="input-text">
-                        <p>Lugar</p>
-                        <input type="text" />
-                        <div className="container-semaforo">
-                          <img src="check_tecnico/semaforo/red.svg" alt="" />
-                          <img src="check_tecnico/semaforo/yellow.svg" alt="" />
-                          <img src="check_tecnico/semaforo/green.svg" alt="" />
-                        </div>
-                      </div>
-                      <div className="container-cantidad">
-                        <p>Cantidad</p>
-                        <input type="text" />
-                      </div>
-                      <div className="container-add">
-                        <img src="check_tecnico/add.svg" alt="" />
-                      </div>
-                    </div>
-                  </div>
-                </div>
-                {/* Bandas*/}
-                <div className="input-check">
-                  <div className="title">
-                    <img src="check_tecnico/iconos/title-icon-1.svg" alt="" />
-                    <h1>Bandas</h1>
-                  </div>
-                  <div className="container-cube-check">
-                    <div className="container-check">
-                      <div className="input-text">
-                        <p>Lugar</p>
-                        <input type="text" />
-                        <div className="container-semaforo">
-                          <img src="check_tecnico/semaforo/red.svg" alt="" />
-                          <img src="check_tecnico/semaforo/yellow.svg" alt="" />
-                          <img src="check_tecnico/semaforo/green.svg" alt="" />
-                        </div>
-                      </div>
-                      <div className="container-cantidad">
-                        <p>Cantidad</p>
-                        <input type="text" />
-                      </div>
-                      <div className="container-add">
-                        <img src="check_tecnico/add.svg" alt="" />
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              {/* Row Input 3 */}
-              <div className="row-inputs">
-                {/* Input Mangueras*/}
-                <div className="input-check">
-                  <div className="title">
-                    <img src="check_tecnico/iconos/title-icon-1.svg" alt="" />
-                    <h1>Mangueras</h1>
-                  </div>
-                  <div className="container-cube-check">
-                    <div className="container-check">
-                      <div className="input-text">
-                        <p>Lugar</p>
-                        <input type="text" />
-                        <div className="container-semaforo">
-                          <img src="check_tecnico/semaforo/red.svg" alt="" />
-                          <img src="check_tecnico/semaforo/yellow.svg" alt="" />
-                          <img src="check_tecnico/semaforo/green.svg" alt="" />
-                        </div>
-                      </div>
-                      <div className="container-cantidad">
-                        <p>Cantidad</p>
-                        <input type="text" />
-                      </div>
-                      <div className="container-add">
-                        <img src="check_tecnico/add.svg" alt="" />
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* Frenos*/}
-        <div className="container-forms">
-          <div className="container-form">
-            {/* Title */}
-            <div className="container-title">
-              <h1>Frenos</h1>
-            </div>
-
-            <div className="container-inputs">
-              {/* Row Input 1 */}
-              <div className="row-inputs">
-                {/* Input - Balatas*/}
-                <div className="input-check">
-                  <div className="title">
-                    <img src="check_tecnico/iconos/title-icon-1.svg" alt="" />
-                    <h1>Balatas</h1>
-                  </div>
-                  <div className="container-cube-check">
-                    <div className="container-check">
-                      <div className="input-text">
-                        <p>Lugar</p>
-                        <input type="text" />
-                        <div className="container-semaforo">
-                          <img src="check_tecnico/semaforo/red.svg" alt="" />
-                          <img src="check_tecnico/semaforo/yellow.svg" alt="" />
-                          <img src="check_tecnico/semaforo/green.svg" alt="" />
-                        </div>
-                      </div>
-                      <div className="container-cantidad">
-                        <p>Cantidad</p>
-                        <input type="text" />
-                      </div>
-                      <div className="container-add">
-                        <img src="check_tecnico/add.svg" alt="" />
-                      </div>
-                    </div>
-                  </div>
-                </div>
-                {/* Input - Discos*/}
-                <div className="input-check">
-                  <div className="title">
-                    <img src="check_tecnico/iconos/title-icon-1.svg" alt="" />
-                    <h1>Discos</h1>
-                  </div>
-                  <div className="container-cube-check">
-                    <div className="container-check">
-                      <div className="input-text">
-                        <p>Lugar</p>
-                        <input type="text" />
-                        <div className="container-semaforo">
-                          <img src="check_tecnico/semaforo/red.svg" alt="" />
-                          <img src="check_tecnico/semaforo/yellow.svg" alt="" />
-                          <img src="check_tecnico/semaforo/green.svg" alt="" />
-                        </div>
-                      </div>
-                      <div className="container-cantidad">
-                        <p>Cantidad</p>
-                        <input type="text" />
-                      </div>
-                      <div className="container-add">
-                        <img src="check_tecnico/add.svg" alt="" />
-                      </div>
-                    </div>
-                  </div>
-                </div>
-                {/* Líquido de Frenos */}
-                <div className="input-check">
-                  <div className="title">
-                    <img src="check_tecnico/iconos/title-icon-1.svg" alt="" />
-                    <h1>Líquido de Frenos</h1>
-                  </div>
-                  <div className="container-cube-check">
-                    <div className="container-check">
-                      <div className="input-text">
-                        <p>Lugar</p>
-                        <input type="text" />
-                        <div className="container-semaforo">
-                          <img src="check_tecnico/semaforo/red.svg" alt="" />
-                          <img src="check_tecnico/semaforo/yellow.svg" alt="" />
-                          <img src="check_tecnico/semaforo/green.svg" alt="" />
-                        </div>
-                      </div>
-                      <div className="container-cantidad">
-                        <p>Cantidad</p>
-                        <input type="text" />
-                      </div>
-                      <div className="container-add">
-                        <img src="check_tecnico/add.svg" alt="" />
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* Suspensión*/}
-        <div className="container-forms">
-          <div className="container-form">
-            {/* Title */}
-            <div className="container-title">
-              <h1>Suspensión</h1>
-            </div>
-
-            <div className="container-inputs">
-              {/* Row Input 1 */}
-              <div className="row-inputs">
-                {/* Input - Amortiguadores*/}
-                <div className="input-check">
-                  <div className="title">
-                    <img src="check_tecnico/iconos/title-icon-1.svg" alt="" />
-                    <h1>Amortiguadores</h1>
-                  </div>
-                  <div className="container-cube-check">
-                    <div className="container-check">
-                      <div className="input-text">
-                        <p>Lugar</p>
-                        <input type="text" />
-                        <div className="container-semaforo">
-                          <img src="check_tecnico/semaforo/red.svg" alt="" />
-                          <img src="check_tecnico/semaforo/yellow.svg" alt="" />
-                          <img src="check_tecnico/semaforo/green.svg" alt="" />
-                        </div>
-                      </div>
-                      <div className="container-cantidad">
-                        <p>Cantidad</p>
-                        <input type="text" />
-                      </div>
-                      <div className="container-add">
-                        <img src="check_tecnico/add.svg" alt="" />
-                      </div>
-                    </div>
-                  </div>
-                </div>
-                {/* Input - Partes de Suspensión y Dirección*/}
-                <div className="input-check">
-                  <div className="title">
-                    <img src="check_tecnico/iconos/title-icon-1.svg" alt="" />
-                    <h1>Partes de Suspensión y Dirección</h1>
-                  </div>
-                  <div className="container-cube-check">
-                    <div className="container-check">
-                      <div className="input-text">
-                        <p>Lugar</p>
-                        <input type="text" />
-                        <div className="container-semaforo">
-                          <img src="check_tecnico/semaforo/red.svg" alt="" />
-                          <img src="check_tecnico/semaforo/yellow.svg" alt="" />
-                          <img src="check_tecnico/semaforo/green.svg" alt="" />
-                        </div>
-                      </div>
-                      <div className="container-cantidad">
-                        <p>Cantidad</p>
-                        <input type="text" />
-                      </div>
-                      <div className="container-add">
-                        <img src="check_tecnico/add.svg" alt="" />
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* Neumáticos*/}
-        <div className="container-forms">
-          <div className="container-form">
-            {/* Title */}
-            <div className="container-title">
-              <h1>Neumáticos</h1>
-            </div>
-
-            <div className="container-inputs">
-              {/* Row Input 1 */}
-              <div className="row-inputs">
-                {/* Input - Neumáticos*/}
-                <div className="input-check">
-                  <div className="title">
-                    <img src="check_tecnico/iconos/title-icon-1.svg" alt="" />
-                    <h1>Neumáticos</h1>
-                  </div>
-                  <div className="container-cube-check">
-                    <div className="container-check">
-                      <div className="input-text">
-                        <p>Lugar</p>
-                        <input type="text" />
-                        <div className="container-semaforo">
-                          <img src="check_tecnico/semaforo/red.svg" alt="" />
-                          <img src="check_tecnico/semaforo/yellow.svg" alt="" />
-                          <img src="check_tecnico/semaforo/green.svg" alt="" />
-                        </div>
-                      </div>
-                      <div className="container-cantidad">
-                        <p>Cantidad</p>
-                        <input type="text" />
-                      </div>
-                      <div className="container-add">
-                        <img src="check_tecnico/add.svg" alt="" />
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* Extras*/}
-        <div className="container-forms">
-          <div className="container-form">
-            {/* Title */}
-            <div className="container-title">
-              <h1>Extras</h1>
-            </div>
-
-            <div className="container-inputs">
-              {/* Row Input 1 */}
-              <div className="row-inputs">
-                {/* Input - Extras*/}
-                <div className="input-check">
-                  <div className="title">
-                    <img src="check_tecnico/iconos/title-icon-1.svg" alt="" />
-                    <h1>Extras</h1>
-                  </div>
-                  <div className="container-cube-check">
-                    <div className="container-check">
-                      <div className="input-text">
-                        <p>Lugar</p>
-                        <input type="text" />
-                        <div className="container-semaforo">
-                          <img src="check_tecnico/semaforo/red.svg" alt="" />
-                          <img src="check_tecnico/semaforo/yellow.svg" alt="" />
-                          <img src="check_tecnico/semaforo/green.svg" alt="" />
-                        </div>
-                      </div>
-                      <div className="container-cantidad">
-                        <p>Cantidad</p>
-                        <input type="text" />
-                      </div>
-                      <div className="container-add">
-                        <img src="check_tecnico/add.svg" alt="" />
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
+        {/* --------------- Botón Guardar --------------- */}
+        <div className="container-check-button">
+          <button onClick={handleGuardar} disabled={saving}>
+            {saving ? "Guardando…" : "Guardar"}
+          </button>
+          {saveMessage && <p className="save-message">{saveMessage}</p>}
         </div>
       </div>
 
-      {/* Botón Guardar */}
-      <div className="container-check-button">
-        <button onClick={handleGuardar} disabled={saving}>
-          {saving ? "Guardando…" : "Guardar"}
-        </button>
-        {saveMessage && <p className="save-message">{saveMessage}</p>}
-      </div>
-    </div>
+      {/* --------------- Modal --------------- */}
+      <ModalCheck
+        open={modalOpen}
+        title={modalTitle}
+        onSave={() => {
+          /* espacio para lógica extra */
+          setModalOpen(false);
+        }}
+        onClose={() => setModalOpen(false)}
+      />
+    </>
   );
 }

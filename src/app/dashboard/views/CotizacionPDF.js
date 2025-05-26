@@ -60,7 +60,7 @@ const CotizacionPDF = ({ order }) => {
   });
 
   const discountAmount = order.discount?.cantidad_dinero ? +order.discount.cantidad_dinero : 0;
-  const grandTotal = subtotalNoVAT + ivaTotal + discountAmount;
+  const grandTotal = subtotalNoVAT + ivaTotal - discountAmount;
 
   /* ---------- Tabla HTML ---------- */
   const tableRowsHtml =

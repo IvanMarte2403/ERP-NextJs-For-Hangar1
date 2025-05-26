@@ -66,7 +66,7 @@ const OrderPDF = ({ order }) => {
   });
 
   const discountAmount = order.discount?.cantidad_dinero ? +order.discount.cantidad_dinero : 0;
-  const grandTotal = subtotalNoVAT + ivaTotal + discountAmount; // según indicaciones
+  const grandTotal = subtotalNoVAT + ivaTotal - discountAmount; // según indicaciones
 
   /* ---------- Construcción Tabla ---------- */
   const tableRowsHtml =

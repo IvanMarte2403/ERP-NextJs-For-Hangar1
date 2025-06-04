@@ -1,0 +1,250 @@
+.cotizador-avanzado-main{
+    padding: var(--spacing-xxl);
+    padding-top: var(--spacing-lg);
+    padding-bottom: var(--spacing-lg);
+    background-color: var(--background-color-5);
+}
+
+
+
+
+// Forms del cotizador
+
+.container-cotizador-forms{
+    background-color: var(--background-color-1);
+    padding: var(--spacing-sm);
+    border-radius: var(--border-radius);
+
+
+    .container-title{
+        border-bottom: 0.5px solid var(--background-color-2);
+        padding: var(--spacing-lg);
+        h3{
+            font-size: var(--font-size-lg);
+        }
+    }
+
+    .container-main-forms{
+        background-color: var(--background-color-5);
+        .cotizador-title{
+            padding: var(--spacing-xl);
+            h4{
+                font-size: var(--font-size-lg);
+            }
+
+            display: flex;
+            img{
+                width: 1%;
+                margin-right: var(--spacing-lg);
+            }
+       
+        }
+
+        // Sections
+
+        .container-sections-main{
+            display: flex;
+            justify-content: space-between;
+            padding: var(--spacing-sm);
+            
+            .title-part{
+                h4{
+                    font-size: var(--font-size-xl);
+                    padding: var(--spacing-md);
+                }
+            }
+            // Forms
+            .container-forms-cotizador{
+                background-color: var(--background-color-5);
+                width: 70%;
+                border-radius: var(--border-radius);
+                    
+                .container-part{
+                    background-color: var(--background-color-1);
+                    border-radius: var(--border-radius);
+                }
+                
+                // Cilindros
+                .container-cilindros{
+                    width: 100%;
+                    padding: var(--spacing-lg);
+                    h4{
+                        font-size: var(--font-size-lg);
+                    }
+
+                    .container-row-cilindros-select{
+                        display: flex;
+                        justify-content: space-between;
+                        align-items: center;
+                        background-color: var(--background-color-5);
+                        border-radius: var(--border-radius);
+                        padding: var(--spacing-md);
+                        margin-top: var(--spacing-lg);
+                        .cube-cilindros{
+                            background-color: var(--background-color-1);
+                            padding: var(--spacing-lg);
+                            border: 0.1rem solid var(--background-color-2);
+                            border-radius: var(--border-radius);
+                            cursor: pointer;
+                            display: flex;
+                            justify-content: center;
+                            align-items: center;
+                            flex-direction: column;
+                            width: 15%;
+                            p{
+                                font-size: var(--font-size-lg);
+                                font-weight: 800;
+                                margin-top: var(--spacing-md);
+                            }
+
+                            img{
+                                width: 60%;
+                            }
+                        }
+                    }
+                }
+
+                // Servicios Includios
+
+                .container-servicios-incluidos{
+                    padding: var(--spacing-md);
+                    padding-top: var(--spacing-sm);
+                    // Title
+                    .title-servicios-incluidos{
+                        display: flex;
+                        justify-content: space-between;
+                        align-items: center;
+                        padding: var(--spacing-sm);
+                        padding-top: var(--spacing-sm);
+                        h4{
+                            font-size: var(--font-size-md);
+                        }
+
+                        button{
+                            all: unset;
+                            background-color: var(--background-color-2);
+                            border-radius: 0.2rem;
+                            cursor: pointer;
+                            color: var(--color-secondary);
+                            padding: var(--spacing-sm);
+                            font-size: row(--font-size-sm);
+                            width: 15%;
+                            text-align: center;
+                            font-size: var(--font-size-sm);
+                        }
+                    }
+
+                    // Forms de Servicios Incluidos
+
+                    .container-forms-servicios{
+                        background-color: var(--background-color-5);
+                        padding: var(--spacing-md);
+                        border-radius: var(--border-radius);
+                        margin-top: var(--spacing-md);
+                        .row-servicios{
+                            width: 100%;
+                            display: flex;
+                            align-items: center;
+                            justify-content: space-between;
+                            margin-bottom: var(--spacing-lg);
+                            .servicio{
+                                width: 17%;
+                                background-color: var(--background-color-1);
+                                border-radius: var(--border-radius);
+                                padding: var(--spacing-sm);
+                                display: flex;
+                                align-items: center;
+                                label{
+                                    display: flex;
+                                    align-items: center;
+                                    input{
+                                        margin-right:  var(--spacing-sm);
+                                    }
+                                }
+                                p{
+                                    font-size: var(--font-size-xs);
+                                }
+
+                            }
+                        }
+                    }
+                }
+
+                // Section Form Avanzado
+
+                .form-input-cotizador{
+                    padding: var(--spacing-lg);
+                    .title-product{
+                        display: flex;
+                        align-items: center;
+                        margin-bottom: var(--spacing-md);
+                        img{
+                            width: 3%;
+                            margin-right: var(--spacing-sm);
+                            max-height: 1.5vw;
+                        }
+                        p{
+                            font-size: var(--font-size-xl);
+                            font-weight: 700;
+                        }
+                    }
+
+                    .section-form-avanzado{
+                        background-color: var(--background-color-5);
+                        border-radius: var(--border-radius);
+                        padding: var(--spacing-md);
+                        display: flex;
+                        justify-content: space-between;
+                        align-items: center;
+
+                        .inputs-section{
+                            width: 65%;
+                            display: flex;
+                            justify-content: space-between;
+                            align-items: center;
+                            p{
+                                    font-size: var(--font-size-sm);
+                            }
+                            input{
+                                background-color: var(--background-color-1);
+                                border: none;
+                                border: 0.04rem solid var(--background-color-2);
+                                border-radius: var(--border-radius-input);
+                                margin-top: var(--spacing-sm);
+                                width: 100%;
+                            }
+                            .container-cantidad{
+                                width: 15%;
+                            }
+
+                            .container-marca{
+                                width: 30%;
+                            }
+
+                            .container-costo{
+                                width: 15%;
+                            }
+                        }
+
+                        .confirmation-insection{
+                            width: 10%;
+                            display: flex;
+                            justify-content: center;
+                            align-items: center;
+                            img{
+                                width: 40%;
+                                cursor: pointer;
+                            }
+                        }
+                    }
+                }
+            }
+            // Desgloce
+            .container-desgloce{
+                background-color: var(--background-color-1);
+                width: 28%;
+                border-radius: var(--border-radius);
+            }
+        }
+    }
+}

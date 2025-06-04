@@ -18,16 +18,17 @@ import ModalDiscount from "./Modal/ModalDiscount";
 
 import CheckIn from "../check-in/CheckIn"; 
 import CheckTecnico from "../check-in/CheckTecnico";
-
+import CotizadorAvanzado from "../views/CotizadorAvanzado/CotizadorAvanzado"; 
 // --- Nuevo componente Historial de Pagos ---
 import HistorialPagos from "../views/OrderDetails/historialPagos";
 
 export default function OrderDetails({ orderId, isNewOrder, userEmail }) {
   console.log("OrderDetails");
 
-  /* ----------  estado para mostrar Check-in ---------- */
+  /* ----------  estados para mostrar vistas auxiliares ---------- */
   const [showCheckIn, setShowCheckIn] = useState(false);
   const [showCheckTecnico, setShowCheckTecnico] = useState(false);
+  const [showCotizadorAvanzado, setShowCotizadorAvanzado] = useState(false); // Nuevo estado
 
   /* ---------- Estados existentes ---------- */
   const [pdfReady, setPdfReady] = useState(false);
@@ -340,19 +341,23 @@ export default function OrderDetails({ orderId, isNewOrder, userEmail }) {
 
   useEffect(() => {
     if (order && order.inspectionItems) {
-      const updatedTotalAmount = calculateTotalAmount(order.inspectionItems) - abonosSum;
+      const updatedTotalAmount =
+        calculateTotalAmount(order.inspectionItems) - abonosSum;
       setTotalAmount(updatedTotalAmount);
     }
   }, [order, abonosSum]);
 
   if (showCheckIn) {
-
     /* ----------  sustituir .content por CheckIn ---------- */
     return <CheckIn orderId={orderId} />;
   }
 
   if (showCheckTecnico) {
     return <CheckTecnico orderId={orderId} />;
+  }
+
+  if (showCotizadorAvanzado) {
+    return <CotizadorAvanzado orderId={orderId} />;
   }
 
   if (!order) {
@@ -497,7 +502,9 @@ export default function OrderDetails({ orderId, isNewOrder, userEmail }) {
       : 0;
   const impuestosValue = inspectionItems.reduce((acc, item) => {
     if (item.impuestos === "16") {
-      return acc + parseFloat(item.partUnitPrice) * parseInt(item.quantity) * 0.16;
+      return (
+        acc + parseFloat(item.partUnitPrice) * parseInt(item.quantity) * 0.16
+      );
     }
     return acc;
   }, 0);
@@ -581,10 +588,14 @@ export default function OrderDetails({ orderId, isNewOrder, userEmail }) {
             {isDropdownOpen && (
               <ul className="print-dropdown">
                 {canSeeRemision && (
-                  <li onClick={() => handleSelectDocument("Remisión")}>Remisión</li>
+                  <li onClick={() => handleSelectDocument("Remisión")}>
+                    Remisión
+                  </li>
                 )}
                 {canSeeGarantia && (
-                  <li onClick={() => handleSelectDocument("Garantía")}>Garantía</li>
+                  <li onClick={() => handleSelectDocument("Garantía")}>
+                    Garantía
+                  </li>
                 )}
                 {canSeeCotizacion && (
                   <li onClick={() => handleSelectDocument("Cotización")}>
@@ -592,7 +603,9 @@ export default function OrderDetails({ orderId, isNewOrder, userEmail }) {
                   </li>
                 )}
                 {canSeeAnticipo && (
-                  <li onClick={() => handleSelectDocument("Anticipos")}>Anticipos</li>
+                  <li onClick={() => handleSelectDocument("Anticipos")}>
+                    Anticipos
+                  </li>
                 )}
               </ul>
             )}
@@ -614,12 +627,23 @@ export default function OrderDetails({ orderId, isNewOrder, userEmail }) {
           <button className="link" onClick={() => setShowCheckTecnico(true)}>
             <p>Check-Tecnico</p>
           </button>
+          {/* Cotizador Avanzado */}
+          <button
+            className="link"
+            onClick={() => setShowCotizadorAvanzado(true)}
+          >
+            <p>Cotizador Avanzado</p>
+          </button>
         </div>
 
         {/* ---------------- Container Orden ---------------- */}
         <div className="container-orden">
           {/* Estado de la Orden */}
-          <div className={`presupuesto-container ${order.estado_orden?.toLowerCase()}`}>
+          <div
+            className={`presupuesto-container ${
+              order.estado_orden?.toLowerCase()
+            }`}
+          >
             <div>
               <p>{order.estado_orden || "Presupuesto"}</p>
             </div>
@@ -882,7 +906,6 @@ export default function OrderDetails({ orderId, isNewOrder, userEmail }) {
 
         {/* ---------------- Historial de Pagos (nuevo componente) ---------------- */}
         <HistorialPagos abonos={abonos} />
-
       </div>
 
       {/* ---------------- Modales ---------------- */}

@@ -3,7 +3,8 @@
 
 :root {
   --max-width: 1100px;
-  --border-radius: 12px;
+  --border-radius: 0.5rem;
+  --border-radius-input: 0.2rem;
   --font-mono: ui-monospace, Menlo, Monaco, "Cascadia Mono", "Segoe UI Mono",
     "Roboto Mono", "Oxygen Mono", "Ubuntu Monospace", "Source Code Pro",
     "Fira Mono", "Droid Sans Mono", "Courier New", monospace;
@@ -20,6 +21,7 @@
   --background-color-2: #000;
   --background-color-3: #000;
   --background-color-4: #eeee;
+  --background-color-5: rgba(217, 217, 217, 0.2);
 
   
   --scrollbar-track: #f0f0f0;

@@ -75,7 +75,7 @@ const OrderPDF = ({ order }) => {
         const { price, subtotal } = calculateItem(item);
         const quantity = parseInt(item.quantity) || 0;
         return `
-        <tr style="padding-top:8px">
+        <tr style="padding-top:8px">  
           <td style="width:12%;text-align:center;">${quantity}</td>
           <td style="width:36%;text-align:left;padding-right:5px;">${item.inspectionItemName}</td>
           <td style="width:20%;text-align:left;">${item.brand || 'N/A'}</td>

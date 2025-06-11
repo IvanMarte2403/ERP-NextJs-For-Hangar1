@@ -1,10 +1,14 @@
-// CotizadorAvanzado/AfinacionBasica/ContainerServiciosIncluidos.js
+// CotizadorAvanzado/AfinacionBasica/components/ContainerServiciosIncluidos.js
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, useMemo } from "react";
 
-export default function ContainerServiciosIncluidos() {
-  const servicios = [
+/**
+ * Checkbox grid para seleccionar los servicios incluidos.
+ * Prop onChange devuelve un array con los nombres seleccionados.
+ */
+export default function ContainerServiciosIncluidos({ onChange }) {
+  const rawServicios = [
     "Revisión con Escaner",
     "Revisión Física con puntos de seguridad",
     "Revisión y rellenado de niveles",
@@ -23,6 +27,16 @@ export default function ContainerServiciosIncluidos() {
     "+",
   ];
 
+  /* Elimina duplicados exactos conservando la primera aparición */
+  const servicios = useMemo(() => {
+    const seen = new Set();
+    return rawServicios.filter((s) => {
+      if (seen.has(s)) return false;
+      seen.add(s);
+      return true;
+    });
+  }, []);
+
   const [seleccionados, setSeleccionados] = useState(
     servicios.map(() => false)
   );
@@ -37,12 +51,21 @@ export default function ContainerServiciosIncluidos() {
     setSeleccionados(servicios.map(() => true));
   };
 
-  const filas = [
-    servicios.slice(0, 4),
-    servicios.slice(4, 8),
-    servicios.slice(8, 12),
-    servicios.slice(12, 16),
-  ];
+  /* Notifica al padre solo cuando cambia la selección,
+     evitando dependencias que cambian cada render. */
+  useEffect(() => {
+    if (typeof onChange === "function") {
+      const activos = servicios.filter((_, idx) => seleccionados[idx]);
+      onChange(activos);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [seleccionados]);
+
+  /* Agrupa en filas de 4 */
+  const filas = [];
+  for (let i = 0; i < servicios.length; i += 4) {
+    filas.push(servicios.slice(i, i + 4));
+  }
 
   return (
     <div className="container-servicios-incluidos">
@@ -57,7 +80,7 @@ export default function ContainerServiciosIncluidos() {
             {fila.map((servicio, colIdx) => {
               const index = rowIdx * 4 + colIdx;
               return (
-                <div key={colIdx} className="servicio">
+                <div key={servicio} className="servicio">
                   <label>
                     <input
                       type="checkbox"

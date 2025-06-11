@@ -3,9 +3,16 @@
 import React from "react";
 
 /**
- * Component that displays the cost breakdown including subtotal, taxes, discounts, and total.
+ * Displays subtotal, taxes, discounts and total.
  */
-export default function ComponentCostos() {
+export default function ComponentCostos({
+  subtotal,
+  impuestos,
+  descuento,
+  total,
+  taxEnabled,
+  onToggleTax,
+}) {
   return (
     <div className="component-costos">
       {/* Title */}
@@ -13,48 +20,56 @@ export default function ComponentCostos() {
         <h3>Costos</h3>
       </div>
 
+      {/* IVA toggle */}
+      <div className="iva-toggle">
+        <label>
+          <input
+            type="checkbox"
+            checked={taxEnabled}
+            onChange={onToggleTax}
+          />
+          Incluir IVA
+        </label>
+      </div>
+
       <div className="container-desgloce">
         {/* Subtotal */}
         <div className="row-desgloce">
-          {/* Title Row */}
           <div className="title-row">
             <p>Subtotal</p>
           </div>
           <div className="cantidad-desgloce">
-            <p>$40,000</p>
+            <p>${subtotal.toLocaleString()}</p>
           </div>
         </div>
 
-        {/* Impuestos  */}
+        {/* Impuestos */}
         <div className="row-desgloce">
-          {/* Title Row */}
           <div className="title-row">
             <p>Impuestos</p>
           </div>
           <div className="cantidad-desgloce">
-            <p>$40,000</p>
+            <p>${impuestos.toLocaleString()}</p>
           </div>
         </div>
 
         {/* Descuentos */}
         <div className="row-desgloce">
-          {/* Title Row */}
           <div className="title-row">
             <p>Descuentos</p>
           </div>
           <div className="cantidad-desgloce">
-            <p>$40,000</p>
+            <p>${descuento.toLocaleString()}</p>
           </div>
         </div>
 
         {/* Total */}
         <div className="row-desgloce">
-          {/* Title Row */}
           <div className="title-row">
             <p>Total</p>
           </div>
           <div className="cantidad-desgloce">
-            <p>$40,000</p>
+            <p>${total.toLocaleString()}</p>
           </div>
         </div>
       </div>

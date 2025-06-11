@@ -247,6 +247,9 @@
                 width: 34%;
                 border-radius: var(--border-radius);
                 padding: var(--spacing-md);
+                display: flex;
+                justify-content: space-between;
+                flex-direction: column;
                 // Component Costos
                 .component-costos{
                     margin-bottom: var(--spacing-lg);
@@ -368,7 +371,37 @@
                         }
                     }
                 }
+
+                // Buttons
+
+                .container-buttons{
+                    width: 100%;
+                    display: flex;
+                    justify-content: flex-end;
+                    button{
+                        all: unset;
+                        cursor: pointer;
+                        background-color: var(--background-color-2);
+                        border-radius: var(--border-radius);
+                        width:30%;
+                        color: var(--color-secondary);
+                        padding: var(--spacing-sm);
+                        text-align: center;
+                        font-size: var(--font-size-sm);
+                    }
+                }
             }   
         }
     }
+}
+
+.selected {
+  border: 1px solid #fff200 !important;
+}
+.cube-cilindros {
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+.cube-cilindros:hover {
+  transform: translateY(-2px);
 }

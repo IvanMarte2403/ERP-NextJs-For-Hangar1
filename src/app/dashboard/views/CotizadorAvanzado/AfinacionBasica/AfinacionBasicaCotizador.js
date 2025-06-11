@@ -1,8 +1,14 @@
-// CotizadorAvanzado/AfinacionBasica/AfinacionBasicaCotizador.js
+// src/CotizadorAvanzado/AfinacionBasica/AfinacionBasicaCotizador.js
 "use client";
 
 import PartCotizador from "./components/PartCotizador";
+import ComponentCostos from "./components/ComponentCostos";
+import ComponentDescuentos from "./components/ComponentDescuentos";
+import ComponentServicios from "./components/ComponentServicios";
 
+/**
+ * Main component for the basic tuning advanced quotation form.
+ */
 export default function AfinacionBasicaCotizador() {
   return (
     <div className="container-cotizador-forms">
@@ -18,7 +24,16 @@ export default function AfinacionBasicaCotizador() {
 
         <div className="container-sections-main">
           <PartCotizador />
+
           <div className="container-desgloce">
+            {/* Component Costos */}
+            <ComponentCostos />
+
+            {/* Component Descuentos */}
+            <ComponentDescuentos />
+
+            {/* Component Servicios */}
+            <ComponentServicios />
           </div>
         </div>
       </div>

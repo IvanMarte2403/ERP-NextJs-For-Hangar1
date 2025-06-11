@@ -1813,7 +1813,7 @@
 }
 .container-cotizador-forms .container-main-forms .container-sections-main .container-forms-cotizador {
   background-color: var(--background-color-5);
-  width: 70%;
+  width: 65%;
   border-radius: var(--border-radius);
 }
 .container-cotizador-forms .container-main-forms .container-sections-main .container-forms-cotizador .container-part {
@@ -1976,8 +1976,111 @@
 }
 .container-cotizador-forms .container-main-forms .container-sections-main .container-desgloce {
   background-color: var(--background-color-1);
-  width: 28%;
+  width: 34%;
   border-radius: var(--border-radius);
+  padding: var(--spacing-md);
+}
+.container-cotizador-forms .container-main-forms .container-sections-main .container-desgloce .component-costos {
+  margin-bottom: var(--spacing-lg);
+  padding: var(--spacing-sm);
+}
+.container-cotizador-forms .container-main-forms .container-sections-main .container-desgloce .component-costos .title {
+  width: 100%;
+}
+.container-cotizador-forms .container-main-forms .container-sections-main .container-desgloce .component-costos .title h3 {
+  font-size: var(--font-size-lg);
+}
+.container-cotizador-forms .container-main-forms .container-sections-main .container-desgloce .component-costos .container-desgloce {
+  width: 100%;
+  background-color: var(--background-color-5);
+  margin-top: var(--spacing-sm);
+}
+.container-cotizador-forms .container-main-forms .container-sections-main .container-desgloce .component-costos .container-desgloce .row-desgloce {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: var(--spacing-sm);
+}
+.container-cotizador-forms .container-main-forms .container-sections-main .container-desgloce .component-costos .container-desgloce .row-desgloce .title-row {
+  width: 30%;
+}
+.container-cotizador-forms .container-main-forms .container-sections-main .container-desgloce .component-costos .container-desgloce .row-desgloce .title-row p {
+  font-size: var(--font-size-sm);
+  font-weight: 600;
+}
+.container-cotizador-forms .container-main-forms .container-sections-main .container-desgloce .component-costos .container-desgloce .row-desgloce .cantidad-desgloce {
+  width: 30%;
+}
+.container-cotizador-forms .container-main-forms .container-sections-main .container-desgloce .component-costos .container-desgloce .row-desgloce .cantidad-desgloce p {
+  font-size: var(--font-size-sm);
+}
+.container-cotizador-forms .container-main-forms .container-sections-main .container-desgloce .component-descuentos {
+  width: 100%;
+  padding: var(--spacing-sm);
+}
+.container-cotizador-forms .container-main-forms .container-sections-main .container-desgloce .component-descuentos .title h3 {
+  font-size: var(--font-size-lg);
+}
+.container-cotizador-forms .container-main-forms .container-sections-main .container-desgloce .component-descuentos .container-descuentos {
+  background-color: var(--background-color-5);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: var(--spacing-sm);
+  border-radius: var(--border-radius);
+  margin-top: var(--spacing-sm);
+}
+.container-cotizador-forms .container-main-forms .container-sections-main .container-desgloce .component-descuentos .container-descuentos input {
+  background-color: var(--background-color-1);
+  border: none;
+  border: 1px solid var(--background-color-2);
+  border-radius: var(--border-radius-input);
+  width: 100%;
+}
+.container-cotizador-forms .container-main-forms .container-sections-main .container-desgloce .component-descuentos .container-descuentos .input {
+  margin-bottom: var(--spacing-md);
+}
+.container-cotizador-forms .container-main-forms .container-sections-main .container-desgloce .component-descuentos .container-descuentos .input p {
+  font-size: var(--font-size-sm);
+  margin-bottom: var(--spacing-sm);
+}
+.container-cotizador-forms .container-main-forms .container-sections-main .container-desgloce .component-descuentos .container-descuentos .cantidades {
+  width: 46%;
+  border-right: 0.5px solid var(--background-color-2);
+  padding-right: var(--spacing-sm);
+}
+.container-cotizador-forms .container-main-forms .container-sections-main .container-desgloce .component-descuentos .container-descuentos .codigo {
+  width: 46%;
+}
+.container-cotizador-forms .container-main-forms .container-sections-main .container-desgloce .component-servicios {
+  width: 100%;
+  padding: var(--spacing-sm);
+}
+.container-cotizador-forms .container-main-forms .container-sections-main .container-desgloce .component-servicios .title {
+  width: 100%;
+  margin-top: var(--spacing-lg);
+}
+.container-cotizador-forms .container-main-forms .container-sections-main .container-desgloce .component-servicios .title h3 {
+  font-size: var(--font-size-lg);
+}
+.container-cotizador-forms .container-main-forms .container-sections-main .container-desgloce .component-servicios .container-table {
+  background-color: var(--background-color-5);
+  border-radius: var(--border-radius);
+  padding: var(--spacing-sm);
+  margin-top: var(--spacing-md);
+}
+.container-cotizador-forms .container-main-forms .container-sections-main .container-desgloce .component-servicios table {
+  width: 100%;
+  margin-top: var(--spacing-sm);
+}
+.container-cotizador-forms .container-main-forms .container-sections-main .container-desgloce .component-servicios table th {
+  font-size: var(--font-size-md);
+  text-align: left;
+  padding-bottom: var(--spacing-sm);
+}
+.container-cotizador-forms .container-main-forms .container-sections-main .container-desgloce .component-servicios table td {
+  font-size: var(--font-size-sm);
+  padding-bottom: var(--spacing-sm);
 }
 
 .checkin-container {

@@ -2,39 +2,44 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { doc, getDoc, updateDoc, setDoc } from "firebase/firestore";
+import { doc, getDoc, updateDoc } from "firebase/firestore";
 import { db } from "../../../../lib/firebase";
 import { PDFDownloadLink } from "@react-pdf/renderer";
+
 import OrderPDF from "./OrderPDF";
 import RemisionPDF from "./RemisionPDF";
 import AnticiposPDF from "./AnticiposPDF";
 import CotizacionPDF from "./CotizacionPDF";
 
-// -- Modal --
 import ModalProduct from "./Modal/ModalProduct";
 import ModalAbonar from "./Modal/ModalAbonar";
 import ModalEditProduct from "./Modal/EditProduct";
 import ModalDiscount from "./Modal/ModalDiscount";
 
-import CheckIn from "../check-in/CheckIn"; 
+import CheckIn from "../check-in/CheckIn";
 import CheckTecnico from "../check-in/CheckTecnico";
-import CotizadorAvanzado from "../views/CotizadorAvanzado/CotizadorAvanzado"; 
-// --- Nuevo componente Historial de Pagos ---
+import CotizadorAvanzado from "../views/CotizadorAvanzado/CotizadorAvanzado";
 import HistorialPagos from "../views/OrderDetails/historialPagos";
 
-export default function OrderDetails({ orderId, isNewOrder, userEmail }) {
-  console.log("OrderDetails");
+import ContainerOrden from "./Order/ContainerOrden";
 
-  /* ----------  estados para mostrar vistas auxiliares ---------- */
+import { getOrderById } from "../../../../services/orders/getOrderById";
+import { getCotizadorAvanzado } from "../../../../services/CotizadorAvanzado/getCotizadorAvanzado";
+
+/* ---------- Constantes ---------- */
+const taxRate = 0.16;
+
+/* ---------- Componente ---------- */
+export default function OrderDetails({ orderId, isNewOrder, userEmail }) {
+  /* ---------- vistas auxiliares ---------- */
   const [showCheckIn, setShowCheckIn] = useState(false);
   const [showCheckTecnico, setShowCheckTecnico] = useState(false);
-  const [showCotizadorAvanzado, setShowCotizadorAvanzado] = useState(false); // Nuevo estado
+  const [showCotizadorAvanzado, setShowCotizadorAvanzado] = useState(false);
 
-  /* ---------- Estados existentes ---------- */
-  const [pdfReady, setPdfReady] = useState(false);
+  /* ---------- estados de la orden ---------- */
   const [order, setOrder] = useState(null);
-  const [totalAmount, setTotalAmount] = useState(0);
-  const [isEdited, setIsEdited] = useState(false);
+  const [cotizadorEntry, setCotizadorEntry] = useState(null);
+
   const [formData, setFormData] = useState({
     firstName: "",
     lastName: "",
@@ -47,16 +52,28 @@ export default function OrderDetails({ orderId, isNewOrder, userEmail }) {
     kilometros: "",
     color: "",
   });
-  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+
+  const [isEdited, setIsEdited] = useState(false);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
-  const [abonos, setAbonos] = useState([]);
-  const [abonosSum, setAbonosSum] = useState(0);
+
+  /* ---------- PDF URLs ---------- */
   const [pdfUrl, setPdfUrl] = useState(null);
   const [pdfUrlRemision, setPdfUrlRemision] = useState(null);
   const [pdfUrlAnticipos, setPdfUrlAnticipos] = useState(null);
   const [pdfUrlCotizacion, setPdfUrlCotizacion] = useState(null);
 
-  // LISTAS de usuarios autorizados
+  /* ---------- Abonos y totales ---------- */
+  const [abonos, setAbonos] = useState([]);
+  const [abonosSum, setAbonosSum] = useState(0);
+  const [totalAmount, setTotalAmount] = useState(0);
+
+  /* ---------- Modales ---------- */
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isAbonarModalOpen, setIsAbonarModalOpen] = useState(false);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [isDiscountModalOpen, setIsDiscountModalOpen] = useState(false);
+
+  /* ---------- usuarios autorizados (sin cambios) ---------- */
   const usersTodos = [
     "emilio@hangar1.com.mx",
     "ivan@hangar1.com.mx",
@@ -67,7 +84,6 @@ export default function OrderDetails({ orderId, isNewOrder, userEmail }) {
     "administracion-2@hangar1.com.mx",
     "administracion-a@hangar1.com.mx",
   ];
-
   const usersGarantias = [
     "ary@hangar1.com.mx",
     "gaby@hangar1.com.mx",
@@ -75,7 +91,6 @@ export default function OrderDetails({ orderId, isNewOrder, userEmail }) {
     "administracion-a@hangar1.com.mx",
     "ivan@hangar1.com.mx",
   ];
-
   const usersCotizaciones = [
     "isaac@hangar1.com.mx",
     "asesor2@hangar1.com.mx",
@@ -83,7 +98,6 @@ export default function OrderDetails({ orderId, isNewOrder, userEmail }) {
     "gaby@hangar1.com.mx",
     "ivan@hangar1.com.mx",
   ];
-
   const usersAnticipos = [
     "ary@hangar1.com.mx",
     "gaby@hangar1.com.mx",
@@ -92,162 +106,18 @@ export default function OrderDetails({ orderId, isNewOrder, userEmail }) {
     "ivan@hangar1.com.mx",
   ];
 
-  // Verificar el correo actual
   const canSeeRemision = usersTodos.includes(userEmail);
   const canSeeGarantia = usersGarantias.includes(userEmail);
   const canSeeCotizacion = usersCotizaciones.includes(userEmail);
   const canSeeAnticipo = usersAnticipos.includes(userEmail);
 
-  // -- Modal --
-  const [isDiscountModalOpen, setIsDiscountModalOpen] = useState(false);
-
-  const openModal = () => {
-    setIsModalOpen(true);
-    document.querySelector(".content").classList.add("main-blur");
-  };
-  const [isAbonarModalOpen, setIsAbonarModalOpen] = useState(false);
-  const closeModal = async () => {
-    setIsModalOpen(false);
-    document.querySelector(".content").classList.remove("main-blur");
-    const orderDocRef = doc(db, "orders", orderId.toString());
-    const docSnap = await getDoc(orderDocRef);
-
-    if (docSnap.exists()) {
-      const orderData = docSnap.data();
-      setOrder(orderData);
-      const inspectionItems = orderData.inspectionItems || [];
-
-      const totalSubtotal = inspectionItems.reduce((acc, item) => {
-        const cost = item.partUnitPrice || 0;
-        const quantity = item.quantity || 0;
-        const taxAmount = cost * quantity * taxRate;
-        const subtotal = cost * quantity + taxAmount - discount;
-        return acc + subtotal;
-      }, 0);
-
-      setTotalAmount(totalSubtotal);
-    } else {
-      console.error("Error: No se encontró el documento después de cerrar el modal");
-    }
-  };
-  const openAbonarModal = () => {
-    setIsAbonarModalOpen(true);
-    document.querySelector(".content").classList.add("main-blur");
-  };
-
-  // -- Modal Edit --
-  const [isModalOpen, setIsModalOpen] = useState(false);
-
-  const openEditModal = () => {
-    setIsEditModalOpen(true);
-    document.querySelector(".content").classList.add("main-blur");
-  };
-
-  const closeEditModal = () => {
-    setIsEditModalOpen(false);
-    document.querySelector(".content").classList.remove("main-blur");
-
-    if (order && order.inspectionItems) {
-      const updatedTotalAmount = calculateTotalAmount(order.inspectionItems);
-      setTotalAmount(updatedTotalAmount);
-    }
-  };
-
-  const toggleDropdown = () => {
-    setIsDropdownOpen((prev) => !prev);
-  };
-
-  const openDiscountModal = () => {
-    setIsDiscountModalOpen(true);
-    document.querySelector(".content").classList.add("main-blur");
-  };
-
-  const closeDiscountModal = () => {
-    setIsDiscountModalOpen(false);
-    document.querySelector(".content").classList.remove("main-blur");
-  };
-
-  // --- Abonos ---
-  const updateAbonosInFirebase = (updatedAbonos) => {
-    setAbonos(updatedAbonos);
-
-    const abonosTotal = updatedAbonos.reduce(
-      (acc, abono) => acc + parseFloat(abono.cantidad_abono || 0),
-      0
-    );
-    setAbonosSum(abonosTotal);
-
-    const totalSubtotal = order.inspectionItems.reduce((acc, item) => {
-      const cost = item.partUnitPrice || 0;
-      const quantity = item.quantity || 0;
-      const taxAmount = cost * quantity * taxRate;
-      const subtotal = cost * quantity + taxAmount - discount;
-      return acc + subtotal;
-    }, 0);
-
-    setTotalAmount(totalSubtotal - abonosTotal);
-  };
-  const closeAbonarModal = async () => {
-    setIsAbonarModalOpen(false);
-    document.querySelector(".content").classList.remove("main-blur");
-  };
-
-  // --- Productos ---
-  const saveProductToFirebase = async (orderId, newProduct) => {
-    try {
-      const orderDocRef = doc(db, "orders", orderId.toString());
-      const orderSnap = await getDoc(orderDocRef);
-
-      if (orderSnap.exists()) {
-        const existingOrder = orderSnap.data();
-        const updatedInspectionItems = [...existingOrder.inspectionItems, newProduct];
-
-        await updateDoc(orderDocRef, { inspectionItems: updatedInspectionItems });
-        console.log("Producto agregado exitosamente");
-
-        await closeModal();
-      }
-    } catch (error) {
-      console.error("Error al guardar el producto:", error);
-    }
-  };
-
-  const taxRate = 0.16;
-  const discount = 0;
-
-  /* ---------- Consulta de Datos ---------- */
-  const fetchOrderFromFirebase = async () => {
-    try {
-      console.log(
-        "Iniciando consulta en Firebase para obtener la orden usando orderID:",
-        orderId
-      );
-
-      if (!orderId) {
-        console.error("Error: orderId es undefined o null");
-        return;
-      }
-
-      const docRef = doc(db, "orders", orderId.toString());
-      console.log("Referencia del documento creada:", docRef);
-
-      const docSnap = await getDoc(docRef);
-      console.log("Resultado de la consulta:", docSnap.exists());
-
-      if (docSnap.exists()) {
-        const orderData = docSnap.data();
-        console.log("Detalles de la orden obtenidos de Firebase:", orderData);
-
+  /* ---------- Carga inicial de datos ---------- */
+  useEffect(() => {
+    if (!orderId) return;
+    (async () => {
+      try {
+        const orderData = await getOrderById(orderId);
         setOrder(orderData);
-
-        const abonosList = orderData.abonos || [];
-        setAbonos(abonosList);
-
-        const abonosTotal = abonosList.reduce(
-          (acc, abono) => acc + parseFloat(abono.cantidad_abono || 0),
-          0
-        );
-        setAbonosSum(abonosTotal);
 
         setFormData({
           firstName: orderData.firstName,
@@ -263,61 +133,53 @@ export default function OrderDetails({ orderId, isNewOrder, userEmail }) {
           color: orderData.color || "",
         });
 
-        const inspectionItems = orderData.inspectionItems || [];
-        const totalSubtotal = inspectionItems.reduce((acc, item) => {
-          const cost = parseFloat(item.partUnitPrice) || 0;
-          const quantity = parseInt(item.quantity) || 0;
-          const impuestos = item.impuestos === "16" ? 0.16 : 0;
-          const taxAmount = cost * quantity * impuestos;
-          const subtotal = cost * quantity + taxAmount;
-          return acc + subtotal;
-        }, 0);
+        const abonosList = orderData.abonos || [];
+        setAbonos(abonosList);
+        setAbonosSum(
+          abonosList.reduce(
+            (acc, a) => acc + parseFloat(a.cantidad_abono || 0),
+            0
+          )
+        );
 
-        setTotalAmount(totalSubtotal - abonosTotal);
-      } else {
-        console.log("No se encontró el documento en Firebase!");
-        const newOrderData = {
-          firstName: "",
-          lastName: "",
-          mobile: "",
-          inCharge: "",
-          brand: "",
-          model: "",
-          paymentMethod: "",
-          orderNumber: orderId,
-          inspectionItems: [],
-          uploadTime: new Date().toISOString(),
-        };
-
-        await setDoc(docRef, newOrderData);
-
-        setOrder(newOrderData);
-        setFormData(newOrderData);
-        setTotalAmount(0);
+        const entry = await getCotizadorAvanzado(orderId);
+        setCotizadorEntry(entry);
+      } catch (err) {
+        console.error("Error cargando datos:", err);
       }
-    } catch (error) {
-      console.error("Error obteniendo la orden de Firebase:", error);
-    }
-  };
-
-  useEffect(() => {
-    fetchOrderFromFirebase();
+    })();
   }, [orderId]);
 
+  /* ---------- helpers ---------- */
+  const calculateSubtotal = (item) => {
+    const cost = parseFloat(item.partUnitPrice) || 0;
+    const quantity = parseInt(item.quantity) || 0;
+    const iva = item.impuestos === "16" ? 0.16 : 0;
+    return cost * quantity * (1 + iva);
+  };
+  const calculateTotalAmount = (items) =>
+    items.reduce((acc, i) => acc + calculateSubtotal(i), 0);
+
+  /* actualizar total cuando cambian items o abonos */
+  useEffect(() => {
+    if (order?.inspectionItems) {
+      setTotalAmount(
+        calculateTotalAmount(order.inspectionItems) - abonosSum
+      );
+    }
+  }, [order, abonosSum]);
+
+  /* ---------- Edición encabezado ---------- */
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-    setFormData((prevData) => ({
-      ...prevData,
-      [name]: value,
-    }));
+    setFormData((prev) => ({ ...prev, [name]: value }));
     setIsEdited(true);
   };
 
   const handleSave = async () => {
+    if (!orderId) return;
     try {
-      const orderDocRef = doc(db, "orders", orderId.toString());
-
-      const updatedOrderData = {
+      await updateDoc(doc(db, "orders", orderId.toString()), {
         mobile: formData.mobile,
         inCharge: formData.inCharge,
         brand: formData.brand,
@@ -325,200 +187,117 @@ export default function OrderDetails({ orderId, isNewOrder, userEmail }) {
         year: formData.year,
         kilometros: formData.kilometros,
         color: formData.color,
-      };
-
-      await updateDoc(orderDocRef, updatedOrderData);
-
-      console.log("== Orden actualizada en Firebase con éxito ==");
-      alert("Se ha guardado correctamente");
-      await fetchOrderFromFirebase();
-
+      });
       setIsEdited(false);
-    } catch (error) {
-      console.error("Error actualizando la orden en Firebase:", error);
+    } catch (err) {
+      console.error("Error guardando encabezado:", err);
     }
   };
 
-  useEffect(() => {
-    if (order && order.inspectionItems) {
-      const updatedTotalAmount =
-        calculateTotalAmount(order.inspectionItems) - abonosSum;
-      setTotalAmount(updatedTotalAmount);
+  /* ---------- funciones para modales & dropdown (sin cambios) ---------- */
+  const toggleDropdown = () => setIsDropdownOpen((p) => !p);
+  const openModal = () => {
+    setIsModalOpen(true);
+    document.querySelector(".content")?.classList.add("main-blur");
+  };
+  const closeModal = () => {
+    setIsModalOpen(false);
+    document.querySelector(".content")?.classList.remove("main-blur");
+  };
+  const openAbonarModal = () => {
+    setIsAbonarModalOpen(true);
+    document.querySelector(".content")?.classList.add("main-blur");
+  };
+  const closeAbonarModal = () => {
+    setIsAbonarModalOpen(false);
+    document.querySelector(".content")?.classList.remove("main-blur");
+  };
+  const openEditModal = () => {
+    setIsEditModalOpen(true);
+    document.querySelector(".content")?.classList.add("main-blur");
+  };
+  const closeEditModal = () => {
+    setIsEditModalOpen(false);
+    document.querySelector(".content")?.classList.remove("main-blur");
+    if (order?.inspectionItems) {
+      setTotalAmount(
+        calculateTotalAmount(order.inspectionItems) - abonosSum
+      );
     }
-  }, [order, abonosSum]);
+  };
+  const openDiscountModal = () => {
+    setIsDiscountModalOpen(true);
+    document.querySelector(".content")?.classList.add("main-blur");
+  };
+  const closeDiscountModal = () => {
+    setIsDiscountModalOpen(false);
+    document.querySelector(".content")?.classList.remove("main-blur");
+  };
 
-  if (showCheckIn) {
-    /* ----------  sustituir .content por CheckIn ---------- */
-    return <CheckIn orderId={orderId} />;
-  }
+  /* ---------- Guardar producto ---------- */
+  const saveProductToFirebase = async (_orderId, newProduct) => {
+    try {
+      const ref = doc(db, "orders", _orderId.toString());
+      const snap = await getDoc(ref);
+      if (!snap.exists()) return;
+      const existing = snap.data();
+      await updateDoc(ref, {
+        inspectionItems: [...existing.inspectionItems, newProduct],
+      });
+      const updated = await getDoc(ref);
+      setOrder(updated.data());
+      closeModal();
+    } catch (err) {
+      console.error("Error guardando producto:", err);
+    }
+  };
 
-  if (showCheckTecnico) {
-    return <CheckTecnico orderId={orderId} />;
-  }
+  /* ---------- update abonos ---------- */
+  const updateAbonosInFirebase = (updated) => {
+    setAbonos(updated);
+    const total = updated.reduce(
+      (acc, a) => acc + parseFloat(a.cantidad_abono || 0),
+      0
+    );
+    setAbonosSum(total);
+  };
 
-  if (showCotizadorAvanzado) {
-    return <CotizadorAvanzado orderId={orderId} />;
-  }
+  /* ---------- Mostrar vistas auxiliares ---------- */
+  if (showCheckIn) return <CheckIn orderId={orderId} />;
+  if (showCheckTecnico) return <CheckTecnico orderId={orderId} />;
+  if (showCotizadorAvanzado) return <CotizadorAvanzado orderId={orderId} />;
 
-  if (!order) {
-    return <p>Cargando detalles de la orden...</p>;
-  }
-
+  if (!order) return <p>Cargando detalles de la orden...</p>;
   const inspectionItems = order.inspectionItems || [];
 
-  const calculateProductTax = (item) => {
-    const cost = parseFloat(item.partUnitPrice) || 0;
-    const quantity = parseInt(item.quantity) || 0;
-    const impuestos = item.impuestos === "16" ? 0.16 : 0;
-    return (cost * quantity * impuestos).toFixed(2);
-  };
-
-  const calculateSubtotal = (item) => {
-    const cost = parseFloat(item.partUnitPrice) || 0;
-    const quantity = parseInt(item.quantity) || 0;
-    const impuestos = item.impuestos === "16" ? 0.16 : 0;
-    const taxAmount = cost * quantity * impuestos;
-    const subtotal = cost * quantity + taxAmount;
-    return subtotal.toFixed(2);
-  };
-
-  const calculateTotalAmount = (items) => {
-    return items.reduce((acc, item) => {
-      const cost = parseFloat(item.partUnitPrice) || 0;
-      const quantity = parseInt(item.quantity) || 0;
-      const impuestos = item.impuestos === "16" ? 0.16 : 0;
-      const taxAmount = cost * quantity * impuestos;
-      const subtotal = cost * quantity + taxAmount;
-      return acc + subtotal;
-    }, 0);
-  };
-
-  const calculateTotalSubtotal = (items) => {
-    return items.reduce((acc, item) => acc + parseFloat(calculateSubtotal(item)), 0);
-  };
-
-  /* ---------- Número De Garantía ---------- */
-  const handleGenerateGuaranteeNumber = async () => {
-    try {
-      const orderRef = doc(db, "orders", order.orderNumber.toString());
-      const orderSnap = await getDoc(orderRef);
-
-      if (!orderSnap.exists()) return;
-
-      const orderData = orderSnap.data();
-
-      if (typeof orderData.garantia_number === "number") {
-        setOrder({ ...order, garantia_number: orderData.garantia_number });
-        return;
-      }
-
-      const contadoresRef = doc(db, "contadores", "contadores-garantia");
-      let contadoresSnap = await getDoc(contadoresRef);
-
-      if (!contadoresSnap.exists()) {
-        await setDoc(contadoresRef, { garantia: 0 });
-        contadoresSnap = await getDoc(contadoresRef);
-        if (!contadoresSnap.exists()) return;
-      }
-
-      const currentGarantia = contadoresSnap.data().garantia;
-      const newGarantia = currentGarantia + 1;
-
-      await updateDoc(orderRef, { garantia_number: newGarantia });
-      await updateDoc(contadoresRef, { garantia: newGarantia });
-      setOrder({ ...order, garantia_number: newGarantia });
-    } catch (error) {
-      console.error("Error en handleGenerateGuaranteeNumber:", error);
-    }
-  };
-
-  /* ---------- Selección de Documento ---------- */
-  const handleSelectDocument = async (docType) => {
-    setIsDropdownOpen(false);
-
-    if (docType === "Garantía") {
-      try {
-        await handleGenerateGuaranteeNumber();
-        if (pdfUrl) window.open(pdfUrl, "_blank");
-      } catch (error) {
-        console.error("Error generando garantía:", error);
-      }
-    } else if (docType === "Remisión") {
-      try {
-        await handleGenerateRemisionNumber();
-        setTimeout(() => {
-          if (pdfUrlRemision) window.open(pdfUrlRemision, "_blank");
-        }, 200);
-      } catch (error) {
-        console.error("Error generando remisión:", error);
-      }
-    } else if (docType === "Anticipos") {
-      if (pdfUrlAnticipos) window.open(pdfUrlAnticipos, "_blank");
-    } else if (docType === "Cotización") {
-      if (pdfUrlCotizacion) window.open(pdfUrlCotizacion, "_blank");
-    }
-  };
-
-  /* ---------- Número de Remisión ---------- */
-  const handleGenerateRemisionNumber = async () => {
-    try {
-      const orderRef = doc(db, "orders", order.orderNumber.toString());
-      const orderSnap = await getDoc(orderRef);
-
-      if (!orderSnap.exists()) return;
-
-      const orderData = orderSnap.data();
-
-      if (typeof orderData.remision_number === "number") {
-        setOrder({ ...order, remision_number: orderData.remision_number });
-        return;
-      }
-
-      const contadoresRef = doc(db, "contadores", "contadores-remision");
-      let contadoresSnap = await getDoc(contadoresRef);
-
-      if (!contadoresSnap.exists()) {
-        await setDoc(contadoresRef, { remision: 0 });
-        contadoresSnap = await getDoc(contadoresRef);
-        if (!contadoresSnap.exists()) return;
-      }
-
-      const currentRemision = contadoresSnap.data().remision;
-      const newRemision = currentRemision + 1;
-
-      await updateDoc(orderRef, { remision_number: newRemision });
-      await updateDoc(contadoresRef, { remision: newRemision });
-      setOrder({ ...order, remision_number: newRemision });
-    } catch (error) {
-      console.error("Error en handleGenerateRemisionNumber:", error);
-    }
-  };
-
-  /* ---------- Desglose de Cantidades ---------- */
-  const totalProductos = calculateTotalSubtotal(inspectionItems);
+  /* ---------- cálculos de desglose ---------- */
+  const totalProductos = calculateTotalAmount(inspectionItems);
   const descuento =
-    order.discount && order.discount.cantidad_dinero
+    order.discount?.cantidad_dinero
       ? parseFloat(order.discount.cantidad_dinero)
       : 0;
-  const impuestosValue = inspectionItems.reduce((acc, item) => {
-    if (item.impuestos === "16") {
+  const impuestosValue = inspectionItems.reduce((acc, i) => {
+    if (i.impuestos === "16") {
       return (
-        acc + parseFloat(item.partUnitPrice) * parseInt(item.quantity) * 0.16
+        acc + parseFloat(i.partUnitPrice) * parseInt(i.quantity) * 0.16
       );
     }
     return acc;
   }, 0);
   const totalFinal = totalProductos - descuento - impuestosValue;
 
+  /* ---------- render ---------- */
   return (
     <div className="order-details">
       <div className="content">
+        {/* ---------- Título ---------- */}
         <div className="order-title">
           <h2>
             Detalles de la Orden / <span>{order.orderNumber}</span>
           </h2>
         </div>
 
+        {/* ---------- Fecha & Print ---------- */}
         <div className="subtitle">
           <h3>
             <p>Fecha</p>
@@ -529,17 +308,14 @@ export default function OrderDetails({ orderId, isNewOrder, userEmail }) {
             </p>
           </h3>
 
-          {/* ---------------- Container Print ---------------- */}
+          {/* PDF ocultos + botón imprimir */}
           <div className="container-print">
-            {/* PDFDownloadLink ocultos */}
             <PDFDownloadLink
-              document={<OrderPDF order={order} />}
+              document={<OrderPDF order={order} cotizador={cotizadorEntry} />}
               fileName={`Orden_${order.orderNumber}.pdf`}
             >
               {({ loading, url }) => {
-                if (!loading && url && pdfUrl !== url) {
-                  setPdfUrl(url);
-                }
+                if (!loading && url && pdfUrl !== url) setPdfUrl(url);
                 return null;
               }}
             </PDFDownloadLink>
@@ -549,9 +325,8 @@ export default function OrderDetails({ orderId, isNewOrder, userEmail }) {
               fileName={`Remision_${order.orderNumber}.pdf`}
             >
               {({ loading, url }) => {
-                if (!loading && url && pdfUrlRemision !== url) {
+                if (!loading && url && pdfUrlRemision !== url)
                   setPdfUrlRemision(url);
-                }
                 return null;
               }}
             </PDFDownloadLink>
@@ -561,9 +336,8 @@ export default function OrderDetails({ orderId, isNewOrder, userEmail }) {
               fileName={`Anticipos_${order.orderNumber}.pdf`}
             >
               {({ loading, url }) => {
-                if (!loading && url && pdfUrlAnticipos !== url) {
+                if (!loading && url && pdfUrlAnticipos !== url)
                   setPdfUrlAnticipos(url);
-                }
                 return null;
               }}
             </PDFDownloadLink>
@@ -573,14 +347,12 @@ export default function OrderDetails({ orderId, isNewOrder, userEmail }) {
               fileName={`Cotizacion_${order.orderNumber}.pdf`}
             >
               {({ loading, url }) => {
-                if (!loading && url && pdfUrlCotizacion !== url) {
+                if (!loading && url && pdfUrlCotizacion !== url)
                   setPdfUrlCotizacion(url);
-                }
                 return null;
               }}
             </PDFDownloadLink>
 
-            {/* Botón imprimir */}
             <button onClick={toggleDropdown}>
               <img src="icons/print.svg" alt="Imprimir" />
             </button>
@@ -588,22 +360,22 @@ export default function OrderDetails({ orderId, isNewOrder, userEmail }) {
             {isDropdownOpen && (
               <ul className="print-dropdown">
                 {canSeeRemision && (
-                  <li onClick={() => handleSelectDocument("Remisión")}>
+                  <li onClick={() => window.open(pdfUrlRemision, "_blank")}>
                     Remisión
                   </li>
                 )}
                 {canSeeGarantia && (
-                  <li onClick={() => handleSelectDocument("Garantía")}>
+                  <li onClick={() => window.open(pdfUrl, "_blank")}>
                     Garantía
                   </li>
                 )}
                 {canSeeCotizacion && (
-                  <li onClick={() => handleSelectDocument("Cotización")}>
+                  <li onClick={() => window.open(pdfUrlCotizacion, "_blank")}>
                     Cotización
                   </li>
                 )}
                 {canSeeAnticipo && (
-                  <li onClick={() => handleSelectDocument("Anticipos")}>
+                  <li onClick={() => window.open(pdfUrlAnticipos, "_blank")}>
                     Anticipos
                   </li>
                 )}
@@ -618,16 +390,14 @@ export default function OrderDetails({ orderId, isNewOrder, userEmail }) {
           </div>
         </div>
 
-        {/* ---------------- Checks Container ---------------- */}
+        {/* ---------- Checks ---------- */}
         <div className="checks-container">
           <button className="link" onClick={() => setShowCheckIn(true)}>
             <p>Check-in</p>
           </button>
-          {/* Check Tecnico */}
           <button className="link" onClick={() => setShowCheckTecnico(true)}>
             <p>Check-Tecnico</p>
           </button>
-          {/* Cotizador Avanzado */}
           <button
             className="link"
             onClick={() => setShowCotizadorAvanzado(true)}
@@ -636,139 +406,14 @@ export default function OrderDetails({ orderId, isNewOrder, userEmail }) {
           </button>
         </div>
 
-        {/* ---------------- Container Orden ---------------- */}
-        <div className="container-orden">
-          {/* Estado de la Orden */}
-          <div
-            className={`presupuesto-container ${
-              order.estado_orden?.toLowerCase()
-            }`}
-          >
-            <div>
-              <p>{order.estado_orden || "Presupuesto"}</p>
-            </div>
-          </div>
+        {/* ---------- Datos del cliente / coche (nuevo componente) ---------- */}
+        <ContainerOrden
+          order={order}
+          formData={formData}
+          handleInputChange={handleInputChange}
+        />
 
-          {/* Nombre del cliente */}
-          <div className="row-client">
-            <div className="column-client">
-              <p className="span-client">Nombre del cliente:</p>
-            </div>
-
-            <div className="column-client">
-              <input
-                className="input-two"
-                name="firstName"
-                value={formData.firstName}
-                readOnly
-              />
-            </div>
-          </div>
-
-          {/* Asesor */}
-          <div className="row-client">
-            <div className="column-client">
-              <p className="span-client">Asesor:</p>
-            </div>
-            <div className="column-client">
-              <select
-                name="inCharge"
-                value={formData.inCharge}
-                onChange={handleInputChange}
-              >
-                <option value="Cristian Abarca">Cristian Abarca</option>
-                <option value="Jorge Sanchez">Jorge Sanchez</option>
-              </select>
-            </div>
-          </div>
-
-          {/* Teléfono */}
-          <div className="row-client">
-            <div className="column-client">
-              <p className="span-client">Teléfono:</p>
-            </div>
-            <div className="column-client">
-              <input
-                name="mobile"
-                value={formData.mobile}
-                onChange={handleInputChange}
-              />
-            </div>
-          </div>
-
-          {/* Auto y Año */}
-          <div className="row-client">
-            <div className="column-client">
-              <p className="span-client">Auto:</p>
-            </div>
-            <div className="column-client">
-              <input
-                className="input-two"
-                name="brand"
-                value={formData.brand}
-                onChange={handleInputChange}
-              />
-              <input
-                className="input-two"
-                name="year"
-                value={formData.year}
-                onChange={handleInputChange}
-              />
-            </div>
-          </div>
-
-          {/* Kilometraje */}
-          <div className="row-client">
-            <div className="column-client">
-              <p className="span-client">Kilometraje:</p>
-            </div>
-            <div className="column-client">
-              <input
-                className="input-two"
-                name="kilometraje"
-                value={formData.kilometros}
-                onChange={handleInputChange}
-              />
-            </div>
-          </div>
-
-          {/* Color */}
-          <div className="row-client">
-            <div className="column-client">
-              <p className="span-client">Color:</p>
-            </div>
-            <div className="column-client">
-              <input
-                type="text"
-                name="color"
-                value={formData.color}
-                onChange={handleInputChange}
-              />
-            </div>
-          </div>
-
-          {/* Método de pago */}
-          <div className="row-client">
-            <div className="column-client">
-              <p className="span-client">Método de Pago:</p>
-            </div>
-            <div className="column-client">
-              <select
-                name="paymentMethod"
-                value={formData.paymentMethod}
-                onChange={handleInputChange}
-              >
-                <option value="Tarjeta de Crédito">Tarjeta de Credito</option>
-                <option value="Tarjeta de Débito">Tarjeta de Debito</option>
-                <option value="Depósito">Deposito</option>
-                <option value="Efectivo">Efectivo</option>
-                <option value="Transferencia">Transferencia</option>
-              </select>
-            </div>
-          </div>
-        </div>
-
-        {/* ---------------- Desgloce Cantidades ---------------- */}
+        {/* ---------- Desglose de cantidades ---------- */}
         <div className="container-desgloce-cantidades">
           <div className="container-cantidades">
             <div className="row-cantidad">
@@ -818,11 +463,11 @@ export default function OrderDetails({ orderId, isNewOrder, userEmail }) {
             <div className="folios">
               <div className="row-cantidad">
                 <p>Folio Garantía: </p>
-                {order.garantia_number ? <p>#{order.garantia_number}</p> : null}
+                {order.garantia_number && <p>#{order.garantia_number}</p>}
               </div>
               <div className="row-cantidad">
                 <p>Número Remisión: </p>
-                {order.remision_number ? <p>#{order.remision_number}</p> : null}
+                {order.remision_number && <p>#{order.remision_number}</p>}
               </div>
             </div>
 
@@ -838,22 +483,22 @@ export default function OrderDetails({ orderId, isNewOrder, userEmail }) {
           </div>
         </div>
 
-        {/* ---------------- Productos & Servicios ---------------- */}
+        {/* ---------- Productos & Servicios ---------- */}
         <div className="container-productos">
           <h2>Productos & Servicios</h2>
           <div className="container-buttons">
             <button onClick={openModal}>
-              <img src="icons/plus.svg" />
+              <img src="icons/plus.svg" alt="Agregar" />
             </button>
             <button onClick={openEditModal}>
-              <img src="icons/edit.svg" />
+              <img src="icons/edit.svg" alt="Editar" />
             </button>
             <button onClick={openAbonarModal}>Anticipo</button>
             <button onClick={openDiscountModal}>Descuento</button>
           </div>
         </div>
 
-        {/* Tabla de productos */}
+        {/* ---------- Tabla productos ---------- */}
         <table className="table-order">
           <thead className="no-hover">
             <tr className="no-hover">
@@ -866,15 +511,15 @@ export default function OrderDetails({ orderId, isNewOrder, userEmail }) {
             </tr>
           </thead>
           <tbody>
-            {inspectionItems.length > 0 ? (
-              inspectionItems.map((item, index) => {
+            {inspectionItems.length ? (
+              inspectionItems.map((item, i) => {
                 const cost = parseFloat(item.partUnitPrice) || 0;
                 const quantity = parseInt(item.quantity) || 0;
                 const impuestos = item.impuestos === "16" ? "16%" : "0%";
                 const subtotal = calculateSubtotal(item);
 
                 return (
-                  <tr key={index}>
+                  <tr key={i}>
                     <td>{item.inspectionItemName}</td>
                     <td>{item.brand || "N/A"}</td>
                     <td>
@@ -888,7 +533,7 @@ export default function OrderDetails({ orderId, isNewOrder, userEmail }) {
                     <td>{impuestos}</td>
                     <td>
                       $
-                      {parseFloat(subtotal).toLocaleString("es-MX", {
+                      {subtotal.toLocaleString("es-MX", {
                         minimumFractionDigits: 2,
                         maximumFractionDigits: 2,
                       })}
@@ -904,19 +549,17 @@ export default function OrderDetails({ orderId, isNewOrder, userEmail }) {
           </tbody>
         </table>
 
-        {/* ---------------- Historial de Pagos (nuevo componente) ---------------- */}
+        {/* ---------- Historial de pagos ---------- */}
         <HistorialPagos abonos={abonos} />
       </div>
 
-      {/* ---------------- Modales ---------------- */}
+      {/* ---------- Modales ---------- */}
       <ModalProduct
         isOpen={isModalOpen}
         onClose={closeModal}
         orderId={orderId}
         onSaveProduct={saveProductToFirebase}
-        className="modalProduct"
       />
-
       <ModalAbonar
         isOpen={isAbonarModalOpen}
         onClose={closeAbonarModal}
@@ -924,7 +567,6 @@ export default function OrderDetails({ orderId, isNewOrder, userEmail }) {
         existingAbonos={order?.abonos || []}
         onUpdateAbonos={updateAbonosInFirebase}
       />
-
       <ModalEditProduct
         isOpen={isEditModalOpen}
         onClose={closeEditModal}
@@ -932,7 +574,6 @@ export default function OrderDetails({ orderId, isNewOrder, userEmail }) {
         inspectionItems={order.inspectionItems}
         setOrder={setOrder}
       />
-
       <ModalDiscount
         isOpen={isDiscountModalOpen}
         onClose={closeDiscountModal}

@@ -2,7 +2,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { doc, getDoc, updateDoc } from "firebase/firestore";
+import { doc, getDoc, updateDoc, setDoc } from "firebase/firestore";
 import { db } from "../../../../lib/firebase";
 import { PDFDownloadLink } from "@react-pdf/renderer";
 
@@ -111,7 +111,7 @@ export default function OrderDetails({ orderId, isNewOrder, userEmail }) {
   const canSeeCotizacion = usersCotizaciones.includes(userEmail);
   const canSeeAnticipo = usersAnticipos.includes(userEmail);
 
-  /* ---------- Carga inicial de datos ---------- */
+  /* ---------- Carga inicial ---------- */
   useEffect(() => {
     if (!orderId) return;
     (async () => {
@@ -194,7 +194,83 @@ export default function OrderDetails({ orderId, isNewOrder, userEmail }) {
     }
   };
 
-  /* ---------- funciones para modales & dropdown (sin cambios) ---------- */
+  /* ---------- Generar folio de Garantía ---------- */
+  const handleGenerateGuaranteeNumber = async () => {
+    try {
+      const orderRef = doc(db, "orders", order.orderNumber.toString());
+      const orderSnap = await getDoc(orderRef);
+      if (!orderSnap.exists()) return;
+
+      /* si ya tiene folio, no lo cambia */
+      if (typeof orderSnap.data().garantia_number === "number") {
+        setOrder({ ...order, garantia_number: orderSnap.data().garantia_number });
+        return;
+      }
+
+      const contRef = doc(db, "contadores", "contadores-garantia");
+      let contSnap = await getDoc(contRef);
+      if (!contSnap.exists()) {
+        await setDoc(contRef, { garantia: 0 });
+        contSnap = await getDoc(contRef);
+      }
+
+      const newFol = (contSnap.data().garantia || 0) + 1;
+      await updateDoc(orderRef, { garantia_number: newFol });
+      await updateDoc(contRef, { garantia: newFol });
+      setOrder({ ...order, garantia_number: newFol });
+    } catch (err) {
+      console.error("Error generando garantía:", err);
+    }
+  };
+
+  /* ---------- Generar folio de Remisión ---------- */
+  const handleGenerateRemisionNumber = async () => {
+    try {
+      const orderRef = doc(db, "orders", order.orderNumber.toString());
+      const orderSnap = await getDoc(orderRef);
+      if (!orderSnap.exists()) return;
+
+      if (typeof orderSnap.data().remision_number === "number") {
+        setOrder({ ...order, remision_number: orderSnap.data().remision_number });
+        return;
+      }
+
+      const contRef = doc(db, "contadores", "contadores-remision");
+      let contSnap = await getDoc(contRef);
+      if (!contSnap.exists()) {
+        await setDoc(contRef, { remision: 0 });
+        contSnap = await getDoc(contRef);
+      }
+
+      const newFol = (contSnap.data().remision || 0) + 1;
+      await updateDoc(orderRef, { remision_number: newFol });
+      await updateDoc(contRef, { remision: newFol });
+      setOrder({ ...order, remision_number: newFol });
+    } catch (err) {
+      console.error("Error generando remisión:", err);
+    }
+  };
+
+  /* ---------- Selección en dropdown de impresión ---------- */
+  const handleSelectDocument = async (type) => {
+    setIsDropdownOpen(false);
+
+    if (type === "Garantía") {
+      await handleGenerateGuaranteeNumber();
+      if (pdfUrl) window.open(pdfUrl, "_blank");
+    } else if (type === "Remisión") {
+      await handleGenerateRemisionNumber();
+      setTimeout(() => {
+        if (pdfUrlRemision) window.open(pdfUrlRemision, "_blank");
+      }, 250);
+    } else if (type === "Cotización") {
+      if (pdfUrlCotizacion) window.open(pdfUrlCotizacion, "_blank");
+    } else if (type === "Anticipos") {
+      if (pdfUrlAnticipos) window.open(pdfUrlAnticipos, "_blank");
+    }
+  };
+
+  /* ---------- funciones para modales & dropdown (resto iguales) ---------- */
   const toggleDropdown = () => setIsDropdownOpen((p) => !p);
   const openModal = () => {
     setIsModalOpen(true);
@@ -360,22 +436,22 @@ export default function OrderDetails({ orderId, isNewOrder, userEmail }) {
             {isDropdownOpen && (
               <ul className="print-dropdown">
                 {canSeeRemision && (
-                  <li onClick={() => window.open(pdfUrlRemision, "_blank")}>
+                  <li onClick={() => handleSelectDocument("Remisión")}>
                     Remisión
                   </li>
                 )}
                 {canSeeGarantia && (
-                  <li onClick={() => window.open(pdfUrl, "_blank")}>
+                  <li onClick={() => handleSelectDocument("Garantía")}>
                     Garantía
                   </li>
                 )}
                 {canSeeCotizacion && (
-                  <li onClick={() => window.open(pdfUrlCotizacion, "_blank")}>
+                  <li onClick={() => handleSelectDocument("Cotización")}>
                     Cotización
                   </li>
                 )}
                 {canSeeAnticipo && (
-                  <li onClick={() => window.open(pdfUrlAnticipos, "_blank")}>
+                  <li onClick={() => handleSelectDocument("Anticipos")}>
                     Anticipos
                   </li>
                 )}
@@ -406,14 +482,14 @@ export default function OrderDetails({ orderId, isNewOrder, userEmail }) {
           </button>
         </div>
 
-        {/* ---------- Datos del cliente / coche (nuevo componente) ---------- */}
+        {/* ---------- Datos del cliente / coche ---------- */}
         <ContainerOrden
           order={order}
           formData={formData}
           handleInputChange={handleInputChange}
         />
 
-        {/* ---------- Desglose de cantidades ---------- */}
+        {/* ---------- Desglose cantidades ---------- */}
         <div className="container-desgloce-cantidades">
           <div className="container-cantidades">
             <div className="row-cantidad">

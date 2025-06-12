@@ -1,12 +1,6 @@
 // ContainerOrden.js
 "use client";
 
-import React from "react";
-
-/**
- * Encabezado con datos del cliente y del vehículo.
- * Controlado externamente mediante formData y handleInputChange.
- */
 export default function ContainerOrden({ order, formData, handleInputChange }) {
   const estadoClase = order.estado_orden
     ? order.estado_orden.toLowerCase()
@@ -14,14 +8,13 @@ export default function ContainerOrden({ order, formData, handleInputChange }) {
 
   return (
     <div className="container-orden">
-      {/* Estado de la orden */}
       <div className={`presupuesto-container ${estadoClase}`}>
         <div>
           <p>{order.estado_orden || "Presupuesto"}</p>
         </div>
       </div>
 
-      {/* Nombre cliente */}
+      {/* Nombre del cliente */}
       <div className="row-client">
         <div className="column-client">
           <p className="span-client">Nombre del cliente:</p>
@@ -110,7 +103,6 @@ export default function ContainerOrden({ order, formData, handleInputChange }) {
         </div>
         <div className="column-client">
           <input
-            type="text"
             name="color"
             value={formData.color}
             onChange={handleInputChange}

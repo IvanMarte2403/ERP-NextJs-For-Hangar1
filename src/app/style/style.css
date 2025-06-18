@@ -1445,6 +1445,9 @@
   padding: var(--spacing-xxl);
   padding-top: 0;
   flex: 1;
+  /* --------------------------- USER ASIGNADO --------------------------- */
+  /* ------------------------- USER NO ASIGNADO ------------------------- */
+  /* --------------------------- CAR CONTAINER -------------------------- */
 }
 .order-details-new .title-order {
   width: 100%;
@@ -1462,7 +1465,7 @@
 }
 .order-details-new .user-asignado {
   width: 30%;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Sombra en la parte inferior */
+  box-shadow: 0 0.4rem 0.6rem rgba(0, 0, 0, 0.1);
   padding: var(--spacing-md);
 }
 .order-details-new .user-asignado .title-new {
@@ -1510,19 +1513,15 @@
   justify-content: space-between;
   padding: var(--spacing-md);
   width: 30%;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Sombra en la parte inferior */
+  box-shadow: 0 0.4rem 0.6rem rgba(0, 0, 0, 0.1);
 }
 .order-details-new .user-no-asignado .input-client input {
   all: unset;
-  border: 2px solid #000;
+  border: 0.02rem solid #000;
   border-radius: 0.4rem;
   margin-top: var(--font-size-sm);
   width: 86%;
   padding: var(--spacing-sm);
-}
-.order-details-new .user-no-asignado .input-client select {
-  all: unset;
-  background-color: var(--background-color-1);
 }
 .order-details-new .user-no-asignado .button-container {
   display: flex;
@@ -1532,12 +1531,12 @@
   all: unset;
   background-color: var(--background-color-2);
   color: var(--color-secondary);
-  padding: 0.5rem 0.6rem 0.5rem 0.6rem;
+  padding: 0.5rem 0.6rem;
   border-radius: 0.4rem;
 }
 .order-details-new .car-container-new {
   width: 69%;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Sombra en la parte inferior */
+  box-shadow: 0 0.4rem 0.6rem rgba(0, 0, 0, 0.1);
   padding: var(--spacing-xl);
 }
 .order-details-new .car-container-new .title-new {
@@ -1557,20 +1556,21 @@
   width: 47%;
   display: flex;
   flex-direction: column;
+  position: relative;
 }
 .order-details-new .car-container-new .input p {
   font-weight: 400;
 }
 .order-details-new .car-container-new .input input {
   all: unset;
-  border: 2px solid #000;
+  border: 0.02rem solid #000;
   border-radius: 0.4rem;
   margin-top: var(--spacing-sm);
   padding: var(--spacing-sm);
 }
 .order-details-new .car-container-new .input select {
   all: unset;
-  border: 1px rgba(0, 0, 0, 0.8) solid;
+  border: 0.02rem solid rgba(0, 0, 0, 0.8);
   padding: var(--spacing-sm);
   border-radius: 0.4rem;
   margin-top: var(--spacing-sm);
@@ -1590,7 +1590,7 @@
 .order-details-new .car-container-new .container-placa .placa input {
   width: 100%;
   all: unset;
-  border: 2px solid #000;
+  border: 0.02rem solid #000;
   border-radius: 0.4rem;
   padding: var(--spacing-md);
   font-weight: 700;
@@ -1605,9 +1605,10 @@
   background-color: var(--background-color-2);
   color: var(--color-secondary);
   border-radius: 0.4rem;
-  padding: 0.6rem 2rem 0.6rem 2rem;
+  padding: 0.6rem 2rem;
 }
 
+/* ---------------------------- CLIENT RESULTS --------------------------- */
 .client-results {
   width: 100%;
   list-style-type: none;
@@ -1615,12 +1616,118 @@
   background-color: var(--background-color-2);
   border-radius: 0.4rem;
   padding: var(--spacing-sm);
+  position: absolute;
+  z-index: 10;
+  max-height: 30vh;
+  overflow-y: auto;
 }
 .client-results li {
-  border-top: 1px solid #fff;
+  border-top: 0.02rem solid #ffffff;
   padding: var(--spacing-sm);
   color: var(--color-secondary);
   cursor: pointer;
+  transition: background-color 0.2s ease-in-out, color 0.2s ease-in-out;
+}
+.client-results li:first-child {
+  border-top: none;
+}
+.client-results li:hover {
+  background-color: var(--background-color-1);
+  color: var(--color-primary);
+}
+
+/* --------------------------- BRAND DROPDOWN --------------------------- */
+.brand-results {
+  width: 100%;
+  max-height: 30vh;
+  overflow-y: auto;
+  list-style: none;
+  margin-top: var(--spacing-sm);
+  background-color: var(--background-color-2);
+  border-radius: 0.4rem;
+  padding: var(--spacing-sm);
+  box-shadow: 0 0.4rem 0.6rem rgba(0, 0, 0, 0.1);
+  position: absolute;
+  top: calc(100% + var(--spacing-sm));
+  left: 0;
+  z-index: 10;
+}
+.brand-results li {
+  border-top: 0.02rem solid var(--color-secondary);
+  padding: var(--spacing-sm);
+  font-size: var(--font-size-sm);
+  color: var(--color-secondary);
+  cursor: pointer;
+  transition: background-color 0.2s ease-in-out, color 0.2s ease-in-out;
+}
+.brand-results li:first-child {
+  border-top: none;
+}
+.brand-results li:hover {
+  background-color: var(--background-color-1);
+  color: var(--color-primary);
+}
+
+.model-results {
+  width: 100%;
+  max-height: 30vh;
+  overflow-y: auto;
+  list-style: none;
+  margin-top: var(--spacing-sm);
+  background-color: var(--background-color-2);
+  border-radius: 0.4rem;
+  padding: var(--spacing-sm);
+  box-shadow: 0 0.4rem 0.6rem rgba(0, 0, 0, 0.1);
+  position: absolute;
+  top: calc(100% + var(--spacing-sm));
+  left: 0;
+  z-index: 10;
+}
+.model-results li {
+  border-top: 0.02rem solid var(--color-secondary);
+  padding: var(--spacing-sm);
+  font-size: var(--font-size-sm);
+  color: var(--color-secondary);
+  cursor: pointer;
+  transition: background-color 0.2s ease-in-out, color 0.2s ease-in-out;
+}
+.model-results li:first-child {
+  border-top: none;
+}
+.model-results li:hover {
+  background-color: var(--background-color-1);
+  color: var(--color-secondary);
+}
+
+.motor-results {
+  width: 100%;
+  max-height: 30vh;
+  overflow-y: auto;
+  list-style: none;
+  margin-top: var(--spacing-sm);
+  background-color: var(--background-color-2);
+  border-radius: 0.4rem;
+  padding: var(--spacing-sm);
+  box-shadow: 0 0.4rem 0.6rem rgba(0, 0, 0, 0.1);
+  position: absolute;
+  top: calc(100% + var(--spacing-sm));
+  left: 0;
+  z-index: 10;
+}
+.motor-results li {
+  border-top: 0.02rem solid var(--color-secondary);
+  padding: var(--spacing-sm);
+  font-size: var(--font-size-sm);
+  color: var(--color-secondary);
+  cursor: pointer;
+  transition: background-color 0.2s ease-in-out, color 0.2s ease-in-out;
+}
+.motor-results li:first-child {
+  border-top: none;
+}
+.motor-results li:hover {
+  background-color: var(--background-color-1);
+  color: var(--color-secondary);
 }
 
 .products-container {

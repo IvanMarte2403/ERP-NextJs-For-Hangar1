@@ -57,6 +57,7 @@ export default function AfinacionBasicaCotizador({ orderId }) {
     "Revisión de Luces (Interiores)": "583A446F",
   };
 
+  /* ---------- Enviar al backend ---------- */
   const handleEnviarCotizador = async () => {
     try {
       if (!orderId) {
@@ -68,6 +69,25 @@ export default function AfinacionBasicaCotizador({ orderId }) {
         return;
       }
 
+      /* Sub-total sin IVA */
+      const rawSubtotal = services.reduce(
+        (acc, s) => acc + s.cantidad * s.costo,
+        0
+      );
+
+      /* IVA (16 % si está habilitado) */
+      const iva = taxEnabled ? rawSubtotal * 0.16 : 0;
+
+      /* Descuento en arreglo requerido por la API */
+      const descuentosArr =
+        descuento > 0 || discountCode
+          ? [{ cantidad_descuento: descuento, codigo_descuento: discountCode || "" }]
+          : [];
+
+      /* Total final */
+      const total = rawSubtotal + iva - descuento;
+
+      /* Productos únicos por ID */
       const productsCotizador = [
         ...new Set(
           services
@@ -76,13 +96,13 @@ export default function AfinacionBasicaCotizador({ orderId }) {
         ),
       ];
 
-
       await postCotizadorAvanzado({
         orderId,
         cilindrosNumber,
+        iva,
+        total,
         includeServices,
-        cantidadDescuento: descuento,
-        codigoDescuento: discountCode,
+        descuentos: descuentosArr,
         productsCotizador,
       });
 
@@ -92,6 +112,7 @@ export default function AfinacionBasicaCotizador({ orderId }) {
       alert("Error al enviar el cotizador");
     }
   };
+
 
   return (
     <div className="container-cotizador-forms">

@@ -1973,6 +1973,12 @@
   width: 15%;
   margin-right: var(--spacing-md);
 }
+.container-cotizador-forms .container-main-forms .container-sections-main .container-forms-cotizador .form-input-cotizador .section-form-avanzado .inputs-section .container-tipo {
+  margin-right: var(--spacing-md);
+}
+.container-cotizador-forms .container-main-forms .container-sections-main .container-forms-cotizador .form-input-cotizador .section-form-avanzado .inputs-section .container-subtipo {
+  margin-right: var(--spacing-md);
+}
 .container-cotizador-forms .container-main-forms .container-sections-main .container-forms-cotizador .form-input-cotizador .section-form-avanzado .confirmation-insection {
   width: 7%;
   display: flex;

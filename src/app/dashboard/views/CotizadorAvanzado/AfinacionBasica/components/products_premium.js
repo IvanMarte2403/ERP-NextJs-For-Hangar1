@@ -49,13 +49,7 @@ export const premiumProducts = [
     icon: "CotizadorAvanzado/AfinacionBasica/filtro_aceite.svg",
     fields: ["cantidad", "marca", "costo", "tipo"],
   },
-  {
-    key: "bateria",
-    /* sin API todavía */
-    name: "Batería / Acumulador",
-    icon: "CotizadorAvanzado/AfinacionBasica/luces.svg",
-    fields: ["cantidad", "marca", "costo", "tipo"],
-  },
+
 ];
 
 export const maxRendProducts = [

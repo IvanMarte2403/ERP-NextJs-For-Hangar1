@@ -20,17 +20,7 @@ export default function ComponentCostos({
         <h3>Costos</h3>
       </div>
 
-      {/* IVA toggle */}
-      <div className="iva-toggle">
-        <label>
-          <input
-            type="checkbox"
-            checked={taxEnabled}
-            onChange={onToggleTax}
-          />
-          Incluir IVA
-        </label>
-      </div>
+
 
       <div className="container-desgloce">
         {/* Subtotal */}
@@ -42,6 +32,8 @@ export default function ComponentCostos({
             <p>${subtotal.toLocaleString()}</p>
           </div>
         </div>
+
+      
 
         {/* Impuestos */}
         <div className="row-desgloce">
@@ -73,6 +65,18 @@ export default function ComponentCostos({
           </div>
         </div>
       </div>
+
+        {/* IVA toggle */}
+        <div className="iva-toggle">
+          <label>
+            <input
+              type="checkbox"
+              checked={taxEnabled}
+              onChange={onToggleTax}
+            />
+            <p>Incluir IVA</p>
+          </label>
+        </div>
     </div>
   );
 }

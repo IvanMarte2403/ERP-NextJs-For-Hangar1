@@ -16,6 +16,17 @@ export default function AfinacionBasicaCotizador({ orderId }) {
   const [cilindrosNumber, setCilindrosNumber] = useState(null);
   const [includeServices, setIncludeServices] = useState([]);
 
+  /* Mapeo costo-cilindraje */
+  const cilindrosCost = {
+    3: 1300,
+    4: 1400,
+    5: 1500,
+    6: 1600,
+    8: 1800,
+    10: 2000,
+    12: 2200,
+  };
+
   const handleAddService = (service) => {
     setServices((prev) => [...prev, { id: Date.now(), ...service }]);
   };
@@ -29,14 +40,16 @@ export default function AfinacionBasicaCotizador({ orderId }) {
   };
 
   const { subtotal, impuestos, total } = useMemo(() => {
-    const rawSubtotal = services.reduce(
-      (acc, s) => acc + s.cantidad * s.costo,
-      0
-    );
+    const costoCilindraje = cilindrosCost[cilindrosNumber] ?? 0;
+    const rawSubtotal =
+      services.reduce((acc, s) => acc + s.cantidad * s.costo, 0) +
+      costoCilindraje;
+
     const iva = taxEnabled ? rawSubtotal * 0.16 : 0;
     const rawTotal = rawSubtotal + iva - descuento;
+
     return { subtotal: rawSubtotal, impuestos: iva, total: rawTotal };
-  }, [services, taxEnabled, descuento]);
+  }, [services, cilindrosNumber, taxEnabled, descuento]);
 
   const toggleTax = () => setTaxEnabled((prev) => !prev);
 
@@ -75,7 +88,6 @@ export default function AfinacionBasicaCotizador({ orderId }) {
             .filter(Boolean)
         ),
       ];
-
 
       await postCotizadorAvanzado({
         orderId,
@@ -130,7 +142,7 @@ export default function AfinacionBasicaCotizador({ orderId }) {
                 setDiscountCode={setDiscountCode}
               />
 
-              <ComponentServicios services={services} />
+              <ComponentServicios services={services} taxEnabled={taxEnabled} />
             </div>
 
             <div className="container-buttons">

@@ -1945,9 +1945,8 @@
   align-items: center;
 }
 .container-cotizador-forms .container-main-forms .container-sections-main .container-forms-cotizador .form-input-cotizador .section-form-avanzado .inputs-section {
-  width: 75%;
+  width: 90%;
   display: flex;
-  justify-content: space-between;
   align-items: center;
 }
 .container-cotizador-forms .container-main-forms .container-sections-main .container-forms-cotizador .form-input-cotizador .section-form-avanzado .inputs-section p {
@@ -1964,15 +1963,18 @@
 }
 .container-cotizador-forms .container-main-forms .container-sections-main .container-forms-cotizador .form-input-cotizador .section-form-avanzado .inputs-section .container-cantidad {
   width: 15%;
+  margin-right: var(--spacing-md);
 }
 .container-cotizador-forms .container-main-forms .container-sections-main .container-forms-cotizador .form-input-cotizador .section-form-avanzado .inputs-section .container-marca {
   width: 30%;
+  margin-right: var(--spacing-md);
 }
 .container-cotizador-forms .container-main-forms .container-sections-main .container-forms-cotizador .form-input-cotizador .section-form-avanzado .inputs-section .container-costo {
   width: 15%;
+  margin-right: var(--spacing-md);
 }
 .container-cotizador-forms .container-main-forms .container-sections-main .container-forms-cotizador .form-input-cotizador .section-form-avanzado .confirmation-insection {
-  width: 10%;
+  width: 7%;
   display: flex;
   justify-content: center;
   align-items: center;
@@ -1993,6 +1995,23 @@
 .container-cotizador-forms .container-main-forms .container-sections-main .container-desgloce .component-costos {
   margin-bottom: var(--spacing-lg);
   padding: var(--spacing-sm);
+}
+.container-cotizador-forms .container-main-forms .container-sections-main .container-desgloce .component-costos .iva-toggle {
+  width: 100%;
+  font-size: var(--font-size-md);
+  display: flex;
+  align-items: center;
+  margin-top: var(--spacing-lg);
+}
+.container-cotizador-forms .container-main-forms .container-sections-main .container-desgloce .component-costos .iva-toggle input {
+  margin-right: var(--spacing-sm);
+}
+.container-cotizador-forms .container-main-forms .container-sections-main .container-desgloce .component-costos .iva-toggle label {
+  display: flex;
+  align-items: center;
+}
+.container-cotizador-forms .container-main-forms .container-sections-main .container-desgloce .component-costos .iva-toggle label input {
+  background-color: var(--background-color-1);
 }
 .container-cotizador-forms .container-main-forms .container-sections-main .container-desgloce .component-costos .title {
   width: 100%;

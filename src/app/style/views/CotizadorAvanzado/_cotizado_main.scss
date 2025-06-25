@@ -206,9 +206,8 @@
                         align-items: center;
 
                         .inputs-section{
-                            width: 75%;
+                            width: 90%;
                             display: flex;
-                            justify-content: space-between;
                             align-items: center;
                             p{
                                     font-size: var(--font-size-sm);
@@ -224,19 +223,22 @@
                             }
                             .container-cantidad{
                                 width: 15%;
+                                margin-right: var(--spacing-md);
                             }
 
                             .container-marca{
                                 width: 30%;
+                                margin-right: var(--spacing-md);
                             }
 
                             .container-costo{
                                 width: 15%;
+                                margin-right: var(--spacing-md);
                             }
                         }
 
                         .confirmation-insection{
-                            width: 10%;
+                            width: 7%;
                             display: flex;
                             justify-content: center;
                             align-items: center;
@@ -263,6 +265,25 @@
                 .component-costos{
                     margin-bottom: var(--spacing-lg);
                     padding: var(--spacing-sm);
+
+                    .iva-toggle{
+                        width: 100%;
+                        font-size: var(--font-size-md);
+                        display: flex;
+                        align-items: center;
+                        margin-top: var(--spacing-lg);
+                        input{
+                            margin-right: var(--spacing-sm);
+                        }
+
+                        label{
+                            display: flex;
+                            align-items: center;
+                            input{
+                                background-color: var(--background-color-1);
+                            }
+                        }
+                    }
                     // Title
                     .title{
                         width: 100%;

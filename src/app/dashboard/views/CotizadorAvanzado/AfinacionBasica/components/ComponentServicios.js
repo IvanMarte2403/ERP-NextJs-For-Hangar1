@@ -5,7 +5,9 @@ import React from "react";
 /**
  * Renders a table of all added services.
  */
-export default function ComponentServicios({ services }) {
+export default function ComponentServicios({ services, taxEnabled }) {
+  const IVA_RATE = 0.16;
+
   return (
     <div className="component-servicios">
       <table>
@@ -21,7 +23,7 @@ export default function ComponentServicios({ services }) {
         <tbody>
           {services.map((item) => {
             const raw = item.cantidad * item.costo;
-            const iva = raw * 0.16;
+            const iva = taxEnabled ? raw * IVA_RATE : 0;
             const subtotal = raw + iva;
             return (
               <tr key={item.id}>

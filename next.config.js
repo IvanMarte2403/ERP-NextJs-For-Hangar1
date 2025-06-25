@@ -7,7 +7,7 @@ const nextConfig = {
       {
         /* Proxy cualquier llamada que empiece con /api/…  */
         source: "/api/:path*",
-        destination: "http://localhost:8000/:path*", // ←  nota la “/” faltante
+        destination: "https://hangarbrain-326894472204.us-central1.run.app/:path*", // ←  nota la “/” faltante
       },
     ];
   },

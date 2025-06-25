@@ -8,23 +8,17 @@ import { useState, useEffect, useMemo } from "react";
  * Prop onChange devuelve un array con los nombres seleccionados.
  */
 export default function ContainerServiciosIncluidos({ onChange }) {
+  // Lista de servicios incluidos (sin duplicados)
   const rawServicios = [
-    "Revisión con Escaner",
-    "Revisión Física con puntos de seguridad",
+    "Revisión inicial",
+    "Revisión física de puntos de seguridad de motor",
     "Revisión y rellenado de niveles",
-    "Revisión y rellenado de niveles",
-    "Limpieza de Inyectores Básica",
-    "Limpieza de MAF",
-    "Limpieza de Sensor MAF",
-    "Limpieza de cuerpo de aceleración básica",
-    "Limpieza cuerpo de aceleración básica",
-    "Eliminación de olores en S. de refrigeración",
-    "Limpieza de motor",
-    "Reset de Servicio",
-    "Lavado de Carrocería",
-    "Relleno de Líquidos",
-    "Carpeta de Servicio",
-    "+",
+    "Revisión con escáner de batería",
+    "Limpieza de inyectores básica",
+    "Limpieza de sensor MAF",
+    "Limpieza exterior de motor",
+    "Lavado de carrocería",
+    "Revisión final con escáner",
   ];
 
   /* Elimina duplicados exactos conservando la primera aparición */
@@ -70,7 +64,7 @@ export default function ContainerServiciosIncluidos({ onChange }) {
   return (
     <div className="container-servicios-incluidos">
       <div className="title-servicios-incluidos">
-        <h4>Servicios Incluidos</h4>
+        <h4>Esencial</h4>
         <button onClick={seleccionarTodos}>Seleccionar Todos</button>
       </div>
 

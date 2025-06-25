@@ -16,7 +16,6 @@ export default function AfinacionBasicaCotizador({ orderId }) {
   const [cilindrosNumber, setCilindrosNumber] = useState(null);
   const [includeServices, setIncludeServices] = useState([]);
 
-  /* Mapeo costo-cilindraje */
   const cilindrosCost = {
     3: 1300,
     4: 1400,
@@ -28,7 +27,7 @@ export default function AfinacionBasicaCotizador({ orderId }) {
   };
 
   const handleAddService = (service) => {
-    setServices((prev) => [...prev, { id: Date.now(), ...service }]);
+    setServices((prev) => [...prev, service]);
   };
 
   const handleCilindrosChange = (num) => {
@@ -41,34 +40,18 @@ export default function AfinacionBasicaCotizador({ orderId }) {
 
   const { subtotal, impuestos, total } = useMemo(() => {
     const costoCilindraje = cilindrosCost[cilindrosNumber] ?? 0;
+
     const rawSubtotal =
       services.reduce((acc, s) => acc + s.cantidad * s.costo, 0) +
       costoCilindraje;
 
-    const iva = taxEnabled ? rawSubtotal * 0.16 : 0;
-    const rawTotal = rawSubtotal + iva - descuento;
+    const ivaCalc = taxEnabled ? rawSubtotal * 0.16 : 0;
+    const rawTotal = rawSubtotal + ivaCalc - descuento;
 
-    return { subtotal: rawSubtotal, impuestos: iva, total: rawTotal };
+    return { subtotal: rawSubtotal, impuestos: ivaCalc, total: rawTotal };
   }, [services, cilindrosNumber, taxEnabled, descuento]);
 
   const toggleTax = () => setTaxEnabled((prev) => !prev);
-
-  const productMap = {
-    "Filtros de Aire": "5AECB3DE",
-    "Filtros de Cabina": "414F4B0E",
-    "Filtros de Combustible": "66AE16CD",
-    "Filtros de Aceite": "0F25534B",
-    Bujias: "4CF032A9",
-    "Limpieza Inyectores Alta Precisión": "AF2B54CB",
-    Aceite: "8E9D794C",
-    "Químicos High Performance": "6E02A5E0",
-    "Sistema de refrigeración": "0BA26861",
-    "Limpieza de Parabrisas": "7E234931",
-    "Revisión & Calibración de Chisgueteros": "EB441779",
-    "Aditivo Químico": "A9E44B6E",
-    "Revisión de Luces (Exteriores)": "5892982D",
-    "Revisión de Luces (Interiores)": "583A446F",
-  };
 
   const handleEnviarCotizador = async () => {
     try {
@@ -81,20 +64,38 @@ export default function AfinacionBasicaCotizador({ orderId }) {
         return;
       }
 
-      const productsCotizador = [
-        ...new Set(
-          services
-            .map((s) => productMap[s.servicio])
-            .filter(Boolean)
-        ),
-      ];
+      const ivaParam = taxEnabled ? 16 : 0;
+
+      const productsCotizador = services.map((s) => ({
+        product_id: s.productId,
+        cost_product: s.costo,
+        quantity: s.cantidad,
+        type: s.tipo,
+        subtype: s.subtipo,
+        brand: s.marca,
+      }));
+
+      const includeServicesPayload = includeServices.map((name) => ({
+        name_service: name,
+        cost: 0,
+      }));
+
+      const descuentosPayload =
+        descuento || discountCode
+          ? [
+              {
+                cantidad_descuento: descuento,
+                codigo_descuento: discountCode,
+              },
+            ]
+          : [];
 
       await postCotizadorAvanzado({
         orderId,
         cilindrosNumber,
-        includeServices,
-        cantidadDescuento: descuento,
-        codigoDescuento: discountCode,
+        iva: ivaParam,
+        includeServices: includeServicesPayload,
+        descuentos: descuentosPayload,
         productsCotizador,
       });
 

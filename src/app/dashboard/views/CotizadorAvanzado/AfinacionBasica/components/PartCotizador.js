@@ -20,13 +20,11 @@ import {
 const cap = (t) => t.charAt(0).toUpperCase() + t.slice(1);
 
 /* ------------------------------------------------------------------ */
-/* Componente reutilizable con identidad estable */
 function ProductForm({ prod, productState, handleField, tryAdd }) {
   const state = productState;
   const loadedRef = useRef(false);
   const [dropdowns, setDropdowns] = useState({ brands: [], types: [] });
 
-  /* Petición de datos para dropdowns */
   const fetchDropdowns = async () => {
     if (loadedRef.current || !prod.apiId) return;
     loadedRef.current = true;
@@ -39,7 +37,6 @@ function ProductForm({ prod, productState, handleField, tryAdd }) {
     }
   };
 
-  /* Sub-tipos dependientes del tipo seleccionado */
   const subTypeOptions = useMemo(() => {
     if (!state.tipo) return [];
     const match = dropdowns.types.find((t) => t.label === state.tipo);
@@ -58,7 +55,6 @@ function ProductForm({ prod, productState, handleField, tryAdd }) {
           {prod.fields.map((field) => {
             const label = field === "cantidad" ? "Cantidad" : cap(field);
 
-            /* -------- Marca -------- */
             if (field === "marca" && dropdowns.brands.length) {
               return (
                 <div key={field} className={`container-${field}`}>
@@ -82,7 +78,6 @@ function ProductForm({ prod, productState, handleField, tryAdd }) {
               );
             }
 
-            /* -------- Tipo -------- */
             if (field === "tipo" && dropdowns.types.length) {
               return (
                 <div key={field} className={`container-${field}`}>
@@ -106,7 +101,6 @@ function ProductForm({ prod, productState, handleField, tryAdd }) {
               );
             }
 
-            /* -------- Sub-tipo -------- */
             if (field === "subtipo" && subTypeOptions.length) {
               return (
                 <div key={field} className={`container-${field}`}>
@@ -129,14 +123,15 @@ function ProductForm({ prod, productState, handleField, tryAdd }) {
               );
             }
 
-            /* -------- Inputs genéricos -------- */
             return (
               <div key={field} className={`container-${field}`}>
                 <p>{label}</p>
                 <input
                   type="text"
                   value={state[field]}
-                  onFocus={field === "marca" || field === "tipo" ? fetchDropdowns : undefined}
+                  onFocus={
+                    field === "marca" || field === "tipo" ? fetchDropdowns : undefined
+                  }
                   onChange={(e) =>
                     handleField(prod.key, field, e.target.value)
                   }
@@ -150,7 +145,7 @@ function ProductForm({ prod, productState, handleField, tryAdd }) {
           <img
             src="CotizadorAvanzado/+.svg"
             alt=""
-            onClick={() => tryAdd(prod.key, prod.name)}
+            onClick={() => tryAdd(prod)}
           />
         </div>
       </div>
@@ -165,7 +160,6 @@ export default function PartCotizador({
   onCilindrosChange,
   onIncludeServicesChange,
 }) {
-  /* ---------- STATE GLOBAL ---------- */
   const [productsState, setProductsState] = useState(() => {
     const seed = {};
     const all = [
@@ -180,7 +174,6 @@ export default function PartCotizador({
     return seed;
   });
 
-  /* ---------- HANDLERS ---------- */
   const handleField = useCallback((key, field, value) => {
     setProductsState((prev) => ({
       ...prev,
@@ -189,23 +182,29 @@ export default function PartCotizador({
   }, []);
 
   const tryAdd = useCallback(
-    (key, name) => {
-      const st = productsState[key];
+    (prod) => {
+      const st = productsState[prod.key];
       if (!st.cantidad || !st.costo) return;
+
       onAddService?.({
+        id: Date.now(),
+        productId: prod.apiId || "",
         cantidad: Number(st.cantidad),
-        servicio: name,
+        servicio: prod.name,
         costo: Number(st.costo),
+        tipo: st.tipo || "",
+        subtipo: st.subtipo || "",
+        marca: st.marca || "",
       });
+
       setProductsState((prev) => ({
         ...prev,
-        [key]: Object.fromEntries(Object.keys(prev[key]).map((k) => [k, ""])),
+        [prod.key]: Object.fromEntries(Object.keys(prev[prod.key]).map((k) => [k, ""])),
       }));
     },
     [productsState, onAddService]
   );
 
-  /* ---------- EXTRAS (con divisores) ---------- */
   const extrasContent = useMemo(
     () =>
       extrasProducts.map((prod, i) =>
@@ -224,15 +223,12 @@ export default function PartCotizador({
     [productsState, handleField, tryAdd]
   );
 
-  /* ---------- RENDER PRINCIPAL ---------- */
   return (
     <div className="container-forms-cotizador">
-      {/* Cilindros y Servicios Incluidos */}
       <div className="container-part">
         <ContainerCilindros onSelect={onCilindrosChange} />
         <ContainerServiciosIncluidos onChange={onIncludeServicesChange} />
 
-        {/* Esenciales */}
         {esencialesProducts.map((p) => (
           <ProductForm
             key={p.key}
@@ -243,7 +239,6 @@ export default function PartCotizador({
           />
         ))}
 
-        {/* Premium */}
         <div className="title-cotizador">
           <h3>Premium</h3>
         </div>
@@ -258,7 +253,6 @@ export default function PartCotizador({
         ))}
       </div>
 
-      {/* Máximo Rendimiento */}
       <div className="title-part">
         <h4>Máximo Rendimiento</h4>
       </div>
@@ -274,7 +268,6 @@ export default function PartCotizador({
         ))}
       </div>
 
-      {/* Extras */}
       <div className="title-part">
         <h4>Extra</h4>
       </div>
